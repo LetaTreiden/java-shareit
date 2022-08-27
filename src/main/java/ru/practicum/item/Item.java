@@ -2,6 +2,7 @@ package ru.practicum.item;
 
 import lombok.Builder;
 import lombok.Data;
+import ru.practicum.user.User;
 
 @Data
 @Builder
@@ -11,5 +12,5 @@ public class Item {
     private String description;
     private Boolean available;
     private String request;
-
+    private User owner;
 }
