@@ -1,5 +1,6 @@
 package ru.practicum.user;
 
+import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import ru.practicum.exceptions.ValidationException;
@@ -8,6 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+
+@Service
 public class UserRepositoryImpl implements UserRepository{
 
     private static long id = 0;
@@ -58,19 +61,19 @@ public class UserRepositoryImpl implements UserRepository{
     @Override
     public void checkId(Long id) throws HttpClientErrorException.NotFound, ClassNotFoundException {
         if (!findAll().containsKey(id)) {
-            throw new ClassNotFoundException((String.format("Пользователь %d не существует", id)));
+            throw new ClassNotFoundException((String.format("РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ id %d РЅРµ РЅР°Р№РґРµРЅпїЅ", id)));
         }
     }
 
     @Override
     public void checkEmail(String email) throws ValidationException {
         if (!StringUtils.hasText(email)) {
-            throw new ValidationException("Письмо не отправлено", email);
+            throw new ValidationException("РџРѕС‡С‚Р° РЅРµ РјРѕРґРµС‚ Р±С‹С‚СЊ РїСѓСЃС‚РѕР№", email);
         }
 
         for (User user : findAll().values()) {
             if (Objects.equals(user.getEmail(), email)) {
-                throw new ValidationException(String.format("Пользователь уже существует", email),
+                throw new ValidationException(String.format("РџРѕС‡С‚Р° РЅРµ РјРѕРґРµС‚ Р±С‹С‚СЊ РїСѓСЃС‚РѕР№", email),
                         "CheckEmail");
             }
         }

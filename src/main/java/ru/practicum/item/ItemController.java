@@ -17,7 +17,7 @@ public class ItemController {
 
     @PostMapping
     public ItemDTO createItem(@RequestHeader(HEADER_USER_ID) String userId, @Valid @RequestBody ItemDTO iDto)
-            throws  ValidationException {
+            throws ValidationException, ClassNotFoundException {
         return iService.createItem(Long.valueOf(userId), iDto);
     }
 
@@ -28,19 +28,19 @@ public class ItemController {
 
     @GetMapping
     public Collection<ItemDTO> findAll(@RequestHeader(HEADER_USER_ID) String userId) throws
-            HttpClientErrorException.NotFound {
+            HttpClientErrorException.NotFound, ClassNotFoundException {
         return iService.findByUser(Long.valueOf(userId));
     }
 
     @PatchMapping("/{itemId}")
     public ItemDTO updateItem(@RequestHeader(HEADER_USER_ID) String userId, @PathVariable String itemId,
-                              @Valid @RequestBody ItemDTO iDto) throws HttpClientErrorException.NotFound {
+                              @Valid @RequestBody ItemDTO iDto) throws HttpClientErrorException.NotFound, ClassNotFoundException {
         return iService.update(Long.valueOf(userId), Long.valueOf(itemId), iDto);
     }
 
     @DeleteMapping("/{itemId}")
     public Long deleteItem(@RequestHeader(HEADER_USER_ID) String userId, @PathVariable String itemId)
-            throws HttpClientErrorException.NotFound {
+            throws HttpClientErrorException.NotFound, ClassNotFoundException {
         return iService.deleteItem(Long.valueOf(userId), Long.valueOf(itemId));
     }
 

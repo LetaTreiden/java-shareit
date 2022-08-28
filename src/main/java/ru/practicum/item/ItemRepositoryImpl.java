@@ -1,6 +1,7 @@
 package ru.practicum.item;
 
 import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import ru.practicum.user.User;
 
@@ -10,7 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-@Repository
+@Service
 public class ItemRepositoryImpl implements ItemRepository{
     private static long iId = 0;
 
