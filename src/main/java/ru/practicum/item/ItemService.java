@@ -1,8 +1,6 @@
 package ru.practicum.item;
 
-
 import org.springframework.stereotype.Repository;
-import org.springframework.web.client.HttpClientErrorException;
 import ru.practicum.exceptions.NotFoundException;
 import ru.practicum.exceptions.ValidationException;
 

@@ -10,9 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-
 @Service
-public class UserRepositoryImpl implements UserRepository{
+public class UserRepositoryImpl implements UserRepository {
 
     private static long id = 0;
 
@@ -74,8 +73,7 @@ public class UserRepositoryImpl implements UserRepository{
 
         for (User user : findAll().values()) {
             if (Objects.equals(user.getEmail(), email)) {
-                throw new ValidationException(String.format("Почта не модет быть пустой", email),
-                        "CheckEmail");
+                throw new ValidationException(String.format("Почта не модет быть пустой", email), "CheckEmail");
             }
         }
     }

@@ -35,10 +35,7 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public Collection<Item> findByUserId(Long id) {
-        return findAll()
-                .values()
-                .stream()
-                .filter(i -> Objects.equals(i.getOwner().getId(), id)).collect(Collectors.toList());
+        return findAll().values().stream().filter(i -> Objects.equals(i.getOwner().getId(), id)).collect(Collectors.toList());
     }
 
     @Override
@@ -72,13 +69,7 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public Collection<Item> search(String text) {
-        return findAll()
-                .values()
-                .stream()
-                .filter(i -> (i.getName().toLowerCase().contains(text.toLowerCase())
-                        || i.getDescription().toLowerCase().contains(text.toLowerCase()))
-                        && i.getAvailable())
-                .collect(Collectors.toList());
+        return findAll().values().stream().filter(i -> (i.getName().toLowerCase().contains(text.toLowerCase()) || i.getDescription().toLowerCase().contains(text.toLowerCase())) && i.getAvailable()).collect(Collectors.toList());
     }
 
     @Override

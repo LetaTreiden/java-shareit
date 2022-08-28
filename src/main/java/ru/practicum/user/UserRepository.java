@@ -3,6 +3,7 @@ package ru.practicum.user;
 import org.springframework.stereotype.Repository;
 import ru.practicum.exceptions.NotFoundException;
 import ru.practicum.exceptions.ValidationException;
+
 import java.util.Map;
 
 @Repository

@@ -30,8 +30,7 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public UserDTO update(@PathVariable String userId, @Valid @RequestBody UserDTO userDto)
-            throws ValidationException, ClassNotFoundException {
+    public UserDTO update(@PathVariable String userId, @Valid @RequestBody UserDTO userDto) throws ValidationException, ClassNotFoundException {
         return userService.update(Long.valueOf(userId), userDto);
     }
 

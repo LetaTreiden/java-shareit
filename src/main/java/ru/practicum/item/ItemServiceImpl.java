@@ -45,54 +45,49 @@ public class ItemServiceImpl implements ItemService {
         return iMapper.toIDto(item);
     }
 
-        @Override
-        public ItemDTO findById (Long id) throws NotFoundException {
-            iRepository.checkItemId(id);
-            Item item = iRepository.findById(id);
-            return iMapper.toIDto(item);
+    @Override
+    public ItemDTO findById(Long id) throws NotFoundException {
+        iRepository.checkItemId(id);
+        Item item = iRepository.findById(id);
+        return iMapper.toIDto(item);
+    }
+
+    @Override
+    public Collection<ItemDTO> findByUser(Long id) throws NotFoundException {
+        uService.checkId(id);
+
+        return iRepository.findByUserId(id).stream().map(iMapper::toIDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public ItemDTO update(Long userId, Long itemId, ItemDTO iDto) throws NotFoundException {
+        uService.checkId(userId);
+        iRepository.checkItemId(itemId);
+
+        if (iRepository.checkOwner(userId, itemId)) {
+            throw new NotFoundException("Неправльный владелец", "user");
         }
 
-        @Override
-        public Collection<ItemDTO> findByUser (Long id) throws NotFoundException {
-            uService.checkId(id);
+        Item item = iRepository.update(itemId, iMapper.toItem(iDto));
+        log.info("Обновлено id {}", item.getId());
+        return iMapper.toIDto(item);
+    }
 
-            return iRepository.findByUserId(id).stream()
-                    .map(iMapper::toIDto)
-                    .collect(Collectors.toList());
+    @Override
+    public Long deleteItem(Long userId, Long itemId) throws NotFoundException {
+        uService.checkId(userId);
+        iRepository.checkItemId(itemId);
+
+        Long itemDeletedId = iRepository.delete(itemId);
+        log.info("Удалено id {}", itemDeletedId);
+        return itemDeletedId;
+    }
+
+    @Override
+    public Collection<ItemDTO> search(String text) {
+        if (!StringUtils.hasText(text)) {
+            return Collections.emptyList();
         }
-
-        @Override
-        public ItemDTO update (Long userId, Long itemId, ItemDTO iDto) throws NotFoundException {
-            uService.checkId(userId);
-            iRepository.checkItemId(itemId);
-
-            if (iRepository.checkOwner(userId, itemId)) {
-                throw new NotFoundException("Неправльный владелец", "user");
-            }
-
-            Item item = iRepository.update(itemId, iMapper.toItem(iDto));
-            log.info("Обновлено id {}", item.getId());
-            return iMapper.toIDto(item);
-        }
-
-        @Override
-        public Long deleteItem (Long userId, Long itemId) throws NotFoundException {
-            uService.checkId(userId);
-            iRepository.checkItemId(itemId);
-
-            Long itemDeletedId = iRepository.delete(itemId);
-            log.info("Удалено id {}", itemDeletedId);
-            return itemDeletedId;
-        }
-
-        @Override
-        public Collection<ItemDTO> search (String text){
-            if (!StringUtils.hasText(text)) {
-                return Collections.emptyList();
-            }
-            return iRepository.search(text)
-                    .stream()
-                    .map(iMapper::toIDto)
-                    .collect(Collectors.toList());
-        }
+        return iRepository.search(text).stream().map(iMapper::toIDto).collect(Collectors.toList());
+    }
 }
