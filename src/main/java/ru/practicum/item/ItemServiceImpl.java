@@ -4,9 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import org.springframework.web.client.HttpClientErrorException;
+import ru.practicum.exceptions.NotFoundException;
 import ru.practicum.exceptions.ValidationException;
-import ru.practicum.item.*;
 import ru.practicum.user.*;
 
 import java.util.Collection;
@@ -24,7 +23,7 @@ public class ItemServiceImpl implements ItemService {
     private final ItemMapper iMapper;
 
     @Override
-    public ItemDTO createItem(Long uId, ItemDTO iDto) throws ValidationException, ClassNotFoundException {
+    public ItemDTO createItem(Long uId, ItemDTO iDto) throws ValidationException, NotFoundException {
         uService.checkId(uId);
 
         if (!StringUtils.hasText(iDto.getName())) {
@@ -47,14 +46,14 @@ public class ItemServiceImpl implements ItemService {
     }
 
         @Override
-        public ItemDTO findById (Long id) throws HttpClientErrorException.NotFound {
+        public ItemDTO findById (Long id) throws NotFoundException {
             iRepository.checkItemId(id);
             Item item = iRepository.findById(id);
             return iMapper.toIDto(item);
         }
 
         @Override
-        public Collection<ItemDTO> findByUser (Long id) throws HttpClientErrorException.NotFound, ClassNotFoundException {
+        public Collection<ItemDTO> findByUser (Long id) throws NotFoundException {
             uService.checkId(id);
 
             return iRepository.findByUserId(id).stream()
@@ -63,12 +62,12 @@ public class ItemServiceImpl implements ItemService {
         }
 
         @Override
-        public ItemDTO update (Long userId, Long itemId, ItemDTO iDto) throws HttpClientErrorException.NotFound, ClassNotFoundException {
+        public ItemDTO update (Long userId, Long itemId, ItemDTO iDto) throws NotFoundException {
             uService.checkId(userId);
             iRepository.checkItemId(itemId);
 
             if (iRepository.checkOwner(userId, itemId)) {
-                throw new ClassNotFoundException("Неправльный владелец");
+                throw new NotFoundException("Неправльный владелец", "user");
             }
 
             Item item = iRepository.update(itemId, iMapper.toItem(iDto));
@@ -77,7 +76,7 @@ public class ItemServiceImpl implements ItemService {
         }
 
         @Override
-        public Long deleteItem (Long userId, Long itemId) throws HttpClientErrorException.NotFound, ClassNotFoundException {
+        public Long deleteItem (Long userId, Long itemId) throws NotFoundException {
             uService.checkId(userId);
             iRepository.checkItemId(itemId);
 
@@ -91,11 +90,9 @@ public class ItemServiceImpl implements ItemService {
             if (!StringUtils.hasText(text)) {
                 return Collections.emptyList();
             }
-
             return iRepository.search(text)
                     .stream()
                     .map(iMapper::toIDto)
                     .collect(Collectors.toList());
         }
-
 }

@@ -3,6 +3,7 @@ package ru.practicum.user;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpClientErrorException;
+import ru.practicum.exceptions.NotFoundException;
 import ru.practicum.exceptions.ValidationException;
 
 import java.util.HashMap;
@@ -59,9 +60,9 @@ public class UserRepositoryImpl implements UserRepository{
     }
 
     @Override
-    public void checkId(Long id) throws HttpClientErrorException.NotFound, ClassNotFoundException {
+    public void checkId(Long id) throws HttpClientErrorException.NotFound, NotFoundException {
         if (!findAll().containsKey(id)) {
-            throw new ClassNotFoundException((String.format("Пользователь id %d не найден�", id)));
+            throw new NotFoundException((String.format("Пользователь id %d не найден�", id)), "User");
         }
     }
 

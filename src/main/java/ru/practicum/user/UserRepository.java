@@ -1,6 +1,7 @@
 package ru.practicum.user;
 
 import org.springframework.stereotype.Repository;
+import ru.practicum.exceptions.NotFoundException;
 import ru.practicum.exceptions.ValidationException;
 import java.util.Map;
 
@@ -16,7 +17,7 @@ public interface UserRepository {
 
     Long delete(Long userId);
 
-    void checkId(Long userId) throws ClassNotFoundException;
+    void checkId(Long userId) throws NotFoundException;
 
     void checkEmail(String email) throws ValidationException;
 }

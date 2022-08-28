@@ -1,6 +1,6 @@
 package ru.practicum.item;
 
-import org.springframework.web.client.HttpClientErrorException;
+import ru.practicum.exceptions.NotFoundException;
 import ru.practicum.user.User;
 
 import java.util.Collection;
@@ -23,5 +23,5 @@ public interface ItemRepository {
 
     boolean checkOwner(Long userId, Long itemId);
 
-    void checkItemId(Long itemId) throws HttpClientErrorException.NotFound;
+    void checkItemId(Long itemId) throws NotFoundException;
 }

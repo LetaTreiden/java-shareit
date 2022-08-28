@@ -3,6 +3,7 @@ package ru.practicum.item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
+import ru.practicum.exceptions.NotFoundException;
 import ru.practicum.exceptions.ValidationException;
 
 import javax.validation.Valid;
@@ -17,30 +18,30 @@ public class ItemController {
 
     @PostMapping
     public ItemDTO createItem(@RequestHeader(HEADER_USER_ID) String userId, @Valid @RequestBody ItemDTO iDto)
-            throws ValidationException, ClassNotFoundException {
+            throws ValidationException, NotFoundException {
         return iService.createItem(Long.valueOf(userId), iDto);
     }
 
     @GetMapping("/{itemId}")
-    public ItemDTO findItemById(@PathVariable String  itemId) throws HttpClientErrorException.NotFound {
+    public ItemDTO findItemById(@PathVariable String  itemId) throws NotFoundException {
         return iService.findById(Long.valueOf(itemId));
     }
 
     @GetMapping
     public Collection<ItemDTO> findAll(@RequestHeader(HEADER_USER_ID) String userId) throws
-            HttpClientErrorException.NotFound, ClassNotFoundException {
+            NotFoundException {
         return iService.findByUser(Long.valueOf(userId));
     }
 
     @PatchMapping("/{itemId}")
     public ItemDTO updateItem(@RequestHeader(HEADER_USER_ID) String userId, @PathVariable String itemId,
-                              @Valid @RequestBody ItemDTO iDto) throws HttpClientErrorException.NotFound, ClassNotFoundException {
+                              @Valid @RequestBody ItemDTO iDto) throws NotFoundException {
         return iService.update(Long.valueOf(userId), Long.valueOf(itemId), iDto);
     }
 
     @DeleteMapping("/{itemId}")
     public Long deleteItem(@RequestHeader(HEADER_USER_ID) String userId, @PathVariable String itemId)
-            throws HttpClientErrorException.NotFound, ClassNotFoundException {
+            throws NotFoundException {
         return iService.deleteItem(Long.valueOf(userId), Long.valueOf(itemId));
     }
 

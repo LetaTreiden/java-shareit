@@ -3,21 +3,22 @@ package ru.practicum.item;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.web.client.HttpClientErrorException;
+import ru.practicum.exceptions.NotFoundException;
 import ru.practicum.exceptions.ValidationException;
 
 import java.util.Collection;
 
 @Repository
 public interface ItemService {
-    ItemDTO createItem(Long userId, ItemDTO itemDto) throws ValidationException, ClassNotFoundException;
+    ItemDTO createItem(Long userId, ItemDTO itemDto) throws ValidationException, NotFoundException;
 
-    ItemDTO findById(Long itemId) throws HttpClientErrorException.NotFound;
+    ItemDTO findById(Long itemId) throws NotFoundException;
 
-    Collection<ItemDTO> findByUser(Long userId) throws HttpClientErrorException.NotFound, ClassNotFoundException;
+    Collection<ItemDTO> findByUser(Long userId) throws NotFoundException;
 
-    ItemDTO update(Long userId, Long itemId, ItemDTO itemDto) throws HttpClientErrorException.NotFound, ClassNotFoundException;
+    ItemDTO update(Long userId, Long itemId, ItemDTO itemDto) throws NotFoundException;
 
-    Long deleteItem(Long userId, Long itemId) throws HttpClientErrorException.NotFound, ClassNotFoundException;
+    Long deleteItem(Long userId, Long itemId) throws NotFoundException;
 
     Collection<ItemDTO> search(String text);
 }
