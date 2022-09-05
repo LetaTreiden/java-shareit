@@ -14,8 +14,9 @@ import ru.practicum.shareit.user.*;
 import ru.practicum.shareit.user.dto.UserDTO;
 import ru.practicum.shareit.user.service.UserService;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -90,10 +91,17 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Collection<ItemDTO> search(String text) {
-        if (!StringUtils.hasText(text)) {
-            return Collections.emptyList();
+    public List<Item> search(String text) {
+        List<Item> availableItems = new ArrayList<>();
+        if (text.length() > 0 && !text.trim().equals("")) {
+            for (Item itemFromStorage : iRepository.findAll().values()) {
+                if (itemFromStorage.getAvailable()
+                        && (itemFromStorage.getDescription().toLowerCase().contains(text.toLowerCase())
+                        || itemFromStorage.getName().toLowerCase().contains(text.toLowerCase()))) {
+                    availableItems.add(itemFromStorage);
+                }
+            }
         }
-        return iRepository.search(text).stream().map(iMapper::toIDto).collect(Collectors.toList());
+        return availableItems;
     }
 }

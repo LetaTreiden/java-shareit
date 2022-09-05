@@ -68,10 +68,9 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public void checkEmail(String email) throws ValidationException {
-        if (!StringUtils.hasText(email)) {
-            throw new ValidationException("Почта не модет быть пустой", email);
+        if (email == null || email.isBlank()) {
+            throw new ValidationException("Email не может быть пустым", "email");
         }
-
         for (User user : findAll().values()) {
             if (Objects.equals(user.getEmail(), email)) {
                 throw new ValidationException(String.format("Почта не модет быть пустой", email), "CheckEmail");

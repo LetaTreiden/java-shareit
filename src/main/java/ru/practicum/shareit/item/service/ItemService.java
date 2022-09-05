@@ -4,8 +4,10 @@ import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDTO;
+import ru.practicum.shareit.item.model.Item;
 
 import java.util.Collection;
+import java.util.List;
 
 @Repository
 public interface ItemService {
@@ -19,5 +21,5 @@ public interface ItemService {
 
     Long deleteItem(Long userId, Long itemId) throws NotFoundException;
 
-    Collection<ItemDTO> search(String text);
+    List<Item> search(String text);
 }
