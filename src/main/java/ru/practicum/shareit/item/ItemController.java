@@ -4,11 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDTO;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
 import javax.validation.ValidationException;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * TODO Sprint add-controllers.
@@ -46,7 +48,7 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public Collection<ItemDTO> searchItemByText(@RequestParam String text) {
+    public List<Item> searchItemByText(@RequestParam String text) {
         return iService.search(text);
     }
 }
