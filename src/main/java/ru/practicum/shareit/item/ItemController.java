@@ -23,9 +23,9 @@ public class ItemController {
     private final ItemService iService;
 
     @PostMapping
-    public ItemDTO createItem(@RequestHeader(HEADER_USER_ID) String userId, @Valid @RequestBody ItemDTO iDto)
+    public ItemDTO createItem(@RequestHeader(HEADER_USER_ID) Long userId, @Valid @RequestBody ItemDTO iDto)
             throws ValidationException, NotFoundException {
-        return iService.createItem(Long.valueOf(userId), iDto);
+        return iService.createItem(userId, iDto);
     }
 
     @GetMapping("/{itemId}")

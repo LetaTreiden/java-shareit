@@ -16,7 +16,8 @@ public class ItemRepositoryImpl implements ItemRepository {
     private static long iId = 0;
 
     private static Long generateId() {
-        return iId++;
+        iId++;
+        return iId;
     }
 
     private final Map<Long, Item> items = new HashMap<>();
