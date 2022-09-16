@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import ru.practicum.shareit.exceptions.InvalidParameterException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.ItemMapper;
@@ -34,15 +35,15 @@ public class ItemServiceImpl implements ItemService {
         uService.checkId(uId);
 
         if (!StringUtils.hasText(iDto.getName())) {
-            throw new ValidationException("Имя не может быть пустым");
+            throw new InvalidParameterException("Имя не может быть пустым");
         }
 
         if (iDto.getDescription() == null) {
-            throw new ValidationException("Описание не может быть пустым");
+            throw new InvalidParameterException("Описание не может быть пустым");
         }
 
         if (iDto.getAvailable() == null) {
-            throw new ValidationException("Статус доступности не модет быть пустым");
+            throw new InvalidParameterException("Статус доступности не может быть пустым");
         }
 
         UserDTO uDto = uService.findById(uId);
