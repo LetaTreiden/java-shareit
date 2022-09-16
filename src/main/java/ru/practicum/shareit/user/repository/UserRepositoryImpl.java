@@ -2,6 +2,7 @@ package ru.practicum.shareit.user.repository;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import ru.practicum.shareit.exceptions.InvalidParameterException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.user.model.User;
@@ -61,18 +62,18 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public void checkId(Long id) throws HttpClientErrorException.NotFound, NotFoundException {
         if (!findAll().containsKey(id)) {
-            throw new NotFoundException((String.format("Пользователь id %d не найден�", id)), "User");
+            throw new NotFoundException("Пользователь id %d не найден");
         }
     }
 
     @Override
     public void checkEmail(String email) throws ValidationException {
         if (email == null || email.isBlank()) {
-            throw new ValidationException("Email не может быть пустым", "email");
+            throw new InvalidParameterException("Почта не может быть пустой");
         }
         for (User user : findAll().values()) {
             if (Objects.equals(user.getEmail(), email)) {
-                throw new ValidationException(String.format("Почта не модет быть пустой", email), "CheckEmail");
+                throw new ValidationException("Пользователь уже зарегистрирован");
             }
         }
     }

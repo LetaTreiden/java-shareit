@@ -23,7 +23,8 @@ public class ItemController {
     private final ItemService iService;
 
     @PostMapping
-    public ItemDTO createItem(@RequestHeader(HEADER_USER_ID) String userId, @Valid @RequestBody ItemDTO iDto) throws ValidationException, NotFoundException {
+    public ItemDTO createItem(@RequestHeader(HEADER_USER_ID) String userId, @Valid @RequestBody ItemDTO iDto)
+            throws ValidationException, NotFoundException {
         return iService.createItem(Long.valueOf(userId), iDto);
     }
 
@@ -38,12 +39,14 @@ public class ItemController {
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDTO updateItem(@RequestHeader(HEADER_USER_ID) String userId, @PathVariable String itemId, @Valid @RequestBody ItemDTO iDto) throws NotFoundException {
+    public ItemDTO updateItem(@RequestHeader(HEADER_USER_ID) String userId, @PathVariable String itemId,
+                              @Valid @RequestBody ItemDTO iDto) throws NotFoundException {
         return iService.update(Long.valueOf(userId), Long.valueOf(itemId), iDto);
     }
 
     @DeleteMapping("/{itemId}")
-    public Long deleteItem(@RequestHeader(HEADER_USER_ID) String userId, @PathVariable String itemId) throws NotFoundException {
+    public Long deleteItem(@RequestHeader(HEADER_USER_ID) String userId, @PathVariable String itemId)
+            throws NotFoundException {
         return iService.deleteItem(Long.valueOf(userId), Long.valueOf(itemId));
     }
 

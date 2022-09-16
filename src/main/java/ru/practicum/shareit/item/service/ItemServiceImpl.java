@@ -34,15 +34,15 @@ public class ItemServiceImpl implements ItemService {
         uService.checkId(uId);
 
         if (!StringUtils.hasText(iDto.getName())) {
-            throw new ValidationException("Имя не может быть пустым", "CreateItem");
+            throw new ValidationException("Имя не может быть пустым");
         }
 
         if (iDto.getDescription() == null) {
-            throw new ValidationException("Описание не может быть пустым", "CreateItem");
+            throw new ValidationException("Описание не может быть пустым");
         }
 
         if (iDto.getAvailable() == null) {
-            throw new ValidationException("Статус доступности не модет быть пустым", "CreateItem");
+            throw new ValidationException("Статус доступности не модет быть пустым");
         }
 
         UserDTO uDto = uService.findById(uId);
@@ -72,7 +72,7 @@ public class ItemServiceImpl implements ItemService {
         iRepository.checkItemId(itemId);
 
         if (iRepository.checkOwner(userId, itemId)) {
-            throw new NotFoundException("Неправльный владелец", "user");
+            throw new NotFoundException("Неправльный владелец");
         }
 
         Item item = iRepository.update(itemId, iMapper.toItem(iDto));
