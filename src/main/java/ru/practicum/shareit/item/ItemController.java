@@ -12,9 +12,6 @@ import javax.validation.ValidationException;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor

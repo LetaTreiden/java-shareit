@@ -3,9 +3,6 @@ package ru.practicum.shareit.user;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * TODO Sprint add-controllers.
- */
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exceptions.NotFoundException;

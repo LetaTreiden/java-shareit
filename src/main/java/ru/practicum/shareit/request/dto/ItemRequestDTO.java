@@ -1,8 +1,5 @@
 package ru.practicum.shareit.request.dto;
 
-/**
- * TODO Sprint add-item-requests.
- */
 import lombok.Builder;
 import lombok.Data;
 

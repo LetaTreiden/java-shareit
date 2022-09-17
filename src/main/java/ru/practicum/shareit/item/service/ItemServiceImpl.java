@@ -32,8 +32,15 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDTO createItem(Long uId, ItemDTO iDto) throws ValidationException, NotFoundException {
-        uService.checkId(uId);
+        validation(uId,iDto);
+        UserDTO uDto = uService.findById(uId);
+        Item item = iRepository.create(uId, iMapper.toItem(iDto), uMapper.toUser(uDto));
+        log.info("Товар id {} создан", item.getId());
+        return iMapper.toIDto(item);
+    }
 
+    private void validation(Long uId, ItemDTO iDto) {
+        uService.checkId(uId);
         if (!StringUtils.hasText(iDto.getName())) {
             throw new InvalidParameterException("Имя не может быть пустым");
         }
@@ -45,12 +52,6 @@ public class ItemServiceImpl implements ItemService {
         if (iDto.getAvailable() == null) {
             throw new InvalidParameterException("Статус доступности не может быть пустым");
         }
-
-        UserDTO uDto = uService.findById(uId);
-        Item item = iRepository.create(uId, iMapper.toItem(iDto), uMapper.toUser(uDto));
-
-        log.info("Товар id {} создан", item.getId());
-        return iMapper.toIDto(item);
     }
 
     @Override

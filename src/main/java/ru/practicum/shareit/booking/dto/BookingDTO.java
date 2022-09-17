@@ -1,8 +1,5 @@
 package ru.practicum.shareit.booking.dto;
 
-/**
- * TODO Sprint add-bookings.
- */
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
