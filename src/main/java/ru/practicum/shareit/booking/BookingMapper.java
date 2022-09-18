@@ -42,8 +42,8 @@ public class BookingMapper {
     }
 
     private Item toItem(BookingDTO.Item bookingItem) {
-        return Item.builder()
-                .id(bookingItem.getId())
+        return Item.builder().
+                id(bookingItem.getId())
                 .name(bookingItem.getName())
                 .description(bookingItem.getDescription())
                 .available(bookingItem.isAvailable())
@@ -52,10 +52,18 @@ public class BookingMapper {
     }
 
     private BookingDTO.User toUserBooking(User user) {
-        return BookingDTO.User.builder().id(user.getId()).name(user.getName()).email(user.getEmail()).build();
+        return BookingDTO.User.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .build();
     }
 
     private User toUser(BookingDTO.User bookingUser) {
-        return User.builder().id(bookingUser.getId()).name(bookingUser.getName()).email(bookingUser.getEmail()).build();
+        return User.builder()
+                .id(bookingUser.getId())
+                .name(bookingUser.getName())
+                .email(bookingUser.getEmail())
+                .build();
     }
 }

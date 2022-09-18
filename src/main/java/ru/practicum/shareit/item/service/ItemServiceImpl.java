@@ -32,14 +32,14 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDTO createItem(Long uId, ItemDTO iDto) throws ValidationException, NotFoundException {
-        validation(uId,iDto);
+        validate(uId, iDto);
         UserDTO uDto = uService.findById(uId);
         Item item = iRepository.create(uId, iMapper.toItem(iDto), uMapper.toUser(uDto));
         log.info("Товар id {} создан", item.getId());
         return iMapper.toIDto(item);
     }
 
-    private void validation(Long uId, ItemDTO iDto) {
+    private void validate(Long uId, ItemDTO iDto) {
         uService.checkId(uId);
         if (!StringUtils.hasText(iDto.getName())) {
             throw new InvalidParameterException("Имя не может быть пустым");
@@ -97,9 +97,7 @@ public class ItemServiceImpl implements ItemService {
         List<Item> availableItems = new ArrayList<>();
         if (text.length() > 0 && !text.trim().equals("")) {
             for (Item itemFromStorage : iRepository.findAll().values()) {
-                if (itemFromStorage.getAvailable()
-                        && (itemFromStorage.getDescription().toLowerCase().contains(text.toLowerCase())
-                        || itemFromStorage.getName().toLowerCase().contains(text.toLowerCase()))) {
+                if (itemFromStorage.getAvailable() && (itemFromStorage.getDescription().toLowerCase().contains(text.toLowerCase()) || itemFromStorage.getName().toLowerCase().contains(text.toLowerCase()))) {
                     availableItems.add(itemFromStorage);
                 }
             }

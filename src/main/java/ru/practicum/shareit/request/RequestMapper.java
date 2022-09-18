@@ -26,10 +26,18 @@ public class RequestMapper {
     }
 
     private ItemRequestDTO.User toUserItemRequest(User user) {
-        return ItemRequestDTO.User.builder().id(user.getId()).name(user.getName()).email(user.getEmail()).build();
+        return ItemRequestDTO.User.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .build();
     }
 
     private User toUser(ItemRequestDTO.User bookingUser) {
-        return User.builder().id(bookingUser.getId()).name(bookingUser.getName()).email(bookingUser.getEmail()).build();
+        return User.builder()
+                .id(bookingUser.getId())
+                .name(bookingUser.getName())
+                .email(bookingUser.getEmail())
+                .build();
     }
 }

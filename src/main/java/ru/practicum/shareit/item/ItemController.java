@@ -31,7 +31,8 @@ public class ItemController {
     }
 
     @GetMapping
-    public Collection<ItemDTO> findAll(@RequestHeader(HEADER_USER_ID) String userId) throws NotFoundException {
+    public Collection<ItemDTO> findAll(@RequestHeader(HEADER_USER_ID) String userId)
+            throws NotFoundException {
         return iService.findByUser(Long.valueOf(userId));
     }
 
