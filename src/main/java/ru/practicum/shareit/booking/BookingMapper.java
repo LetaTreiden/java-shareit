@@ -42,8 +42,8 @@ public class BookingMapper {
     }
 
     private Item toItem(BookingDTO.Item bookingItem) {
-        return Item.builder().
-                id(bookingItem.getId())
+        return Item.builder()
+                .id(bookingItem.getId())
                 .name(bookingItem.getName())
                 .description(bookingItem.getDescription())
                 .available(bookingItem.isAvailable())
