@@ -97,7 +97,9 @@ public class ItemServiceImpl implements ItemService {
         List<Item> availableItems = new ArrayList<>();
         if (text.length() > 0 && !text.trim().equals("")) {
             for (Item itemFromStorage : iRepository.findAll().values()) {
-                if (itemFromStorage.getAvailable() && (itemFromStorage.getDescription().toLowerCase().contains(text.toLowerCase()) || itemFromStorage.getName().toLowerCase().contains(text.toLowerCase()))) {
+                if (itemFromStorage.getAvailable() &&
+                        (itemFromStorage.getDescription().toLowerCase().contains(text.toLowerCase())
+                                || itemFromStorage.getName().toLowerCase().contains(text.toLowerCase()))) {
                     availableItems.add(itemFromStorage);
                 }
             }
