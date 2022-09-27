@@ -23,8 +23,7 @@ public class BookingServiceImpl implements BookingService {
     private final UserRepository uRepo;
 
     @Autowired
-    public BookingServiceImpl(BookingRepository bRepo, ItemRepository iRepo,
-                              UserRepository uRepo) {
+    public BookingServiceImpl(BookingRepository bRepo, ItemRepository iRepo, UserRepository uRepo) {
         this.bRepo = bRepo;
         this.iRepo = iRepo;
         this.uRepo = uRepo;
@@ -41,6 +40,7 @@ public class BookingServiceImpl implements BookingService {
         }
         return BookingMapper.toBookingDto(bRepo.save(booking));
     }
+
     private boolean validate(Long id, BookingDTO dto) {
 
         if (!iRepo.existsById(dto.getItem().getId())) {
