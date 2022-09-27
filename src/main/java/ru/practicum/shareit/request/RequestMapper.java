@@ -17,12 +17,12 @@ public class RequestMapper {
     }
 
     public ItemRequest toItem(ItemRequestDTO itemDto) {
-        return ItemRequest.builder()
-                .id(itemDto.getId())
-                .description(itemDto.getDescription())
-                .requester(toUser(itemDto.getRequester()))
-                .created(itemDto.getCreated())
-                .build();
+        return new ItemRequest(
+                itemDto.getId(),
+                itemDto.getDescription(),
+                toUser(itemDto.getRequester()),
+                itemDto.getCreated()
+        );
     }
 
     private ItemRequestDTO.User toUserItemRequest(User user) {
@@ -34,10 +34,10 @@ public class RequestMapper {
     }
 
     private User toUser(ItemRequestDTO.User bookingUser) {
-        return User.builder()
-                .id(bookingUser.getId())
-                .name(bookingUser.getName())
-                .email(bookingUser.getEmail())
-                .build();
+        User user = new User();
+        user.setId(bookingUser.getId());
+        user.setName(bookingUser.getName());
+        user.setEmail(bookingUser.getEmail());
+        return user;
     }
 }

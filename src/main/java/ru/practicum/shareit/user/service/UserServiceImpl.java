@@ -1,73 +1,85 @@
 package ru.practicum.shareit.user.service;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-import org.springframework.web.client.HttpClientErrorException;
+import ru.practicum.shareit.exceptions.InvalidParameterException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.dto.UserDTO;
-import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import javax.validation.ValidationException;
-import java.util.Collection;
-import java.util.stream.Collectors;
+import java.util.List;
 
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final UserMapper userMapper;
 
-    @Override
-    public UserDTO create(UserDTO uDto) throws ValidationException {
-        userRepository.checkEmail(uDto.getEmail());
-        User user = userRepository.create(userMapper.toUser(uDto));
-        log.info("Пользователь id {} создан", user.getId());
-        return userMapper.toUserDTO(user);
+    @Autowired
+    public UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
-    @Override
-    public UserDTO findById(Long id) throws NotFoundException {
-        checkId(id);
-        User user = userRepository.findById(id);
-        log.info("Получен пользователь id {}", user.getId());
-        return userMapper.toUserDTO(user);
+    public List<UserDTO> findAllUsers() {
+        return UserMapper.toUserDTOs(userRepository.findAll());
     }
 
-    @Override
-    public Collection<UserDTO> findAll() {
-        return userRepository.findAll()
-                .values()
-                .stream()
-                .map(userMapper::toUserDTO)
-                .collect(Collectors.toList());
+    public UserDTO findUserById(Long id) {
+        validateUser(id);
+        return UserMapper.toUserDto(userRepository.getReferenceById(id));
     }
 
-    @Override
-    public UserDTO update(Long id, UserDTO uDto) throws ValidationException, NotFoundException {
-        checkId(id);
-        if (StringUtils.hasText(uDto.getEmail())) {
-            userRepository.checkEmail(uDto.getEmail());
+    public UserDTO createUser(UserDTO userDto) {
+        validateEmail(userDto);
+        return UserMapper.toUserDto(userRepository.save(UserMapper.toUser(userDto)));
+    }
+
+    public UserDTO updateUser(UserDTO userDto) {
+        UserDTO temp = UserMapper.toUserDto(userRepository.getReferenceById(userDto.getId()));
+        if (userDto.getName() != null && !userDto.getName().equals("")) {
+            temp.setName(userDto.getName());
         }
-        User user = userRepository.update(id, userMapper.toUser(uDto));
-        log.info("Пользователь id {} обновлен", user.getId());
-        return userMapper.toUserDTO(user);
+        if (userDto.getEmail() != null && !userDto.getEmail().equals("")) {
+            temp.setEmail(userDto.getEmail());
+        }
+        return UserMapper.toUserDto(userRepository.save(UserMapper.toUser(temp)));
+    }
+
+    public void deleteUserById(Long id) {
+        userRepository.deleteById(id);
     }
 
     @Override
-    public Long delete(Long id) throws HttpClientErrorException.NotFound, NotFoundException {
-        checkId(id);
-        Long userDelId = userRepository.delete(id);
-        log.info("Пользователь id {} удален", id);
-        return userDelId;
+    public UserDTO patchUser(UserDTO userDto, Long userId) {
+        userDto.setId(userId);
+        if (findUserById(userDto.getId()) == null) {
+            throw new NotFoundException("Пользователь не найден");
+        }
+        UserDTO patchedUser = findUserById(userDto.getId());
+        if (userDto.getName() != null) {
+            patchedUser.setName(userDto.getName());
+        }
+        if (userDto.getEmail() != null) {
+            for (UserDTO storedUser : findAllUsers()) {
+                if (userDto.getEmail().equals(storedUser.getEmail())) {
+                    throw new ValidationException("Пользователь с таекой почтой уже существует");
+                }
+            }
+            patchedUser.setEmail(userDto.getEmail());
+        }
+        return patchedUser;
     }
 
-    @Override
-    public void checkId(Long id) throws HttpClientErrorException.NotFound, NotFoundException {
-        userRepository.checkId(id);
+    private void validateUser(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new NotFoundException("Пользователь не найден");
+        }
     }
+
+    private void validateEmail(UserDTO userDto) {
+        if (userDto.getEmail() == null || !userDto.getEmail().contains("@")) {
+            throw new InvalidParameterException("Почта не может быть пустой");
+        }
+    }
+
 }

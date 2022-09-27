@@ -1,55 +1,61 @@
 package ru.practicum.shareit.item;
 
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.exceptions.NotFoundException;
+import ru.practicum.shareit.comment.CommentDTO;
 import ru.practicum.shareit.item.dto.ItemDTO;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.service.ItemService;
-
-import javax.validation.Valid;
-import javax.validation.ValidationException;
-import java.util.Collection;
+import ru.practicum.shareit.item.service.ItemServiceImpl;
+import ru.practicum.shareit.user.service.UserServiceImpl;
 import java.util.List;
 
 @RestController
+@Slf4j
 @RequestMapping("/items")
-@RequiredArgsConstructor
 public class ItemController {
-    private static final String HEADER_USER_ID = "X-Sharer-User-Id";
-    private final ItemService iService;
+    private final ItemServiceImpl itemService;
+    private final UserServiceImpl userService;
+
+    @Autowired
+    public ItemController(ItemServiceImpl itemService, UserServiceImpl userService) {
+        this.itemService = itemService;
+        this.userService = userService;
+    }
 
     @PostMapping
-    public ItemDTO createItem(@RequestHeader(HEADER_USER_ID) Long userId, @Valid @RequestBody ItemDTO iDto)
-            throws ValidationException, NotFoundException {
-        return iService.createItem(userId, iDto);
-    }
-
-    @GetMapping("/{itemId}")
-    public ItemDTO findItemById(@PathVariable String itemId) throws NotFoundException {
-        return iService.findById(Long.valueOf(itemId));
-    }
-
-    @GetMapping
-    public Collection<ItemDTO> findAll(@RequestHeader(HEADER_USER_ID) String userId)
-            throws NotFoundException {
-        return iService.findByUser(Long.valueOf(userId));
+    public ItemDTO createItem(@RequestHeader("X-Sharer-User-Id") Long id,
+                              @RequestBody ItemDTO itemDto) {
+        return itemService.createItem(id, itemDto);
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDTO updateItem(@RequestHeader(HEADER_USER_ID) String userId, @PathVariable String itemId,
-                              @Valid @RequestBody ItemDTO iDto) throws NotFoundException {
-        return iService.update(Long.valueOf(userId), Long.valueOf(itemId), iDto);
+    public ItemDTO updateItem(@RequestHeader("X-Sharer-User-Id") Long id, @PathVariable Long itemId,
+                              @RequestBody ItemDTO itemDto) {
+        return itemService.updateItem(itemService.patchItem(itemDto, itemId, id));
     }
 
-    @DeleteMapping("/{itemId}")
-    public Long deleteItem(@RequestHeader(HEADER_USER_ID) String userId, @PathVariable String itemId)
-            throws NotFoundException {
-        return iService.deleteItem(Long.valueOf(userId), Long.valueOf(itemId));
+    @GetMapping("/{itemId}")
+    public ItemDTO findItemById(@RequestHeader("X-Sharer-User-Id") Long id,
+                                @PathVariable Long itemId) {
+        return itemService.findItemById(id, itemId);
+    }
+
+    @GetMapping
+    public List<ItemDTO> findAllOwnersItems(@RequestHeader("X-Sharer-User-Id") Long id) {
+        return itemService.findAllItemsByOwner(id);
     }
 
     @GetMapping("/search")
-    public List<Item> searchItemByText(@RequestParam String text) {
-        return iService.search(text);
+    public List<ItemDTO> findItemByString(@RequestParam String text) {
+        return itemService.getAllItemsByString(text);
     }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDTO postComment(@RequestHeader("X-Sharer-User-Id") Long id,
+                                  @PathVariable Long itemId,
+                                  @RequestBody CommentDTO commentDto) {
+        return itemService.postComment(id, itemId, commentDto);
+    }
+
+
 }

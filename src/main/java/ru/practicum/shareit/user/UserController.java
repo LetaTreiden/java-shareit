@@ -1,48 +1,50 @@
 package ru.practicum.shareit.user;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.exceptions.NotFoundException;
-import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.user.dto.UserDTO;
-import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.user.service.UserServiceImpl;
 
-import javax.validation.Valid;
-import java.util.Collection;
+import java.util.List;
 
 @RestController
-@RequestMapping(path = "/users")
-@RequiredArgsConstructor
+@Slf4j
+@RequestMapping("/users")
 public class UserController {
-    private final UserService userService;
+
+    private final UserServiceImpl userService;
+
+    @Autowired
+    public UserController(UserServiceImpl userService) {
+        this.userService = userService;
+    }
 
     @PostMapping
-    public UserDTO create(@Valid @RequestBody UserDTO uDto) throws ValidationException {
-        return userService.create(uDto);
-    }
-
-    @GetMapping("/{userId}")
-    public UserDTO findUserById(@PathVariable String userId) throws NotFoundException {
-        return userService.findById(Long.valueOf(userId));
-    }
-
-    @GetMapping
-    public Collection<UserDTO> findAllUsers() {
-        return userService.findAll();
+    public UserDTO createUser(@RequestBody UserDTO userDto) {
+        return userService.createUser(userDto);
     }
 
     @PatchMapping("/{userId}")
-    public UserDTO update(@PathVariable String userId, @Valid @RequestBody UserDTO userDto) throws ValidationException,
-            NotFoundException {
-        return userService.update(Long.valueOf(userId), userDto);
+    public UserDTO updateUser(@RequestBody UserDTO userDto, @PathVariable Long userId) {
+        return userService.updateUser(userService.patchUser(userDto, userId));
     }
 
-    @DeleteMapping("/{userId}")
-    public Long deleteUser(@PathVariable String userId) throws NotFoundException {
-        return userService.delete(Long.valueOf(userId));
+    @GetMapping
+    public List<UserDTO> getAllUsers() {
+        return userService.findAllUsers();
     }
 
+    @GetMapping("/{id}")
+    public UserDTO getUserById(@PathVariable Long id) {
+        return userService.findUserById(id);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteUserById(@PathVariable Long id) {
+        userService.deleteUserById(id);
+    }
 }

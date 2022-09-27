@@ -2,56 +2,46 @@ package ru.practicum.shareit.booking;
 
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.item.model.Item;
+//import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.booking.dto.BookingDTO;
-import ru.practicum.shareit.user.model.User;
+//import ru.practicum.shareit.user.model.User;
 
 @Service
 public class BookingMapper {
 
-    public BookingDTO toBookingDto(Booking booking) {
+    public static BookingDTO toBookingDto(Booking booking) {
         return BookingDTO.builder()
                 .id(booking.getId())
                 .start(booking.getStart())
                 .end(booking.getEnd())
-                .item(toBookingItem(booking.getItem()))
-                .booker(toUserBooking(booking.getBooker()))
-                .bookingStatus(booking.getBookingStatus())
+                .item(booking.getItem())
+                .booker(booking.getBooker())
+                .bookingStatus(booking.getStatus())
                 .build();
     }
 
-    public Booking toBooking(BookingDTO bookingDto) {
-        return Booking.builder()
-                .id(bookingDto.getId())
-                .start(bookingDto.getStart())
-                .end(bookingDto.getEnd())
-                .item(toItem(bookingDto.getItem()))
-                .booker(toUser(bookingDto.getBooker()))
-                .bookingStatus(bookingDto.getBookingStatus())
-                .build();
+    /*public Booking toBooking(BookingDTO bookingDto) {
+        Booking booking = new Booking();
+        booking.setId(bookingDto.getId());
+        booking.setStart(bookingDto.getStart());
+        booking.setEnd(bookingDto.getEnd());
+        booking.setStatus(bookingDto.getBookingStatus());
+        booking.setBooker(bookingDto.getBooker());
+        booking.setItem(bookingDto.getItem());
+        return booking;
     }
 
-    private BookingDTO.Item toBookingItem(Item item) {
+    private static BookingDTO.Item toBookingItem(Item item) {
         return BookingDTO.Item.builder()
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
-                .available(item.getAvailable())
-                .request(item.getRequest())
+                .available(item.getIsAvailable())
+                .requestId(item.getRequestId())
                 .build();
     }
 
-    private Item toItem(BookingDTO.Item bookingItem) {
-        return Item.builder()
-                .id(bookingItem.getId())
-                .name(bookingItem.getName())
-                .description(bookingItem.getDescription())
-                .available(bookingItem.isAvailable())
-                .request(bookingItem.getRequest())
-                .build();
-    }
-
-    private BookingDTO.User toUserBooking(User user) {
+    private static BookingDTO.User toUserBooking(User user) {
         return BookingDTO.User.builder()
                 .id(user.getId())
                 .name(user.getName())
@@ -59,11 +49,5 @@ public class BookingMapper {
                 .build();
     }
 
-    private User toUser(BookingDTO.User bookingUser) {
-        return User.builder()
-                .id(bookingUser.getId())
-                .name(bookingUser.getName())
-                .email(bookingUser.getEmail())
-                .build();
-    }
+     */
 }

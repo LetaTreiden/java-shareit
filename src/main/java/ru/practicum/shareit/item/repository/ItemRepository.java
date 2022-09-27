@@ -1,28 +1,20 @@
 package ru.practicum.shareit.item.repository;
 
-import ru.practicum.shareit.exceptions.NotFoundException;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.model.User;
 
 import java.util.Collection;
-import java.util.Map;
+import java.util.List;
 
-public interface ItemRepository {
-    Item create(Long uId, Item item, User user);
+public interface ItemRepository extends JpaRepository<Item, Long> {
 
-    Item findById(Long itemId);
+    @Query("SELECT i FROM Item i WHERE i.owner.id = ?1")
+    Collection<Item> findAllItemsByOwner(Long id);
 
-    Collection<Item> findByUserId(Long userId);
-
-    Map<Long, Item> findAll();
-
-    Item update(Long itemId, Item item);
-
-    Long delete(Long itemId);
-
-    Collection<Item> search(String text);
-
-    boolean checkOwner(Long userId, Long itemId);
-
-    void checkItemId(Long itemId) throws NotFoundException;
+    @Query("select i from Item i" +
+            " where upper(i.name) like upper(concat('%', ?1, '%'))" +
+            " or upper(i.description) like upper(concat('%', ?1, '%'))" +
+            " and i.available is true")
+    List<Item> search(String text);
 }
