@@ -45,7 +45,6 @@ public class Item {
     @Column(name = "request_id")
     private Long requestId;
 
-    //добавлять ли в табл ицу???
     @Transient
     private Booking lastBooking;
     @Transient
