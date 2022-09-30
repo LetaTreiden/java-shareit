@@ -7,6 +7,5 @@ import java.util.Collection;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
-    // @Query("SELECT i FROM Item i WHERE i.owner.id = ?1")
     Collection<Item> findAllItemsByOwner(Long id);
 }

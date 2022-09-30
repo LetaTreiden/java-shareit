@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.comment.CommentDTO;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.service.ItemServiceImpl;
-import ru.practicum.shareit.user.service.UserServiceImpl;
 import java.util.List;
 
 @RestController
@@ -14,12 +13,10 @@ import java.util.List;
 @RequestMapping("/items")
 public class ItemController {
     private final ItemServiceImpl itemService;
-    private final UserServiceImpl userService;
 
     @Autowired
-    public ItemController(ItemServiceImpl itemService, UserServiceImpl userService) {
+    public ItemController(ItemServiceImpl itemService) {
         this.itemService = itemService;
-        this.userService = userService;
     }
 
     @PostMapping
