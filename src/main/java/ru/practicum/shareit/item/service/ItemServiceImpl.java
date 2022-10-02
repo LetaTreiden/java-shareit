@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.dto.BookingDTO;
@@ -35,16 +34,14 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
 
     @Autowired
-    public ItemServiceImpl(ItemRepository itemRepository, UserServiceImpl userService,
-                           BookingRepository bookingRepository,
-                           UserRepository userRepository, CommentRepository commentRepository) {
+    public ItemServiceImpl(ItemRepository itemRepository, UserServiceImpl userService, BookingRepository bookingRepository, UserRepository userRepository, CommentRepository commentRepository) {
         this.itemRepository = itemRepository;
         this.userService = userService;
         this.bookingRepository = bookingRepository;
         this.userRepository = userRepository;
         this.commentRepository = commentRepository;
     }
-    
+
     public ItemDTO createItem(Long id, ItemDTO itemDto) {
         validateItemDto(itemDto);
         itemDto.setOwner(userService.findUserById(id));
@@ -136,9 +133,7 @@ public class ItemServiceImpl implements ItemService {
         List<Item> availableItems = new ArrayList<>();
         if (someText.length() > 0 && !someText.trim().equals("")) {
             for (Item itemFromStorage : itemRepository.findAll()) {
-                if (itemFromStorage.getIsAvailable()
-                        && (itemFromStorage.getDescription().toLowerCase().contains(someText.toLowerCase())
-                        || itemFromStorage.getName().toLowerCase().contains(someText.toLowerCase()))) {
+                if (itemFromStorage.getIsAvailable() && (itemFromStorage.getDescription().toLowerCase().contains(someText.toLowerCase()) || itemFromStorage.getName().toLowerCase().contains(someText.toLowerCase()))) {
                     availableItems.add(itemFromStorage);
                 }
             }
