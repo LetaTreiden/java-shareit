@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.dto.BookingDTO;
@@ -43,7 +44,7 @@ public class ItemServiceImpl implements ItemService {
         this.userRepository = userRepository;
         this.commentRepository = commentRepository;
     }
-
+    
     public ItemDTO createItem(Long id, ItemDTO itemDto) {
         validateItemDto(itemDto);
         itemDto.setOwner(userService.findUserById(id));
@@ -213,17 +214,17 @@ public class ItemServiceImpl implements ItemService {
 
     private void validateItemDto(ItemDTO itemDto) {
         if (itemDto.getIsAvailable() == null) {
-            throw new InvalidParameterException("Item isAvailable is empty");
+            throw new InvalidParameterException("Укажите доступность товара");
         } else if (itemDto.getName() == null || itemDto.getName().equals("")) {
-            throw new InvalidParameterException("Item name is empty");
+            throw new InvalidParameterException("Название товара не может быть пустым");
         } else if (itemDto.getDescription() == null || itemDto.getDescription().equals("")) {
-            throw new InvalidParameterException("Item description is empty");
+            throw new InvalidParameterException("Описание товара не может юыть пустым");
         }
     }
 
     private void validateComment(CommentDTO commentDto) {
         if (commentDto.getText().isEmpty() || commentDto.getText().isBlank()) {
-            throw new InvalidParameterException("Text field is empty");
+            throw new InvalidParameterException("Комментарий не может юыть пусьым");
         }
     }
 }
