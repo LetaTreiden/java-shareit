@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.model.Booking;
 
+import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
