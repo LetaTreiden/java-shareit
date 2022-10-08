@@ -14,6 +14,7 @@ import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -138,7 +139,7 @@ public class BookingServiceImpl implements BookingService {
         validateUser(id);
         validateState(state);
 
-        List<Booking> result = null;
+        List<Booking> result = new ArrayList<>();
 
         BookingStatus status = BookingStatus.valueOf(state);
 
@@ -168,21 +169,23 @@ public class BookingServiceImpl implements BookingService {
         validateUser(id);
         validateState(state);
 
-        List<Booking> result = null;
+        List<Booking> result = new ArrayList<>();
 
         BookingStatus status = BookingStatus.valueOf(state);
 
-        if (status == BookingStatus.ALL) {
-            result.addAll(bRepo.findAllOwnersBookings(id));
-        }
-        if (status == BookingStatus.FUTURE) {
-            result.addAll(bRepo.findAllOwnersBookingsWithFutureStatus(id));
-        }
-        if (status == BookingStatus.CURRENT) {
-            result.addAll(bRepo.findAllOwnersBookingsWithCurrentStatus(id));
-        }
-        if (status == BookingStatus.PAST) {
-            result.addAll(bRepo.findAllOwnersBookingsWithPastStatus(id));
+        switch (status) {
+            case ALL:
+                result.addAll(bRepo.findAllOwnersBookings(id));
+                break;
+            case FUTURE:
+                result.addAll(bRepo.findAllOwnersBookingsWithFutureStatus(id));
+                break;
+            case CURRENT:
+                result.addAll(bRepo.findAllOwnersBookingsWithCurrentStatus(id));
+                break;
+            case PAST:
+                result.addAll(bRepo.findAllOwnersBookingsWithPastStatus(id));
+                break;
         }
         return result;
     }
