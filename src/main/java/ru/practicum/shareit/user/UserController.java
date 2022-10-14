@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDTO;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserServiceImpl;
 
 import java.util.List;
@@ -29,8 +30,8 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public UserDTO updateUser(@RequestBody UserDTO userDto, @PathVariable Long userId) {
-        return userService.updateUser(userService.patchUser(userDto, userId));
+    public User updateUser(@RequestBody User user, @PathVariable Long userId) {
+        return userService.updateUser(userService.patchUser(user, userId));
     }
 
     @GetMapping
@@ -39,7 +40,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public UserDTO getUserById(@PathVariable Long id) {
+    public User getUserById(@PathVariable Long id) {
         return userService.findUserById(id);
     }
 

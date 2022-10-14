@@ -6,6 +6,7 @@ import ru.practicum.shareit.exceptions.InvalidParameterException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.dto.UserDTO;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import javax.validation.ValidationException;
@@ -24,9 +25,9 @@ public class UserServiceImpl implements UserService {
         return UserMapper.toUserDTOs(userRepository.findAll());
     }
 
-    public UserDTO findUserById(Long id) {
+    public User findUserById(Long id) {
         validateUser(id);
-        return UserMapper.toUserDto(userRepository.getReferenceById(id));
+        return userRepository.getReferenceById(id);
     }
 
     public UserDTO createUser(UserDTO userDto) {
@@ -34,7 +35,7 @@ public class UserServiceImpl implements UserService {
         return UserMapper.toUserDto(userRepository.save(UserMapper.toUser(userDto)));
     }
 
-    public UserDTO updateUser(UserDTO userDto) {
+    public User updateUser(User userDto) {
         UserDTO temp = UserMapper.toUserDto(userRepository.getReferenceById(userDto.getId()));
         if (userDto.getName() != null && !userDto.getName().equals("")) {
             temp.setName(userDto.getName());
@@ -42,7 +43,7 @@ public class UserServiceImpl implements UserService {
         if (userDto.getEmail() != null && !userDto.getEmail().equals("")) {
             temp.setEmail(userDto.getEmail());
         }
-        return UserMapper.toUserDto(userRepository.save(UserMapper.toUser(temp)));
+        return userRepository.save(UserMapper.toUser(temp));
     }
 
     public void deleteUserById(Long id) {
@@ -50,22 +51,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO patchUser(UserDTO userDto, Long userId) {
-        userDto.setId(userId);
-        if (findUserById(userDto.getId()) == null) {
+    public User patchUser(User user, Long userId) {
+        user.setId(userId);
+        if (findUserById(user.getId()) == null) {
             throw new NotFoundException("Пользователь не найден");
         }
-        UserDTO patchedUser = findUserById(userDto.getId());
-        if (userDto.getName() != null) {
-            patchedUser.setName(userDto.getName());
+        User patchedUser = findUserById(user.getId());
+        if (user.getName() != null) {
+            patchedUser.setName(user.getName());
         }
-        if (userDto.getEmail() != null) {
+        if (user.getEmail() != null) {
             for (UserDTO storedUser : findAllUsers()) {
-                if (userDto.getEmail().equals(storedUser.getEmail())) {
+                if (user.getEmail().equals(storedUser.getEmail())) {
                     throw new ValidationException("Пользователь с таекой почтой уже существует");
                 }
             }
-            patchedUser.setEmail(userDto.getEmail());
+            patchedUser.setEmail(user.getEmail());
         }
         return patchedUser;
     }
