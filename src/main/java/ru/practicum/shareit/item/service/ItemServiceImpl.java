@@ -105,8 +105,9 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDTO> findAllItemsByOwner(Long id) {
         validateUser(id);
-
-        List<ItemDTO> itemDtoList = (List<ItemDTO>) ItemMapper.toIDto((Item) itemRepository.findAllItemsByOwner(id));
+       // List<ItemDTO> itemDtoList = (List<ItemDTO>) ItemMapper.toIDto((Item) itemRepository.findAllItemsByOwner(id));
+        List<ItemDTO> itemDtoList = new ArrayList<>();
+        itemDtoList.addAll(itemRepository.findAllItemsByOwner(id));
 
         for (ItemDTO itemDto : itemDtoList) {
             List<Booking> bookingPast = bookingRepository.findAllItemBookingsPast(itemDto.getId());
@@ -138,7 +139,6 @@ public class ItemServiceImpl implements ItemService {
 
         return itemRepository.search(text);
     }
-    //нахер переделать
 
     @Override
     public ItemDTO patchItem(ItemDTO itemDto, Long itemId, Long id) {
