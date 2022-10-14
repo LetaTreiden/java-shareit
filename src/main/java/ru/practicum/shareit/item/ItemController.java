@@ -23,9 +23,9 @@ public class ItemController {
     }
 
     @PostMapping
-    public Item createItem(@RequestHeader("X-Sharer-User-Id") Long id,
-                              @RequestBody Item item) {
-        return itemService.createItem(id, item);
+    public ItemDTO createItem(@RequestHeader("X-Sharer-User-Id") Long id,
+                              @RequestBody ItemDTO itemDto) {
+        return itemService.createItem(id, itemDto);
     }
 
     @PatchMapping("/{itemId}")

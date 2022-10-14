@@ -43,11 +43,10 @@ public class ItemServiceImpl implements ItemService {
         this.commentRepository = commentRepository;
     }
 
-    public Item createItem(Long id, Item item) {
-        validateItem(id);
-        item.setOwner(userService.findUserById(id));
-        itemRepository.save(item);
-        return item;
+    public ItemDTO createItem(Long id, ItemDTO itemDto) {
+        validateItemDto(itemDto);
+        itemDto.setOwner(userService.findUserById(id));
+        return itemDto;
     }
 
     public ItemDTO updateItem(ItemDTO itemDto) {
