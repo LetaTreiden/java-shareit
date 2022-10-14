@@ -4,8 +4,12 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.dto.ItemDTO;
+import ru.practicum.shareit.item.dto.ItemDTOBooking;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserMapper;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -33,14 +37,14 @@ public class ItemMapper {
         return itemDto;
     }
 
-   /* public static ItemDTOBooking toItemDtoBooking(Item item) {
-        ItemDTOBooking iDtoBooking = new ItemDTOBooking();
-        iDtoBooking.setId(item.getId());
-        iDtoBooking.setName(item.getName());
-        iDtoBooking.setDescription(item.getDescription());
-        iDtoBooking.setIsAvailable(item.getIsAvailable());
-        return iDtoBooking;
+    public static List<ItemDTO> toItemDtos(List<Item> items) {
+        List<ItemDTO> tempList = new ArrayList<>();
+        for (Item item : items) {
+            tempList.add(toIDto(item));
+        }
+        return tempList;
     }
+
 
     public static List<ItemDTOBooking> toItemBookingDtos(List<Item> items) {
         List<ItemDTOBooking> temp = new ArrayList<>();
@@ -50,5 +54,13 @@ public class ItemMapper {
         return temp;
     }
 
-     */
+   public static ItemDTOBooking toItemDtoBooking(Item item) {
+        ItemDTOBooking iDtoBooking = new ItemDTOBooking();
+        iDtoBooking.setId(item.getId());
+        iDtoBooking.setName(item.getName());
+        iDtoBooking.setDescription(item.getDescription());
+        iDtoBooking.setIsAvailable(item.getIsAvailable());
+        return iDtoBooking;
+    }
+
 }

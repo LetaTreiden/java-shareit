@@ -2,7 +2,6 @@ package ru.practicum.shareit.item.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.dto.BookingDTO;
 import ru.practicum.shareit.booking.model.Booking;
@@ -132,12 +131,18 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Collection<Item> getAllItemsByString(String text) {
-        if (!StringUtils.hasText(text)) {
-            return Collections.emptyList();
+    public List<ItemDTO> getAllItemsByString(String text) {
+        List<Item> availableItems = new ArrayList<>();
+        if (text.length() > 0 && !text.trim().equals("")) {
+            for (Item itemFromStorage : itemRepository.findAll()) {
+                if (itemFromStorage.getIsAvailable()
+                        && (itemFromStorage.getDescription().toLowerCase().contains(text.toLowerCase())
+                        || itemFromStorage.getName().toLowerCase().contains(text.toLowerCase()))) {
+                    availableItems.add(itemFromStorage);
+                }
+            }
         }
-
-        return itemRepository.search(text);
+        return ItemMapper.toItemDtos(availableItems);
     }
 
     @Override
