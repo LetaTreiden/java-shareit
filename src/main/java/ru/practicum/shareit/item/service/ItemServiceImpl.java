@@ -66,7 +66,7 @@ public class ItemServiceImpl implements ItemService {
         if (itemDto.getRequestId() != null && itemDto.getRequestId() != 0) {
             temp.setRequestId(itemDto.getRequestId());
         }
-        return ItemMapper.toIDto(temp);
+        return ItemMapper.toIDto(itemRepository.save(temp));
     }
 
     public ItemDTO findItemById(Long userId, Long itemId) {
