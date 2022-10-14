@@ -1,6 +1,5 @@
 package ru.practicum.shareit.user.service;
 
-import ru.practicum.shareit.user.dto.UserDTO;
 import ru.practicum.shareit.user.model.User;
 
 public interface UserService {
