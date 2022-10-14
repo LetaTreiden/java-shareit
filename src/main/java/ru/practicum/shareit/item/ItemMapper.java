@@ -1,28 +1,54 @@
 package ru.practicum.shareit.item;
 
-import org.springframework.stereotype.Service;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.UserMapper;
 
-@Service
+@Component
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ItemMapper {
-    public ItemDTO toIDto(Item item) {
-        return ItemDTO.builder()
-                .id(item.getId())
-                .name(item.getName())
-                .description(item.getDescription())
-                .available(item.getAvailable())
-                .request(item.getRequest() != null ? item.getRequest() : null)
-                .build();
+
+    public static Item toItem(ItemDTO itemDto) {
+        Item item = new Item();
+        item.setId(itemDto.getId());
+        item.setName(itemDto.getName());
+        item.setDescription(itemDto.getDescription());
+        item.setIsAvailable(itemDto.getIsAvailable());
+        item.setOwner(UserMapper.toUser(itemDto.getOwner()));
+        item.setRequestId(itemDto.getRequestId());
+        return item;
     }
 
-    public Item toItem(ItemDTO itemDto) {
-        return Item.builder()
-                .id(itemDto.getId())
-                .name(itemDto.getName())
-                .description(itemDto.getDescription())
-                .available(itemDto.getAvailable())
-                .request(itemDto.getRequest() != null ? itemDto.getRequest() : null)
-                .build();
+    public static ItemDTO toIDto(Item item) {
+        ItemDTO itemDto = new ItemDTO();
+        itemDto.setId(item.getId());
+        itemDto.setName(item.getName());
+        itemDto.setDescription(item.getDescription());
+        itemDto.setIsAvailable(item.getIsAvailable());
+        itemDto.setOwner(UserMapper.toUserDto(item.getOwner()));
+        itemDto.setRequestId(item.getRequestId());
+        return itemDto;
     }
+
+   /* public static ItemDTOBooking toItemDtoBooking(Item item) {
+        ItemDTOBooking iDtoBooking = new ItemDTOBooking();
+        iDtoBooking.setId(item.getId());
+        iDtoBooking.setName(item.getName());
+        iDtoBooking.setDescription(item.getDescription());
+        iDtoBooking.setIsAvailable(item.getIsAvailable());
+        return iDtoBooking;
+    }
+
+    public static List<ItemDTOBooking> toItemBookingDtos(List<Item> items) {
+        List<ItemDTOBooking> temp = new ArrayList<>();
+        for (Item item : items) {
+            temp.add(toItemDtoBooking(item));
+        }
+        return temp;
+    }
+
+     */
 }

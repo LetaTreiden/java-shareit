@@ -1,25 +1,20 @@
 package ru.practicum.shareit.item.service;
 
-import org.springframework.stereotype.Repository;
-import ru.practicum.shareit.exceptions.NotFoundException;
-import ru.practicum.shareit.exceptions.ValidationException;
+import ru.practicum.shareit.comment.CommentDTO;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.Collection;
 import java.util.List;
 
-@Repository
 public interface ItemService {
-    ItemDTO createItem(Long userId, ItemDTO itemDto) throws ValidationException, NotFoundException;
+        List<ItemDTO> findAllItemsByOwner(Long id);
 
-    ItemDTO findById(Long itemId) throws NotFoundException;
+        Collection<Item> getAllItemsByString(String someText);
 
-    Collection<ItemDTO> findByUser(Long userId) throws NotFoundException;
+        ItemDTO patchItem(ItemDTO itemDto, Long itemId, Long id);
 
-    ItemDTO update(Long userId, Long itemId, ItemDTO itemDto) throws NotFoundException;
+        ItemDTO findItemById(Long userId, Long itemId);
 
-    Long deleteItem(Long userId, Long itemId) throws NotFoundException;
-
-    List<Item> search(String text);
-}
+         CommentDTO postComment(Long userId, Long itemId, CommentDTO commentDto);
+    }

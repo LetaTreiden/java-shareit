@@ -16,8 +16,8 @@ public class BookingDTO {
     private Long id;
     private LocalDateTime start;
     private LocalDateTime end;
-    private Item item;
-    private User booker;
+    private ru.practicum.shareit.item.model.Item item;
+    private ru.practicum.shareit.user.model.User booker;
     private User owner;
     private BookingStatus bookingStatus;
 
@@ -30,7 +30,7 @@ public class BookingDTO {
         private String name;
         private String description;
         private boolean available;
-        private String request;
+        private Long requestId;
     }
 
     @Data
