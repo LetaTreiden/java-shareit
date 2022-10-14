@@ -46,7 +46,8 @@ public class ItemServiceImpl implements ItemService {
     public ItemDTO createItem(Long id, ItemDTO itemDto) {
         validateItemDto(itemDto);
         itemDto.setOwner(userService.findUserById(id));
-        return itemDto;
+       // return itemDto;
+        return ItemMapper.toIDto(itemRepository.save(ItemMapper.toItem(itemDto)));
     }
 
     public ItemDTO updateItem(ItemDTO itemDto) {
