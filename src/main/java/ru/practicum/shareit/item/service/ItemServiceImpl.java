@@ -124,7 +124,6 @@ public class ItemServiceImpl implements ItemService {
                 itemDto.setNextBooking(bookingDtoFuture);
             }
         }
-        
          */
         itemDtoList.sort(Comparator.comparing(ItemDTO::getId));
         return itemDtoList;
