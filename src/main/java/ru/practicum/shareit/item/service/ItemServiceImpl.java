@@ -45,7 +45,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDTO createItem(Long id, ItemDTO itemDto) {
         validateItemDto(itemDto);
         itemDto.setOwner(userService.findUserById(id));
-       // return itemDto;
+        // return itemDto;
         return ItemMapper.toIDto(itemRepository.save(ItemMapper.toItem(itemDto)));
     }
 
@@ -135,9 +135,7 @@ public class ItemServiceImpl implements ItemService {
         List<Item> availableItems = new ArrayList<>();
         if (text.length() > 0 && !text.trim().equals("")) {
             for (Item itemFromStorage : itemRepository.findAll()) {
-                if (itemFromStorage.getIsAvailable()
-                        && (itemFromStorage.getDescription().toLowerCase().contains(text.toLowerCase())
-                        || itemFromStorage.getName().toLowerCase().contains(text.toLowerCase()))) {
+                if (itemFromStorage.getIsAvailable() && (itemFromStorage.getDescription().toLowerCase().contains(text.toLowerCase()) || itemFromStorage.getName().toLowerCase().contains(text.toLowerCase()))) {
                     availableItems.add(itemFromStorage);
                 }
             }
