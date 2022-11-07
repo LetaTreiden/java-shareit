@@ -135,10 +135,9 @@ public class ItemServiceImpl implements ItemService {
             itemDto = item;
             itemDto.setLastBooking(item.getLastBooking());
             itemDto.setNextBooking(item.getNextBooking());
-            Set<CommentDTO> commentDTOS = CommentMapper.toCommentDtos(commentRepository.
-                    findAllItemComments(item.getId()));
+            Set<CommentDTO> commentDTOS = CommentMapper.toCommentDtos(commentRepository
+                    .findAllItemComments(item.getId()));
             itemDto.setComments(commentDTOS);
-
             res.add(itemDto);
         }
 
