@@ -11,6 +11,7 @@ import ru.practicum.shareit.exceptions.InvalidParameterException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
@@ -35,12 +36,15 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingDTO create(Long id, BookingDTO dto) {
         Booking booking = new Booking();
+        validateUser(dto.getBooker().getId());
+        validateUser(dto.getOwner().getId());
         if (validateItem(id, dto)) {
             booking.setItem(iRepo.getReferenceById(dto.getItem().getId()));
             booking.setStart(dto.getStart());
             booking.setEnd(dto.getEnd());
             booking.setBooker(uRepo.getReferenceById(id));
         }
+        validateState(dto.getBookingStatus().toString());
         return BookingMapper.toBookingDto(bRepo.save(booking));
     }
 
@@ -50,7 +54,7 @@ public class BookingServiceImpl implements BookingService {
             throw new NotFoundException("Товар не найден");
         }
         if (id.equals(iRepo.getReferenceById(dto.getItem().getId()).getOwner().getId())) {
-            throw new NotFoundException("Невозможно выполнить операцию");
+            throw new InvalidParameterException("Невозможно выполнить операцию");
         }
         if (dto.getEnd().isBefore(LocalDateTime.now())) {
             throw new InvalidParameterException("Дата завершения не может находиться в прошлом");

@@ -72,4 +72,11 @@ public class ItemDTO {
         String text;
         String authorName;
     }
+
+    @Data
+    @AllArgsConstructor
+    public static class BookingIner {
+        private Long id;
+        private Long bookerId;
+    }
 }
