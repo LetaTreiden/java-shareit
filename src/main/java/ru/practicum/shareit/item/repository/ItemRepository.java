@@ -6,8 +6,6 @@ import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.Collection;
-import java.util.Date;
-import java.util.List;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
