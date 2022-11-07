@@ -34,7 +34,9 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
 
     @Autowired
-    public ItemServiceImpl(ItemRepository itemRepository, UserServiceImpl userService, BookingRepository bookingRepository, UserRepository userRepository, CommentRepository commentRepository) {
+    public ItemServiceImpl(ItemRepository itemRepository, UserServiceImpl userService,
+                           BookingRepository bookingRepository, UserRepository userRepository,
+                           CommentRepository commentRepository) {
         this.itemRepository = itemRepository;
         this.userService = userService;
         this.bookingRepository = bookingRepository;
@@ -103,10 +105,10 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDTO> findAllItemsByOwner(Long id) {
-        validateUser(id);
-        List<ItemDTO> itemDtoList = new ArrayList<>(itemRepository.findAllItemsByOwner(id));
 
-        /*  for (ItemDTO itemDto : itemDtoList) {
+
+        /* validateUser(id);
+        List<ItemDTO> itemDtoList = new ArrayList<>(itemRepository.findAllItemsByOwner(id)); for (ItemDTO itemDto : itemDtoList) {
             List<Booking> bookingPast = bookingRepository.findAllItemBookingsPast(itemDto.getId());
             if (bookingPast.size() != 0) {
                 bookingPast.sort(Comparator.comparing(Booking::getStart).reversed());
@@ -124,9 +126,24 @@ public class ItemServiceImpl implements ItemService {
                 itemDto.setNextBooking(bookingDtoFuture);
             }
         }
-         */
         itemDtoList.sort(Comparator.comparing(ItemDTO::getId));
         return itemDtoList;
+         */
+        List<ItemDTO> res = new ArrayList<>();
+        ItemDTO itemDto;
+        for (ItemDTO item : itemRepository.findAllItemsByOwner(id)) {
+            itemDto = item;
+            itemDto.setLastBooking(item.getLastBooking());
+            itemDto.setNextBooking(item.getNextBooking());
+            Set<CommentDTO> commentDTOS = CommentMapper.toCommentDtos(commentRepository.
+                    findAllItemComments(item.getId()));
+            itemDto.setComments(commentDTOS);
+
+            res.add(itemDto);
+        }
+
+        return res;
+
     }
 
     @Override

@@ -39,7 +39,7 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDTO> findAllOwnersItems(@RequestHeader("X-Sharer-User-Id") Long id) {
+    public List<ItemDTO> findAllItems(@RequestHeader("X-Sharer-User-Id") Long id) {
         return itemService.findAllItemsByOwner(id);
     }
 
