@@ -236,8 +236,5 @@ public class ItemServiceImpl implements ItemService {
         if (commentDto.getText().isEmpty() || commentDto.getText().isBlank()) {
             throw new InvalidParameterException("Комментарий не может юыть пусьым");
         }
-        if (commentDto.getCreated().isAfter(LocalDateTime.now())) {
-            throw new InvalidParameterException("Дата создания не может быть в будущем");
-        }
     }
 }
