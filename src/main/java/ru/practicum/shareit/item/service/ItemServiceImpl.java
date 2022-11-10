@@ -191,7 +191,18 @@ public class ItemServiceImpl implements ItemService {
             if (!Objects.equals(booking.getBooker().getId(), userId)) {
                 throw new InvalidParameterException("Проверьте заданные параметры");
             } else {
-                if (booking.getEnd().isBefore(LocalDateTime.now()) || booking.getStart().isBefore(LocalDateTime.now())) {
+                if (!booking.getStart().isBefore(LocalDateTime.now())) {
+                    commentDto.setItem(ItemMapper.toIDto(itemRepository.getReferenceById(itemId)));
+                    commentDto.setAuthor(UserMapper.toUserDto(userRepository.getReferenceById(userId)));
+                    commentDto.setCreated(LocalDateTime.now());
+                    Comment commentTemp = commentRepository.save(CommentMapper.toComment(commentDto));
+                    CommentDTO commentTempDto = CommentMapper.toCommentDto(commentTemp);
+                    User user = userRepository.getReferenceById(userId);
+                    commentTempDto.setAuthorName(user.getName());
+                    commentTempDto.setAuthor(null);
+                    commentTempDto.setItem(null);
+                    return commentTempDto;
+                } else if (!booking.getEnd().isBefore(LocalDateTime.now())) {
                     commentDto.setItem(ItemMapper.toIDto(itemRepository.getReferenceById(itemId)));
                     commentDto.setAuthor(UserMapper.toUserDto(userRepository.getReferenceById(userId)));
                     commentDto.setCreated(LocalDateTime.now());

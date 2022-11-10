@@ -57,6 +57,7 @@ public class BookingServiceImpl implements BookingService {
 
         */
         Item item = iRepo.getReferenceById(dto.getItem().getId());
+        validateItem(item.getId(), dto);
         User user = uRepo.getReferenceById(id);
         dto.setBookingStatus(BookingStatus.WAITING);
         if (!item.getIsAvailable()) {
