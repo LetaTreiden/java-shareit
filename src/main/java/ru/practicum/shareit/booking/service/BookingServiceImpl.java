@@ -111,7 +111,7 @@ public class BookingServiceImpl implements BookingService {
                 && !state.equals(BookingStatus.WAITING.name()) && !state.equals(BookingStatus.CURRENT.name())
                 && !state.equals(BookingStatus.APPROVED.name()) && !state.equals(BookingStatus.CANCELED.name())
                 && !state.equals(BookingStatus.PAST.name()) && !state.equals(BookingStatus.FUTURE.name())) {
-            throw new ValidationException("Неизвестный статус");
+            throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
         }
     }
 
