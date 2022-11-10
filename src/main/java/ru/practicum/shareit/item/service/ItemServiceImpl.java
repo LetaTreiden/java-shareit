@@ -23,6 +23,7 @@ import ru.practicum.shareit.user.service.UserServiceImpl;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ItemServiceImpl implements ItemService {
@@ -105,9 +106,8 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDTO> findAllItemsByOwner(Long id) {
-
-
-        /* validateUser(id);
+        validateUser(id);
+        /*
         List<ItemDTO> itemDtoList = new ArrayList<>(itemRepository.findAllItemsByOwner(id)); for (ItemDTO itemDto : itemDtoList) {
             List<Booking> bookingPast = bookingRepository.findAllItemBookingsPast(itemDto.getId());
             if (bookingPast.size() != 0) {
@@ -129,10 +129,11 @@ public class ItemServiceImpl implements ItemService {
         itemDtoList.sort(Comparator.comparing(ItemDTO::getId));
         return itemDtoList;
          */
-        List<ItemDTO> res = new ArrayList<>();
+        ArrayList<ItemDTO> res = new ArrayList<>();
         ItemDTO itemDto;
         for (ItemDTO item : itemRepository.findAllItemsByOwner(id)) {
             itemDto = item;
+            validateItem(itemDto.getId());
             itemDto.setLastBooking(item.getLastBooking());
             itemDto.setNextBooking(item.getNextBooking());
             Set<CommentDTO> commentDTOS = CommentMapper.toCommentDtos(commentRepository
@@ -140,9 +141,7 @@ public class ItemServiceImpl implements ItemService {
             itemDto.setComments(commentDTOS);
             res.add(itemDto);
         }
-
         return res;
-
     }
 
     @Override
