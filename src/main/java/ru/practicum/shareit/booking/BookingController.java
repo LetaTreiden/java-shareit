@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking;
 
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDTO;
@@ -16,6 +18,7 @@ import java.util.List;
 public class BookingController {
 
     private final BookingServiceImpl bookingService;
+    Logger logger = LoggerFactory.getLogger("log");
 
     @Autowired
     public BookingController(BookingServiceImpl bookingService) {
@@ -25,6 +28,7 @@ public class BookingController {
     @PostMapping
     public BookingDTO saveBooking(@RequestHeader("X-Sharer-User-Id") Long id,
                                    @Valid @RequestBody BookingDTO bookingDto) {
+        logger.info("запрос отправлен");
         return bookingService.create(id, bookingDto);
     }
 

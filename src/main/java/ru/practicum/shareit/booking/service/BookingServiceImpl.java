@@ -1,5 +1,8 @@
 package ru.practicum.shareit.booking.service;
 
+import org.apache.logging.log4j.LogManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingMapper;
@@ -10,7 +13,9 @@ import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exceptions.InvalidParameterException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
@@ -24,6 +29,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bRepo;
     private final ItemRepository iRepo;
     private final UserRepository uRepo;
+    Logger logger = LoggerFactory.getLogger("log");
 
     @Autowired
     public BookingServiceImpl(BookingRepository bRepo, ItemRepository iRepo, UserRepository uRepo) {
@@ -34,17 +40,31 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDTO create(Long id, BookingDTO dto) {
-        Booking booking = new Booking();
+       /* Booking booking = new Booking();
         validateUser(dto.getBooker().getId());
+        logger.info("Арендатель проверен");
         validateUser(dto.getOwner().getId());
+        logger.info("Владелец проверен");
         if (validateItem(id, dto)) {
+            logger.info("Товар проверен");
             booking.setItem(iRepo.getReferenceById(dto.getItem().getId()));
             booking.setStart(dto.getStart());
             booking.setEnd(dto.getEnd());
             booking.setBooker(uRepo.getReferenceById(id));
         }
         validateState(dto.getBookingStatus().toString());
+        logger.info("Статус проверен");
         return BookingMapper.toBookingDto(bRepo.save(booking));
+
+        */
+        Item item = iRepo.getReferenceById(dto.getItem().getId());
+        User user = uRepo.getReferenceById(id);
+        dto.setBookingStatus(BookingStatus.WAITING);
+        if (!item.getIsAvailable()) {
+            throw new ValidationException("Не доступно для аренды");
+        }
+        Booking booking = bRepo.save(BookingMapper.toBooking(dto));
+        return BookingMapper.toBookingDto(booking);
     }
 
     private boolean validateItem(Long id, BookingDTO dto) {
