@@ -191,7 +191,7 @@ public class ItemServiceImpl implements ItemService {
             if (!Objects.equals(booking.getBooker().getId(), userId)) {
                 throw new InvalidParameterException("Проверьте заданные параметры");
             } else {
-                if (booking.getEnd().isBefore(LocalDateTime.now())) {
+                if (booking.getEnd().isBefore(LocalDateTime.now()) || booking.getStart().isBefore(LocalDateTime.now())) {
                     commentDto.setItem(ItemMapper.toIDto(itemRepository.getReferenceById(itemId)));
                     commentDto.setAuthor(UserMapper.toUserDto(userRepository.getReferenceById(userId)));
                     commentDto.setCreated(LocalDateTime.now());
@@ -237,4 +237,5 @@ public class ItemServiceImpl implements ItemService {
             throw new InvalidParameterException("Комментарий не может юыть пусьым");
         }
     }
+
 }
