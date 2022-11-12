@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingMapper;
+import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.dto.BookingDTO;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
@@ -213,7 +214,10 @@ public class ItemServiceImpl implements ItemService {
                     commentTempDto.setAuthor(null);
                     commentTempDto.setItem(null);
                     return commentTempDto;
-                } else {
+                } else if (!booking.getStatus().equals(BookingStatus.PAST)){
+                    throw new InvalidParameterException("ронирование должно быть завершено");
+                }
+                else {
                     throw new InvalidParameterException("Проверьте заданные параметры");
                 }
             }

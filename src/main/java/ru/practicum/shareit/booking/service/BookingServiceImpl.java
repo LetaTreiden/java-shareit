@@ -14,13 +14,13 @@ import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class BookingServiceImpl implements BookingService {
@@ -55,7 +55,7 @@ public class BookingServiceImpl implements BookingService {
         logger.info("Статус проверен");
         return BookingMapper.toBookingDto(bRepo.save(booking));
 
-        */
+
         Item item = iRepo.getReferenceById(dto.getItem().getId());
         validateItem(item.getId(), dto);
         User user = uRepo.getReferenceById(id);
@@ -63,6 +63,19 @@ public class BookingServiceImpl implements BookingService {
         if (!item.getIsAvailable()) {
             throw new ValidationException("Не доступно для аренды");
         }
+        Booking booking = bRepo.save(BookingMapper.toBooking(dto));
+        return BookingMapper.toBookingDto(booking);
+
+        */
+        validateUser(id);
+        Optional<Item> item = iRepo.findById(id);
+
+        if (validateItem(item.get().getId(), dto)) {
+            dto.setBooker(uRepo.getReferenceById(id));
+            dto.setItem(iRepo.getReferenceById(dto.getItem().getId()));
+            dto.setBookingStatus(BookingStatus.WAITING);
+        }
+        
         Booking booking = bRepo.save(BookingMapper.toBooking(dto));
         return BookingMapper.toBookingDto(booking);
     }
