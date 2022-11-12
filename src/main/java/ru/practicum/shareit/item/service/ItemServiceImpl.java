@@ -214,7 +214,7 @@ public class ItemServiceImpl implements ItemService {
                     commentTempDto.setAuthor(null);
                     commentTempDto.setItem(null);
                     return commentTempDto;
-                } else if(!booking.getStatus().equals(BookingStatus.PAST)) {
+                } else if (!booking.getStatus().equals(BookingStatus.PAST)) {
                     throw new InvalidParameterException("ронирование должно быть завершено");
                 } else {
                     throw new InvalidParameterException("Проверьте заданные параметры");
