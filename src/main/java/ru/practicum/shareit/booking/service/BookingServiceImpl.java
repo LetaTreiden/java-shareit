@@ -75,7 +75,6 @@ public class BookingServiceImpl implements BookingService {
             dto.setItem(iRepo.getReferenceById(dto.getItem().getId()));
             dto.setBookingStatus(BookingStatus.WAITING);
         }
-        
         Booking booking = bRepo.save(BookingMapper.toBooking(dto));
         return BookingMapper.toBookingDto(booking);
     }
@@ -121,10 +120,10 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void validateState(String state) {
-        if (!state.equals(BookingStatus.ALL.name()) && !state.equals(BookingStatus.REJECTED.name())
-                && !state.equals(BookingStatus.WAITING.name()) && !state.equals(BookingStatus.CURRENT.name())
-                && !state.equals(BookingStatus.APPROVED.name()) && !state.equals(BookingStatus.CANCELED.name())
-                && !state.equals(BookingStatus.PAST.name()) && !state.equals(BookingStatus.FUTURE.name())) {
+        if (!state.equals(BookingStatus.ALL.name()) && !state.equals(BookingStatus.REJECTED.name()) &&
+                !state.equals(BookingStatus.WAITING.name()) && !state.equals(BookingStatus.CURRENT.name()) &&
+                !state.equals(BookingStatus.APPROVED.name()) && !state.equals(BookingStatus.CANCELED.name()) &&
+                !state.equals(BookingStatus.PAST.name()) && !state.equals(BookingStatus.FUTURE.name())) {
             throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
         }
     }
@@ -136,8 +135,8 @@ public class BookingServiceImpl implements BookingService {
 
         Booking booking = bRepo.findById(bId).orElseThrow(() -> new NotFoundException("Бронирование не найдено"));
 
-        if (!Objects.equals(booking.getBooker().getId(), id)
-                && !Objects.equals(booking.getItem().getOwner().getId(), id)) {
+        if (!Objects.equals(booking.getBooker().getId(), id) &&
+                !Objects.equals(booking.getItem().getOwner().getId(), id)) {
             throw new InvalidParameterException("Ошибка доступа");
         }
 
@@ -149,13 +148,12 @@ public class BookingServiceImpl implements BookingService {
 
         validateBooking(bId);
 
-        if (bRepo.getReferenceById(bId).getBooker().getId().equals(id)
-                && approved && bRepo.getReferenceById(bId).getId().equals(bId)) {
+        if (bRepo.getReferenceById(bId).getBooker().getId().equals(id) && approved &&
+                bRepo.getReferenceById(bId).getId().equals(bId)) {
             throw new NotFoundException("Товар не найден");
         }
-        if (approved && bRepo.getReferenceById(bId).getStatus().equals(BookingStatus.APPROVED)
-                && iRepo.getReferenceById(bRepo.getReferenceById(bId)
-                .getItem().getId()).getOwner().getId().equals(id)) {
+        if (approved && bRepo.getReferenceById(bId).getStatus().equals(BookingStatus.APPROVED) &&
+                iRepo.getReferenceById(bRepo.getReferenceById(bId).getItem().getId()).getOwner().getId().equals(id)) {
             throw new InvalidParameterException("Бронирование уже было подтверждено");
         }
 
