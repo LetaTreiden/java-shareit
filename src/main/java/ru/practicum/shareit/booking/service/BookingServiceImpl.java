@@ -38,10 +38,6 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingDTO create(Long id, BookingDTO dto) {
         Booking booking = new Booking();
-        validateUser(dto.getBooker().getId());
-        logger.info("Арендатель проверен");
-        validateUser(dto.getOwner().getId());
-        logger.info("Владелец проверен");
         if (validateItem(id, dto) && validateBooking(id, dto)) {
             logger.info("Товар проверен");
             booking.setItem(iRepo.getReferenceById(dto.getItem().getId()));
