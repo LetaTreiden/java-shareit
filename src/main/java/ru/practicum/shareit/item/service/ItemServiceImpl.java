@@ -107,14 +107,15 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDTO> findAllItemsByOwner(Long id) {
         validateUser(id);
-        /*
-        List<ItemDTO> itemDtoList = new ArrayList<>(itemRepository.findAllItemsByOwner(id)); for (ItemDTO itemDto : itemDtoList) {
+
+        List<ItemDTO> itemDtoList = ItemMapper.toItemDtos(itemRepository.findAllItemsByOwner(id));
+
+        for (ItemDTO itemDto : itemDtoList) {
             List<Booking> bookingPast = bookingRepository.findAllItemBookingsPast(itemDto.getId());
             if (bookingPast.size() != 0) {
                 bookingPast.sort(Comparator.comparing(Booking::getStart).reversed());
                 BookingDTO bookingDtoPast = BookingMapper.toBookingDto(bookingPast.get(0));
                 bookingDtoPast.setBooker(bookingDtoPast.getBooker());
-                bookingDtoPast.setBooker(null);
                 itemDto.setLastBooking(bookingDtoPast);
             }
             List<Booking> bookingFuture = bookingRepository.findAllItemBookingsFuture(itemDto.getId());
@@ -122,26 +123,11 @@ public class ItemServiceImpl implements ItemService {
                 bookingFuture.sort(Comparator.comparing(Booking::getStart));
                 BookingDTO bookingDtoFuture = BookingMapper.toBookingDto(bookingFuture.get(0));
                 bookingDtoFuture.setBooker(bookingDtoFuture.getBooker());
-                bookingDtoFuture.setBooker(null);
                 itemDto.setNextBooking(bookingDtoFuture);
             }
         }
         itemDtoList.sort(Comparator.comparing(ItemDTO::getId));
         return itemDtoList;
-         */
-        ArrayList<ItemDTO> res = new ArrayList<>();
-        ItemDTO itemDto;
-        for (ItemDTO item : itemRepository.findAllItemsByOwner(id)) {
-            itemDto = item;
-            validateItem(itemDto.getId());
-            itemDto.setLastBooking(item.getLastBooking());
-            itemDto.setNextBooking(item.getNextBooking());
-            Set<CommentDTO> commentDTOS = CommentMapper.toCommentDtos(commentRepository
-                    .findAllItemComments(item.getId()));
-            itemDto.setComments(commentDTOS);
-            res.add(itemDto);
-        }
-        return res;
     }
 
     @Override
@@ -149,7 +135,9 @@ public class ItemServiceImpl implements ItemService {
         List<Item> availableItems = new ArrayList<>();
         if (text.length() > 0 && !text.trim().equals("")) {
             for (Item itemFromStorage : itemRepository.findAll()) {
-                if (itemFromStorage.getIsAvailable() && (itemFromStorage.getDescription().toLowerCase().contains(text.toLowerCase()) || itemFromStorage.getName().toLowerCase().contains(text.toLowerCase()))) {
+                if (itemFromStorage.getIsAvailable() && (itemFromStorage.getDescription().toLowerCase()
+                        .contains(text.toLowerCase()) || itemFromStorage.getName().toLowerCase()
+                        .contains(text.toLowerCase()))) {
                     availableItems.add(itemFromStorage);
                 }
             }
