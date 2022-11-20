@@ -39,12 +39,12 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDTO create(Long id, BookingDTO dto) {
-       /* Booking booking = new Booking();
+        Booking booking = new Booking();
         validateUser(dto.getBooker().getId());
         logger.info("Арендатель проверен");
         validateUser(dto.getOwner().getId());
         logger.info("Владелец проверен");
-        if (validateItem(id, dto)) {
+        if (validateItem(id, dto) && validateBooking(id, dto)) {
             logger.info("Товар проверен");
             booking.setItem(iRepo.getReferenceById(dto.getItem().getId()));
             booking.setStart(dto.getStart());
@@ -55,7 +55,7 @@ public class BookingServiceImpl implements BookingService {
         logger.info("Статус проверен");
         return BookingMapper.toBookingDto(bRepo.save(booking));
 
-
+/*
         Item item = iRepo.getReferenceById(dto.getItem().getId());
         validateItem(item.getId(), dto);
         User user = uRepo.getReferenceById(id);
@@ -66,7 +66,7 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bRepo.save(BookingMapper.toBooking(dto));
         return BookingMapper.toBookingDto(booking);
 
-        */
+
         validateUser(id);
         Optional<Item> item = iRepo.findById(id);
 
@@ -77,6 +77,7 @@ public class BookingServiceImpl implements BookingService {
         }
         Booking booking = bRepo.save(BookingMapper.toBooking(dto));
         return BookingMapper.toBookingDto(booking);
+        */
     }
 
     private boolean validateItem(Long id, BookingDTO dto) {
@@ -113,10 +114,33 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    private void validateBooking(Long bookingId) {
-        if (!bRepo.existsById(bookingId)) {
-            throw new NotFoundException("Бронирование не найдено");
-        }
+    private boolean validateBooking(Long id, BookingDTO dto) {
+            if (!iRepo.existsById(dto.getItem().getId())) {
+                throw new NotFoundException("Товар не найден");
+            }
+            if (id.equals(iRepo.getReferenceById(
+                    dto.getItem().getId()).getOwner().getId())) {
+                throw new NotFoundException("Невозможно совершить действие");
+            }
+            if (dto.getEnd().isBefore(LocalDateTime.now())) {
+                throw new InvalidParameterException("Дата конца в прошлом");
+            }
+            if (dto.getEnd().isBefore(dto.getStart())) {
+                throw new InvalidParameterException("Дата начала после даты конца");
+            }
+            if (dto.getStart().isBefore(LocalDateTime.now())) {
+                throw new InvalidParameterException("Дата начала в прошлом");
+            }
+            if (!uRepo.existsById(id)) {
+                throw new NotFoundException("Пользователь не найден");
+            }
+            if (iRepo.existsById(dto.getItem().getId())) {
+                if (iRepo.getReferenceById(dto.getItem().getId()).getIsAvailable() == Boolean.FALSE) {
+                    throw new InvalidParameterException("Товар недоступен для аренды");
+                }
+            }
+            return true;
+
     }
 
     private void validateState(String state) {
@@ -146,7 +170,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingDTO confirmOrRejectBooking(Long id, Long bId, Boolean approved) {
 
-        validateBooking(bId);
+        validateBookingExist(bId);
 
         if (bRepo.getReferenceById(bId).getBooker().getId().equals(id) && approved &&
                 bRepo.getReferenceById(bId).getId().equals(bId)) {
@@ -166,6 +190,11 @@ public class BookingServiceImpl implements BookingService {
         }
         bRepo.save(booking);
         return BookingMapper.toBookingDto(booking);
+    }
+    private void validateBookingExist(long id) {
+        if (!bRepo.existsById(id)) {
+            throw new NotFoundException("Такого бронирования не существует");
+        }
     }
 
     @Override
