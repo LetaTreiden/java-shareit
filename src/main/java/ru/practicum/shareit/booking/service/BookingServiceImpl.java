@@ -12,7 +12,6 @@ import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exceptions.InvalidParameterException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -20,7 +19,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 public class BookingServiceImpl implements BookingService {
@@ -115,31 +113,30 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private boolean validateBooking(Long id, BookingDTO dto) {
-            if (!iRepo.existsById(dto.getItem().getId())) {
-                throw new NotFoundException("Товар не найден");
+        if (!iRepo.existsById(dto.getItem().getId())) {
+            throw new NotFoundException("Товар не найден");
+        }
+        if (id.equals(iRepo.getReferenceById(dto.getItem().getId()).getOwner().getId())) {
+            throw new NotFoundException("Невозможно совершить действие");
+        }
+        if (dto.getEnd().isBefore(LocalDateTime.now())) {
+            throw new InvalidParameterException("Дата конца в прошлом");
+        }
+        if (dto.getEnd().isBefore(dto.getStart())) {
+            throw new InvalidParameterException("Дата начала после даты конца");
+        }
+        if (dto.getStart().isBefore(LocalDateTime.now())) {
+            throw new InvalidParameterException("Дата начала в прошлом");
+        }
+        if (!uRepo.existsById(id)) {
+            throw new NotFoundException("Пользователь не найден");
+        }
+        if (iRepo.existsById(dto.getItem().getId())) {
+            if (iRepo.getReferenceById(dto.getItem().getId()).getIsAvailable() == Boolean.FALSE) {
+                throw new InvalidParameterException("Товар недоступен для аренды");
             }
-            if (id.equals(iRepo.getReferenceById(
-                    dto.getItem().getId()).getOwner().getId())) {
-                throw new NotFoundException("Невозможно совершить действие");
-            }
-            if (dto.getEnd().isBefore(LocalDateTime.now())) {
-                throw new InvalidParameterException("Дата конца в прошлом");
-            }
-            if (dto.getEnd().isBefore(dto.getStart())) {
-                throw new InvalidParameterException("Дата начала после даты конца");
-            }
-            if (dto.getStart().isBefore(LocalDateTime.now())) {
-                throw new InvalidParameterException("Дата начала в прошлом");
-            }
-            if (!uRepo.existsById(id)) {
-                throw new NotFoundException("Пользователь не найден");
-            }
-            if (iRepo.existsById(dto.getItem().getId())) {
-                if (iRepo.getReferenceById(dto.getItem().getId()).getIsAvailable() == Boolean.FALSE) {
-                    throw new InvalidParameterException("Товар недоступен для аренды");
-                }
-            }
-            return true;
+        }
+        return true;
 
     }
 
@@ -172,8 +169,8 @@ public class BookingServiceImpl implements BookingService {
 
         validateBookingExist(bId);
 
-        if (bRepo.getReferenceById(bId).getBooker().getId().equals(id) && approved &&
-                bRepo.getReferenceById(bId).getId().equals(bId)) {
+        if (bRepo.getReferenceById(bId).getBooker().getId().equals(id) && approved && bRepo.getReferenceById(bId)
+                .getId().equals(bId)) {
             throw new NotFoundException("Товар не найден");
         }
         if (approved && bRepo.getReferenceById(bId).getStatus().equals(BookingStatus.APPROVED) &&
@@ -191,6 +188,7 @@ public class BookingServiceImpl implements BookingService {
         bRepo.save(booking);
         return BookingMapper.toBookingDto(booking);
     }
+
     private void validateBookingExist(long id) {
         if (!bRepo.existsById(id)) {
             throw new NotFoundException("Такого бронирования не существует");
