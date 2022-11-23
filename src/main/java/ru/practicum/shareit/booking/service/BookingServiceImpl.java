@@ -1,7 +1,5 @@
 package ru.practicum.shareit.booking.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingMapper;
@@ -26,7 +24,6 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bRepo;
     private final ItemRepository iRepo;
     private final UserRepository uRepo;
-    Logger logger = LoggerFactory.getLogger("log");
 
     @Autowired
     public BookingServiceImpl(BookingRepository bRepo, ItemRepository iRepo, UserRepository uRepo) {
@@ -38,68 +35,22 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingDTO create(Long id, BookingDTO dto) {
         Booking booking = new Booking();
-        if (validateItem(id, dto) && validateBooking(id, dto)) {
-            logger.info("Товар проверен");
-            booking.setItem(iRepo.getReferenceById(dto.getItem().getId()));
-            booking.setStart(dto.getStart());
-            booking.setEnd(dto.getEnd());
-            booking.setBooker(uRepo.getReferenceById(id));
-        }
+        validateItem(dto);
+        validateBooking(id, dto);
+
+        booking.setItem(iRepo.getReferenceById(dto.getItem().getId()));
+        booking.setStart(dto.getStart());
+        booking.setEnd(dto.getEnd());
+        booking.setBooker(uRepo.getReferenceById(id));
+
         validateState(dto.getBookingStatus().toString());
-        logger.info("Статус проверен");
         return BookingMapper.toBookingDto(bRepo.save(booking));
-
-/*
-        Item item = iRepo.getReferenceById(dto.getItem().getId());
-        validateItem(item.getId(), dto);
-        User user = uRepo.getReferenceById(id);
-        dto.setBookingStatus(BookingStatus.WAITING);
-        if (!item.getIsAvailable()) {
-            throw new ValidationException("Не доступно для аренды");
-        }
-        Booking booking = bRepo.save(BookingMapper.toBooking(dto));
-        return BookingMapper.toBookingDto(booking);
-
-
-        validateUser(id);
-        Optional<Item> item = iRepo.findById(id);
-
-        if (validateItem(item.get().getId(), dto)) {
-            dto.setBooker(uRepo.getReferenceById(id));
-            dto.setItem(iRepo.getReferenceById(dto.getItem().getId()));
-            dto.setBookingStatus(BookingStatus.WAITING);
-        }
-        Booking booking = bRepo.save(BookingMapper.toBooking(dto));
-        return BookingMapper.toBookingDto(booking);
-        */
     }
 
-    private boolean validateItem(Long id, BookingDTO dto) {
-
+    private void validateItem(BookingDTO dto) {
         if (!iRepo.existsById(dto.getItem().getId())) {
             throw new NotFoundException("Товар не найден");
         }
-        if (id.equals(iRepo.getReferenceById(dto.getItem().getId()).getOwner().getId())) {
-            throw new InvalidParameterException("Невозможно выполнить операцию");
-        }
-        if (dto.getEnd().isBefore(LocalDateTime.now())) {
-            throw new InvalidParameterException("Дата завершения не может находиться в прошлом");
-        }
-        if (dto.getEnd().isBefore(dto.getStart())) {
-            throw new InvalidParameterException("Дата завершения не может быть раньше даты начала");
-        }
-        if (dto.getStart().isBefore(LocalDateTime.now())) {
-            throw new InvalidParameterException("Дата начала не может быть в прошлом");
-        }
-        if (!uRepo.existsById(id)) {
-            throw new NotFoundException("Пользователь не найден");
-        }
-        if (iRepo.existsById(dto.getItem().getId())) {
-            if (iRepo.getReferenceById(dto.getItem().getId()).getIsAvailable() == Boolean.FALSE) {
-                throw new InvalidParameterException("Товар не доступен");
-            }
-        }
-        return true;
     }
 
     private void validateUser(Long id) {
@@ -108,10 +59,7 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    private boolean validateBooking(Long id, BookingDTO dto) {
-        if (!iRepo.existsById(dto.getItem().getId())) {
-            throw new NotFoundException("Товар не найден");
-        }
+    private void validateBooking(Long id, BookingDTO dto) {
         if (id.equals(iRepo.getReferenceById(dto.getItem().getId()).getOwner().getId())) {
             throw new NotFoundException("Невозможно совершить действие");
         }
@@ -132,8 +80,6 @@ public class BookingServiceImpl implements BookingService {
                 throw new InvalidParameterException("Товар недоступен для аренды");
             }
         }
-        return true;
-
     }
 
     private void validateState(String state) {
@@ -149,24 +95,19 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Booking findBookingById(Long id, Long bId) {
         validateUser(id);
-
         Booking booking = bRepo.findById(bId).orElseThrow(() -> new NotFoundException("Бронирование не найдено"));
-
         if (!Objects.equals(booking.getBooker().getId(), id) &&
                 !Objects.equals(booking.getItem().getOwner().getId(), id)) {
             throw new InvalidParameterException("Ошибка доступа");
         }
-
         return booking;
     }
 
     @Override
     public BookingDTO confirmOrRejectBooking(Long id, Long bId, Boolean approved) {
-
         validateBookingExist(bId);
-
-        if (bRepo.getReferenceById(bId).getBooker().getId().equals(id) && approved && bRepo.getReferenceById(bId)
-                .getId().equals(bId)) {
+        if (bRepo.getReferenceById(bId).getBooker().getId().equals(id) && approved &&
+                bRepo.getReferenceById(bId).getId().equals(bId)) {
             throw new NotFoundException("Товар не найден");
         }
         if (approved && bRepo.getReferenceById(bId).getStatus().equals(BookingStatus.APPROVED) &&
@@ -175,7 +116,6 @@ public class BookingServiceImpl implements BookingService {
         }
 
         Booking booking = bRepo.getReferenceById(bId);
-
         if (approved) {
             booking.setStatus(BookingStatus.APPROVED);
         } else {
@@ -197,26 +137,32 @@ public class BookingServiceImpl implements BookingService {
         validateState(state);
 
         List<Booking> result = new ArrayList<>();
-
         BookingStatus status = BookingStatus.valueOf(state);
 
-        if (status.equals(BookingStatus.ALL)) {
-            result.addAll(bRepo.findBookingsByBookerId(id));
+        switch (status) {
+            case ALL:
+                result.addAll(bRepo.findBookingsByBookerId(id));
 
-        } else if (status.equals(BookingStatus.CURRENT)) {
-            result.addAll(bRepo.findBookingsByBookerIdWithCurrentStatus(id));
+                break;
+            case CURRENT:
+                result.addAll(bRepo.findBookingsByBookerIdWithCurrentStatus(id));
 
-        } else if (status.equals(BookingStatus.PAST)) {
-            result.addAll(bRepo.findBookingsByBookerIdWithPastStatus(id));
+                break;
+            case PAST:
+                result.addAll(bRepo.findBookingsByBookerIdWithPastStatus(id));
 
-        } else if (status.equals(BookingStatus.FUTURE)) {
-            result.addAll(bRepo.findBookingsByBookerIdWithFutureStatus(id));
+                break;
+            case FUTURE:
+                result.addAll(bRepo.findBookingsByBookerIdWithFutureStatus(id));
 
-        } else if (status.equals(BookingStatus.WAITING)) {
-            result.addAll(bRepo.findBookingsByBookerIdWithWaitingOrRejectStatus(id, BookingStatus.WAITING));
+                break;
+            case WAITING:
+                result.addAll(bRepo.findBookingsByBookerIdWithWaitingOrRejectStatus(id, BookingStatus.WAITING));
 
-        } else if (status.equals(BookingStatus.REJECTED)) {
-            result.addAll(bRepo.findBookingsByBookerIdWithWaitingOrRejectStatus(id, BookingStatus.REJECTED));
+                break;
+            case REJECTED:
+                result.addAll(bRepo.findBookingsByBookerIdWithWaitingOrRejectStatus(id, BookingStatus.REJECTED));
+                break;
         }
         return result;
     }
@@ -227,7 +173,6 @@ public class BookingServiceImpl implements BookingService {
         validateState(state);
 
         List<Booking> result = new ArrayList<>();
-
         BookingStatus status = BookingStatus.valueOf(state);
 
         switch (status) {
