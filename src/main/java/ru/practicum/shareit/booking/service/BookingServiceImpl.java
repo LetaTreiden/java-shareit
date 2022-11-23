@@ -95,7 +95,8 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Booking findBookingById(Long id, Long bId) {
         validateUser(id);
-        Booking booking = bRepo.findById(bId).orElseThrow(() -> new NotFoundException("Бронирование не найдено"));
+        validateBookingExist(bId);
+        Booking booking = bRepo.getReferenceById(bId);
         if (!Objects.equals(booking.getBooker().getId(), id) &&
                 !Objects.equals(booking.getItem().getOwner().getId(), id)) {
             throw new InvalidParameterException("Ошибка доступа");
