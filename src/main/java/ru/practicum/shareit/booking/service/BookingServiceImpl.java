@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.dto.BookingDTO;
@@ -10,6 +11,7 @@ import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exceptions.InvalidParameterException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -32,26 +34,43 @@ public class BookingServiceImpl implements BookingService {
         this.uRepo = uRepo;
     }
 
+    @Transactional
     @Override
-    public BookingDTO create(Long id, BookingDTO dto) {
-        Booking booking = new Booking();
-        validateItem(dto);
-        validateBooking(id, dto);
+    public BookingDTO create(Long bookerId, BookingDTO bookingDto) {
+        if (!uRepo.existsById(bookerId))
+            throw new NotFoundException("Пользователя с таким id не существует");
+        dateTimeCheck(bookingDto.getStart(), bookingDto.getEnd());
 
-        booking.setItem(iRepo.getReferenceById(dto.getItem().getId()));
-        booking.setStart(dto.getStart());
-        booking.setEnd(dto.getEnd());
-        booking.setBooker(uRepo.getReferenceById(id));
+        Long itemId = bookingDto.getItem().getId();
+        Item item = iRepo.findById(itemId)
+                .orElseThrow(() -> new NotFoundException(
+                        "Item с идентификатором " + itemId + " не найден."
+                ));
+        if (item.getOwner().getId().equals(bookerId))
+            throw new InvalidParameterException("Владелец не может создать бронь на свою вещь");
+        uRepo.findById(bookerId).orElseThrow(() ->
+                new NotFoundException("User с идентификатором " + bookerId + " не найден."));
 
-        validateState(dto.getBookingStatus().toString());
-        return BookingMapper.toBookingDto(bRepo.save(booking));
+        if (!item.getIsAvailable())
+            throw new InvalidParameterException("Вещь с указанным id недоступна для запроса на бронирование.");
+        bookingDto.setBookingStatus(BookingStatus.WAITING);
+        Booking resBooking = bRepo.save(BookingMapper.toBooking(bookingDto));
+        return BookingMapper.toBookingDto(bRepo.findById(resBooking.getId())
+                .orElseThrow(() -> new NotFoundException(
+                        "Booking с идентификатором " + resBooking.getId() + " не найден.")));
     }
 
-    private void validateItem(BookingDTO dto) {
+    private static void dateTimeCheck(LocalDateTime start, LocalDateTime end) {
+        if (start.isAfter(end) || start.equals(end))
+            throw new InvalidParameterException("StartTime не может быть после EndTime или равняться ему");
+    }
+
+  /*  private void validateItem(BookingDTO dto) {
         if (!iRepo.existsById(dto.getItem().getId())) {
             throw new NotFoundException("Товар не найден");
         }
     }
+   */
 
     private void validateUser(Long id) {
         if (!uRepo.existsById(id)) {
@@ -59,7 +78,7 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    private void validateBooking(Long id, BookingDTO dto) {
+   /* private void validateBooking(Long id, BookingDTO dto) {
         if (id.equals(iRepo.getReferenceById(dto.getItem().getId()).getOwner().getId())) {
             throw new NotFoundException("Невозможно совершить действие");
         }
@@ -81,6 +100,7 @@ public class BookingServiceImpl implements BookingService {
             }
         }
     }
+    */
 
     private void validateState(String state) {
         if (!state.equals(BookingStatus.ALL.name()) && !state.equals(BookingStatus.REJECTED.name()) &&
@@ -90,7 +110,6 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
         }
     }
-
 
     @Override
     public Booking findBookingById(Long id, Long bId) {
