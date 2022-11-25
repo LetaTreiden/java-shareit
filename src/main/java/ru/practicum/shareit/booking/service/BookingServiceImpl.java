@@ -18,7 +18,6 @@ import ru.practicum.shareit.user.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class BookingServiceImpl implements BookingService {
@@ -113,14 +112,21 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Booking findBookingById(Long id, Long bId) {
-        validateUser(id);
-        validateBookingExist(bId);
-        Booking booking = bRepo.getReferenceById(bId);
-        if (!Objects.equals(booking.getBooker().getId(), id) &&
-                !Objects.equals(booking.getItem().getOwner().getId(), id)) {
-            throw new InvalidParameterException("Ошибка доступа");
-        }
-        return booking;
+        if (!uRepo.existsById(id))
+            throw new NotFoundException("Пользователя с таким id не существует");
+        if (!bRepo.existsById(bId))
+            throw new NotFoundException("Бронь с таким id не существует");
+
+        Booking booking = bRepo.findById(bId)
+                .orElseThrow(() -> new NotFoundException(
+                        "Booking с идентификатором " + bId + " не найден."));
+        Item item = booking.getItem();
+        if (!item.getOwner().getId().equals(id) && !booking.getBooker().getId().equals(id))
+            throw new InvalidParameterException("Данный пользователь не может получить информацию о заданной вещи.");
+
+        return bRepo.findById(bId)
+                .orElseThrow(() ->
+                        new NotFoundException("Booking с идентификатором " + bId + " не найден."));
     }
 
     @Override
