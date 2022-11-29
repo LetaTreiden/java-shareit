@@ -139,17 +139,15 @@ public class BookingServiceImpl implements BookingService {
             throw new NotFoundException("Пользователя с таким id не существует");
         if (!bRepo.existsById(bId))
             throw new NotFoundException("Брони с таким id не существует");
-        Booking booking = bRepo.findById(bId)
-                .orElseThrow(() -> new NotFoundException(
-                        "Booking с идентификатором " + bId + " не найден."
-                ));
+        Booking booking = bRepo.findById(bId).orElseThrow(() -> new NotFoundException(
+                        "Booking с идентификатором " + bId + " не найден."));
 
         Item item = booking.getItem();
-        if (!item.getOwner().getId().equals(id))
+        if (!Objects.equals(item.getOwner().getId(), id))
             throw new InvalidParameterException("Данный пользователь не может управлять запрашиваемой бронью.");
 
-        if (booking.getStatus().equals(BookingStatus.APPROVED))
-            throw new InvalidParameterException("Статус уже подтвержден");
+        //if (Objects.equals(booking.getStatus(), BookingStatus.APPROVED))
+          //  throw new InvalidParameterException("Статус уже подтвержден");
 
         if (approved) {
             booking.setStatus(BookingStatus.APPROVED);
