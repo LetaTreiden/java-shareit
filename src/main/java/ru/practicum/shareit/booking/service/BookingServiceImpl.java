@@ -18,6 +18,9 @@ import ru.practicum.shareit.user.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
+import static ru.practicum.shareit.booking.BookingStatus.ALL;
 
 @Service
 public class BookingServiceImpl implements BookingService {
@@ -50,8 +53,9 @@ public class BookingServiceImpl implements BookingService {
         uRepo.findById(bookerId).orElseThrow(() ->
                 new NotFoundException("User с идентификатором " + bookerId + " не найден."));
 
-        if (!item.getIsAvailable())
+        if (Objects.equals(item.getIsAvailable(), false)) {
             throw new InvalidParameterException("Вещь с указанным id недоступна для запроса на бронирование.");
+        }
         bookingDto.setBookingStatus(BookingStatus.WAITING);
         Booking resBooking = bRepo.save(BookingMapper.toBooking(bookingDto));
         return BookingMapper.toBookingDto(bRepo.findById(resBooking.getId())
@@ -102,7 +106,7 @@ public class BookingServiceImpl implements BookingService {
     */
 
     private void validateState(String state) {
-        if (!state.equals(BookingStatus.ALL.name()) && !state.equals(BookingStatus.REJECTED.name()) &&
+        if (!state.equals(ALL.name()) && !state.equals(BookingStatus.REJECTED.name()) &&
                 !state.equals(BookingStatus.WAITING.name()) && !state.equals(BookingStatus.CURRENT.name()) &&
                 !state.equals(BookingStatus.APPROVED.name()) && !state.equals(BookingStatus.CANCELED.name()) &&
                 !state.equals(BookingStatus.PAST.name()) && !state.equals(BookingStatus.FUTURE.name())) {
@@ -131,7 +135,6 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDTO confirmOrRejectBooking(Long id, Long bId, Boolean approved) {
-        validateBookingExist(bId);
         if (!uRepo.existsById(id))
             throw new NotFoundException("Пользователя с таким id не существует");
         if (!bRepo.existsById(bId))
