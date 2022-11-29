@@ -64,8 +64,8 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private static void dateTimeCheck(LocalDateTime start, LocalDateTime end) {
-        if (start.isAfter(end) || start.equals(end))
-            throw new InvalidParameterException("StartTime не может быть после EndTime или равняться ему");
+        if (start.isAfter(end) || start.equals(end) || start.isBefore(LocalDateTime.now()))
+            throw new InvalidParameterException("Неправильно заданные временные параметры");
     }
 
   /*  private void validateItem(BookingDTO dto) {
