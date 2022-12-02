@@ -207,44 +207,41 @@ public class BookingServiceImpl implements BookingService {
         validateState(state);
 
         BookingStatus status = BookingStatus.valueOf(state);
-        List<Booking> result = bRepo.findAllOwnersBookingsWithStatus(id, status);
+        List<Booking> result = new ArrayList<>();
 
         switch (status) {
             case ALL:
-                result.addAll(bRepo.findAllOwnersBookings(id));
+                result = bRepo.findAllByItemOwner(uRepo.getReferenceById(id));
                 result.sort(Comparator.comparing(Booking::getStart).reversed());
-                return result;
-            case FUTURE:
-                result.addAll(bRepo.findAllOwnersBookingsWithFutureStatus(id));
-                result.sort(Comparator.comparing(Booking::getStart).reversed());
-                return result;
+                break;
             case CURRENT:
-                result.addAll(bRepo.findAllOwnersBookingsWithCurrentStatus(id));
-                result.sort(Comparator.comparing(Booking::getStart).reversed());
-                return result;
-            case PAST:
-                result.addAll(bRepo.findAllOwnersBookingsWithPastStatus(id));
-                result.sort(Comparator.comparing(Booking::getStart).reversed());
-                return result;
-            case WAITING:
-                result.addAll(bRepo.findAllOwnersBookingsWithWaitingStatus(id));
-                result.sort(Comparator.comparing(Booking::getStart).reversed());
-                return result;
-            case APPROVED:
-                result.addAll(bRepo.findAllOwnersBookingsWithApprovedStatus(id));
-                result.sort(Comparator.comparing(Booking::getStart).reversed());
-                return result;
-            case REJECTED:
-                result.addAll(bRepo.findAllOwnersBookingsWithRejectedStatus(id));
-                result.sort(Comparator.comparing(Booking::getStart).reversed());
-                return result;
-            case CANCELED:
-                result.addAll(bRepo.findAllOwnersBookingsWithCancelledStatus(id));
-                result.sort(Comparator.comparing(Booking::getStart).reversed());
-                return result;
-        }
 
-        result.sort(Comparator.comparing(Booking::getStart).reversed());
+                result = bRepo.findAllByItemOwnerAndStartIsBeforeAndEndIsAfter(uRepo.getReferenceById(id),
+                        LocalDateTime.now(), LocalDateTime.now());
+                result.sort(Comparator.comparing(Booking::getStart).reversed());
+                break;
+            case PAST:
+                result = bRepo.findAllByItemOwnerAndEndIsBefore(uRepo.getReferenceById(id),
+                        LocalDateTime.now());
+                result.sort(Comparator.comparing(Booking::getStart).reversed());
+                break;
+            case FUTURE:
+                result = bRepo.findAllByItemOwnerAndStartIsAfter(uRepo.getReferenceById(id),
+                        LocalDateTime.now());
+                result.sort(Comparator.comparing(Booking::getStart).reversed());
+                break;
+            case WAITING:
+                result = bRepo.findAllByItemOwnerAndStatus(uRepo.getReferenceById(id),
+                        BookingStatus.WAITING);
+                result.sort(Comparator.comparing(Booking::getStart).reversed());
+                break;
+            case REJECTED:
+                result = bRepo.findAllByItemOwnerAndStatus(uRepo.getReferenceById(id),
+                        BookingStatus.REJECTED);
+                break;
+            default:
+                throw new InvalidParameterException("Неизвестный статус");
+        }
         return result;
     }
 }
