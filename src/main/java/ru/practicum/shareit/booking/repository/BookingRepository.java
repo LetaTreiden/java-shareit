@@ -45,6 +45,22 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             + "AND b.end < CURRENT_TIMESTAMP ")
     List<Booking> findAllOwnersBookingsWithPastStatus(Long id);
 
+    @Query(value = "SELECT b FROM Booking AS b WHERE b.item.id IN (SELECT it FROM Item AS it WHERE it.owner.id = ?1) "
+            + "AND b.end < CURRENT_TIMESTAMP ")
+    List<Booking> findAllOwnersBookingsWithWaitingStatus(Long id);
+
+    @Query(value = "SELECT b FROM Booking AS b WHERE b.item.id IN (SELECT it FROM Item AS it WHERE it.owner.id = ?1) "
+            + "AND b.end < CURRENT_TIMESTAMP ")
+    List<Booking> findAllOwnersBookingsWithApprovedStatus(Long id);
+
+    @Query(value = "SELECT b FROM Booking AS b WHERE b.item.id IN (SELECT it FROM Item AS it WHERE it.owner.id = ?1) "
+            + "AND b.end < CURRENT_TIMESTAMP ")
+    List<Booking> findAllOwnersBookingsWithCancelledStatus(Long id);
+
+    @Query(value = "SELECT b FROM Booking AS b WHERE b.item.id IN (SELECT it FROM Item AS it WHERE it.owner.id = ?1) "
+            + "AND b.end < CURRENT_TIMESTAMP ")
+    List<Booking> findAllOwnersBookingsWithRejectedStatus(Long id);
+
     @Query(value = "SELECT b FROM Booking AS b WHERE b.item.id = ?1")
     List<Booking> findAllItemBookings(Long id);
 

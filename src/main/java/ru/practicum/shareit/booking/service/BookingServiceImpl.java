@@ -17,6 +17,7 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -34,6 +35,11 @@ public class BookingServiceImpl implements BookingService {
         this.bRepo = bRepo;
         this.iRepo = iRepo;
         this.uRepo = uRepo;
+    }
+
+    private static void dateTimeCheck(LocalDateTime start, LocalDateTime end) {
+        if (start.isAfter(end) || start.equals(end) || start.isBefore(LocalDateTime.now()))
+            throw new InvalidParameterException("Неправильно заданные временные параметры");
     }
 
     @Transactional
@@ -61,11 +67,6 @@ public class BookingServiceImpl implements BookingService {
         return BookingMapper.toBookingDto(bRepo.findById(resBooking.getId())
                 .orElseThrow(() -> new NotFoundException(
                         "Booking с идентификатором " + resBooking.getId() + " не найден.")));
-    }
-
-    private static void dateTimeCheck(LocalDateTime start, LocalDateTime end) {
-        if (start.isAfter(end) || start.equals(end) || start.isBefore(LocalDateTime.now()))
-            throw new InvalidParameterException("Неправильно заданные временные параметры");
     }
 
   /*  private void validateItem(BookingDTO dto) {
@@ -146,7 +147,7 @@ public class BookingServiceImpl implements BookingService {
             throw new InvalidParameterException("Данный пользователь не может управлять запрашиваемой бронью.");
 
         //if (Objects.equals(booking.getStatus(), BookingStatus.APPROVED))
-          //  throw new InvalidParameterException("Статус уже подтвержден");
+        //  throw new InvalidParameterException("Статус уже подтвержден");
 
         if (approved) {
             booking.setStatus(BookingStatus.APPROVED);
@@ -205,23 +206,45 @@ public class BookingServiceImpl implements BookingService {
         validateUser(id);
         validateState(state);
 
-        List<Booking> result = new ArrayList<>();
         BookingStatus status = BookingStatus.valueOf(state);
+        List<Booking> result = bRepo.findAllOwnersBookingsWithStatus(id, status);
 
         switch (status) {
             case ALL:
                 result.addAll(bRepo.findAllOwnersBookings(id));
-                break;
+                result.sort(Comparator.comparing(Booking::getStart).reversed());
+                return result;
             case FUTURE:
                 result.addAll(bRepo.findAllOwnersBookingsWithFutureStatus(id));
-                break;
+                result.sort(Comparator.comparing(Booking::getStart).reversed());
+                return result;
             case CURRENT:
                 result.addAll(bRepo.findAllOwnersBookingsWithCurrentStatus(id));
-                break;
+                result.sort(Comparator.comparing(Booking::getStart).reversed());
+                return result;
             case PAST:
                 result.addAll(bRepo.findAllOwnersBookingsWithPastStatus(id));
-                break;
+                result.sort(Comparator.comparing(Booking::getStart).reversed());
+                return result;
+            case WAITING:
+                result.addAll(bRepo.findAllOwnersBookingsWithWaitingStatus(id));
+                result.sort(Comparator.comparing(Booking::getStart).reversed());
+                return result;
+            case APPROVED:
+                result.addAll(bRepo.findAllOwnersBookingsWithApprovedStatus(id));
+                result.sort(Comparator.comparing(Booking::getStart).reversed());
+                return result;
+            case REJECTED:
+                result.addAll(bRepo.findAllOwnersBookingsWithRejectedStatus(id));
+                result.sort(Comparator.comparing(Booking::getStart).reversed());
+                return result;
+            case CANCELED:
+                result.addAll(bRepo.findAllOwnersBookingsWithCancelledStatus(id));
+                result.sort(Comparator.comparing(Booking::getStart).reversed());
+                return result;
         }
+
+        result.sort(Comparator.comparing(Booking::getStart).reversed());
         return result;
     }
 }
