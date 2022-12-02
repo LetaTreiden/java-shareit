@@ -139,8 +139,7 @@ public class BookingServiceImpl implements BookingService {
             throw new NotFoundException("Пользователя с таким id не существует");
         if (!bRepo.existsById(bId))
             throw new NotFoundException("Брони с таким id не существует");
-        Booking booking = bRepo.findById(bId).orElseThrow(() -> new NotFoundException(
-                        "Booking с идентификатором " + bId + " не найден."));
+        Booking booking = bRepo.getReferenceById(bId);
 
         Item item = booking.getItem();
         if (!Objects.equals(item.getOwner().getId(), id))
