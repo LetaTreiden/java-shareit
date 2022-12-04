@@ -54,6 +54,4 @@ public class ItemController {
                                   @RequestBody CommentDTO commentDto) {
         return itemService.postComment(id, itemId, commentDto);
     }
-
-
 }

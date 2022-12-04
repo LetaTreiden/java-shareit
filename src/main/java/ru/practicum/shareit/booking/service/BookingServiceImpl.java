@@ -50,18 +50,15 @@ public class BookingServiceImpl implements BookingService {
         dateTimeCheck(bookingDto.getStart(), bookingDto.getEnd());
 
         Long itemId = bookingDto.getItem().getId();
-        Item item = iRepo.findById(itemId)
-                .orElseThrow(() -> new NotFoundException(
-                        "Item с идентификатором " + itemId + " не найден."
-                ));
+        Item item = iRepo.findById(itemId).orElseThrow(() -> new NotFoundException(
+                        "Item с идентификатором " + itemId + " не найден."));
+
         if (item.getOwner().getId().equals(bookerId))
             throw new InvalidParameterException("Владелец не может создать бронь на свою вещь");
-        uRepo.findById(bookerId).orElseThrow(() ->
-                new NotFoundException("User с идентификатором " + bookerId + " не найден."));
 
-        if (Objects.equals(item.getIsAvailable(), false)) {
+        if (!item.getIsAvailable())
             throw new InvalidParameterException("Вещь с указанным id недоступна для запроса на бронирование.");
-        }
+
         bookingDto.setBookingStatus(BookingStatus.WAITING);
         Booking resBooking = bRepo.save(BookingMapper.toBooking(bookingDto));
         return BookingMapper.toBookingDto(bRepo.findById(resBooking.getId())
@@ -198,6 +195,7 @@ public class BookingServiceImpl implements BookingService {
                 result.addAll(bRepo.findBookingsByBookerIdWithWaitingOrRejectStatus(id, BookingStatus.REJECTED));
                 break;
         }
+        result.sort(Comparator.comparing(Booking::getStart).reversed());
         return result;
     }
 
@@ -207,33 +205,33 @@ public class BookingServiceImpl implements BookingService {
         validateState(state);
 
         BookingStatus status = BookingStatus.valueOf(state);
-        List<Booking> result = new ArrayList<>();
+        List<Booking> result;
 
         switch (status) {
             case ALL:
                 result = bRepo.findAllByItemOwner(uRepo.getReferenceById(id));
-                result.sort(Comparator.comparing(Booking::getStart).reversed());
+
                 break;
             case CURRENT:
 
                 result = bRepo.findAllByItemOwnerAndStartIsBeforeAndEndIsAfter(uRepo.getReferenceById(id),
                         LocalDateTime.now(), LocalDateTime.now());
-                result.sort(Comparator.comparing(Booking::getStart).reversed());
+
                 break;
             case PAST:
                 result = bRepo.findAllByItemOwnerAndEndIsBefore(uRepo.getReferenceById(id),
                         LocalDateTime.now());
-                result.sort(Comparator.comparing(Booking::getStart).reversed());
+
                 break;
             case FUTURE:
                 result = bRepo.findAllByItemOwnerAndStartIsAfter(uRepo.getReferenceById(id),
                         LocalDateTime.now());
-                result.sort(Comparator.comparing(Booking::getStart).reversed());
+
                 break;
             case WAITING:
                 result = bRepo.findAllByItemOwnerAndStatus(uRepo.getReferenceById(id),
                         BookingStatus.WAITING);
-                result.sort(Comparator.comparing(Booking::getStart).reversed());
+
                 break;
             case REJECTED:
                 result = bRepo.findAllByItemOwnerAndStatus(uRepo.getReferenceById(id),
@@ -242,6 +240,7 @@ public class BookingServiceImpl implements BookingService {
             default:
                 throw new InvalidParameterException("Неизвестный статус");
         }
+        result.sort(Comparator.comparing(Booking::getStart).reversed());
         return result;
     }
 }
