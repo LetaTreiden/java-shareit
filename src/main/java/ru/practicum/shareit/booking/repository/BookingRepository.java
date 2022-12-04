@@ -27,6 +27,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query("SELECT b FROM Booking b WHERE b.booker.id = ?1 AND  b.status = ?2")
     List<Booking> findBookingsByBookerIdWithWaitingOrRejectStatus(Long id, BookingStatus status);
+
     @Query(value = "SELECT b FROM Booking AS b WHERE b.item.id = ?1")
     List<Booking> findAllItemBookings(Long id);
 
