@@ -11,30 +11,30 @@ import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    @Query("SELECT b FROM Booking b WHERE b.booker.id = ?1")
+    @Query("SELECT b FROM Booking b WHERE b.booker_id = ?1")
     List<Booking> findBookingsByBookerId(Long id);
 
-    @Query("SELECT b FROM Booking b WHERE b.booker.id = ?1 AND" +
-            " b.start < CURRENT_TIMESTAMP AND b.end > CURRENT_TIMESTAMP")
+    @Query("SELECT b FROM Booking b WHERE b.booker_id = ?1 AND" +
+            " b.start_date < CURRENT_TIMESTAMP AND b.end_date > CURRENT_TIMESTAMP")
     List<Booking> findBookingsByBookerIdWithCurrentStatus(Long id);
 
     @Query("SELECT b FROM Booking b WHERE b.booker.id = ?1 AND" +
-            " b.start < CURRENT_TIMESTAMP AND b.end < CURRENT_TIMESTAMP")
+            " b.start_date < CURRENT_TIMESTAMP AND b.end_date < CURRENT_TIMESTAMP")
     List<Booking> findBookingsByBookerIdWithPastStatus(Long id);
 
-    @Query("SELECT b FROM Booking b WHERE b.booker.id = ?1 AND" + " b.start > CURRENT_TIMESTAMP ")
+    @Query("SELECT b FROM Booking b WHERE b.booker_id = ?1 AND" + " b.start > CURRENT_TIMESTAMP ")
     List<Booking> findBookingsByBookerIdWithFutureStatus(Long id);
 
-    @Query("SELECT b FROM Booking b WHERE b.booker.id = ?1 AND  b.status = ?2")
+    @Query("SELECT b FROM Booking b WHERE b.booker_id = ?1 AND  b.status = ?2")
     List<Booking> findBookingsByBookerIdWithWaitingOrRejectStatus(Long id, BookingStatus status);
 
-    @Query(value = "SELECT b FROM Booking AS b WHERE b.item.id = ?1")
+    @Query(value = "SELECT b FROM Booking AS b WHERE b.item_id = ?1")
     List<Booking> findAllItemBookings(Long id);
 
-    @Query(value = "SELECT b FROM Booking AS b WHERE b.item.id = ?1 AND b.start < CURRENT_TIMESTAMP ")
+    @Query(value = "SELECT b FROM Booking AS b WHERE b.item_id = ?1 AND b.start_date < CURRENT_TIMESTAMP ")
     List<Booking> findAllItemBookingsPast(Long id);
 
-    @Query(value = "SELECT b FROM Booking AS b WHERE b.item.id = ?1 AND b.start > CURRENT_TIMESTAMP ")
+    @Query(value = "SELECT b FROM Booking AS b WHERE b.item_id = ?1 AND b.start_date > CURRENT_TIMESTAMP ")
     List<Booking> findAllItemBookingsFuture(Long id);
 
     List<Booking> findAllByItemOwner(User owner);

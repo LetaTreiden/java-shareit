@@ -66,42 +66,11 @@ public class BookingServiceImpl implements BookingService {
                         "Booking с идентификатором " + resBooking.getId() + " не найден.")));
     }
 
-  /*  private void validateItem(BookingDTO dto) {
-        if (!iRepo.existsById(dto.getItem().getId())) {
-            throw new NotFoundException("Товар не найден");
-        }
-    }
-   */
-
     private void validateUser(Long id) {
         if (!uRepo.existsById(id)) {
             throw new NotFoundException("Пользователь не найден");
         }
     }
-
-   /* private void validateBooking(Long id, BookingDTO dto) {
-        if (id.equals(iRepo.getReferenceById(dto.getItem().getId()).getOwner().getId())) {
-            throw new NotFoundException("Невозможно совершить действие");
-        }
-        if (dto.getEnd().isBefore(LocalDateTime.now())) {
-            throw new InvalidParameterException("Дата конца в прошлом");
-        }
-        if (dto.getEnd().isBefore(dto.getStart())) {
-            throw new InvalidParameterException("Дата начала после даты конца");
-        }
-        if (dto.getStart().isBefore(LocalDateTime.now())) {
-            throw new InvalidParameterException("Дата начала в прошлом");
-        }
-        if (!uRepo.existsById(id)) {
-            throw new NotFoundException("Пользователь не найден");
-        }
-        if (iRepo.existsById(dto.getItem().getId())) {
-            if (iRepo.getReferenceById(dto.getItem().getId()).getIsAvailable() == Boolean.FALSE) {
-                throw new InvalidParameterException("Товар недоступен для аренды");
-            }
-        }
-    }
-    */
 
     private void validateState(String state) {
         if (!state.equals(ALL.name()) && !state.equals(BookingStatus.REJECTED.name()) &&
@@ -143,9 +112,6 @@ public class BookingServiceImpl implements BookingService {
         if (!Objects.equals(item.getOwner().getId(), id))
             throw new InvalidParameterException("Данный пользователь не может управлять запрашиваемой бронью.");
 
-        //if (Objects.equals(booking.getStatus(), BookingStatus.APPROVED))
-        //  throw new InvalidParameterException("Статус уже подтвержден");
-
         if (approved) {
             booking.setStatus(BookingStatus.APPROVED);
             booking.setItem(item);
@@ -154,12 +120,6 @@ public class BookingServiceImpl implements BookingService {
 
         bRepo.save(booking);
         return BookingMapper.toBookingDto(booking);
-    }
-
-    private void validateBookingExist(long id) {
-        if (!bRepo.existsById(id)) {
-            throw new NotFoundException("Такого бронирования не существует");
-        }
     }
 
     @Override
