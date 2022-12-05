@@ -104,8 +104,8 @@ public class BookingServiceImpl implements BookingService {
     public BookingDTO confirmOrRejectBooking(Long id, Long bId, Boolean approved) {
         if (!uRepo.existsById(id))
             throw new NotFoundException("Пользователя с таким id не существует");
-        if (!bRepo.existsById(bId))
-            throw new NotFoundException("Брони с таким id не существует");
+        //if (!bRepo.existsById(bId))
+           // throw new NotFoundException("Брони с таким id не существует");
         Booking booking = bRepo.getReferenceById(bId);
 
         Item item = booking.getItem();
