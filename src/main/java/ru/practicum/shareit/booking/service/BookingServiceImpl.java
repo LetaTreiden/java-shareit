@@ -60,6 +60,7 @@ public class BookingServiceImpl implements BookingService {
             throw new InvalidParameterException("Вещь с указанным id недоступна для запроса на бронирование.");
 
         bookingDto.setBookingStatus(BookingStatus.WAITING);
+        bookingDto.setBooker(uRepo.getReferenceById(bookerId));
         Booking resBooking = bRepo.save(BookingMapper.toBooking(bookingDto));
         return BookingMapper.toBookingDto(bRepo.findById(resBooking.getId())
                 .orElseThrow(() -> new NotFoundException(
