@@ -45,16 +45,15 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     @Override
     public BookingDTO create(Long bookerId, BookingDTO bookingDto) {
-        if (!uRepo.existsById(bookerId))
-            throw new NotFoundException("Пользователя с таким id не существует");
+        validateUser(bookerId);
         dateTimeCheck(bookingDto.getStart(), bookingDto.getEnd());
 
         Long itemId = bookingDto.getItem().getId();
-        Item item = iRepo.findById(itemId).orElseThrow(() -> new NotFoundException(
-                        "Item с идентификатором " + itemId + " не найден."));
+        validateItem(itemId);
+        Item item = iRepo.getReferenceById(itemId);
 
         if (item.getOwner().getId().equals(bookerId))
-            throw new InvalidParameterException("Владелец не может создать бронь на свою вещь");
+            throw new ValidationException("Владелец не может создать бронь на свою вещь");
 
         if (!item.getIsAvailable())
             throw new InvalidParameterException("Вещь с указанным id недоступна для запроса на бронирование.");
@@ -70,6 +69,11 @@ public class BookingServiceImpl implements BookingService {
     private void validateUser(Long id) {
         if (!uRepo.existsById(id)) {
             throw new NotFoundException("Пользователь не найден");
+        }
+    }
+    private void validateItem(Long id) {
+        if (!iRepo.existsById(id)) {
+            throw new NotFoundException("Товар не найден");
         }
     }
 
