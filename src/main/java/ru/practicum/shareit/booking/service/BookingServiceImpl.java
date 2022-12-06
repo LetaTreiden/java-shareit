@@ -45,11 +45,15 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     @Override
     public BookingDTO create(Long bookerId, BookingDTO bookingDto) {
-        validateUser(bookerId);
+        if (!uRepo.existsById(bookerId)) {
+            throw new NotFoundException("Пользователь не найден");
+        }
         dateTimeCheck(bookingDto.getStart(), bookingDto.getEnd());
 
         Long itemId = bookingDto.getItem().getId();
-        validateItem(itemId);
+        if (!iRepo.existsById(itemId)) {
+            throw new NotFoundException("Товар не найден");
+        }
         Item item = iRepo.getReferenceById(itemId);
 
         if (item.getOwner().getId().equals(bookerId))
@@ -96,7 +100,7 @@ public class BookingServiceImpl implements BookingService {
 
         Booking booking = bRepo.getReferenceById(bId);
         Item item = booking.getItem();
-        if (!item.getOwner().getId().equals(id) && !booking.getBooker().getId().equals(id))
+        if (!item.getOwner().getId().equals(id) || !booking.getBooker().getId().equals(id))
             throw new InvalidParameterException("Данный пользователь не может получить информацию о заданной вещи.");
 
         return booking;
@@ -123,34 +127,33 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<Booking> findBookingByIdAndStatus(String state, Long id) {
-        validateUser(id);
+        if (!uRepo.existsById(id)) throw new NotFoundException("Пользователя с таким id не существует");
         validateState(state);
 
         List<Booking> result = new ArrayList<>();
-        BookingStatus status = BookingStatus.valueOf(state);
 
-        switch (status) {
-            case ALL:
+        switch (state) {
+            case "ALL":
                 result.addAll(bRepo.findBookingsByBookerId(id));
 
                 break;
-            case CURRENT:
+            case "CURRENT":
                 result.addAll(bRepo.findBookingsByBookerIdWithCurrentStatus(id));
 
                 break;
-            case PAST:
+            case "PAST":
                 result.addAll(bRepo.findBookingsByBookerIdWithPastStatus(id));
 
                 break;
-            case FUTURE:
+            case "FUTURE":
                 result.addAll(bRepo.findBookingsByBookerIdWithFutureStatus(id));
 
                 break;
-            case WAITING:
+            case "WAITING":
                 result.addAll(bRepo.findBookingsByBookerIdWithWaitingOrRejectStatus(id, BookingStatus.WAITING));
 
                 break;
-            case REJECTED:
+            case "REJECTED":
                 result.addAll(bRepo.findBookingsByBookerIdWithWaitingOrRejectStatus(id, BookingStatus.REJECTED));
                 break;
         }
