@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.service;
 
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingMapper;
@@ -24,6 +25,7 @@ import ru.practicum.shareit.user.service.UserServiceImpl;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.logging.Logger;
 
 @Service
 public class ItemServiceImpl implements ItemService {
