@@ -60,8 +60,8 @@ public class BookingServiceImpl implements BookingService {
 
         bookingDto.setBookingStatus(BookingStatus.WAITING);
         bookingDto.setBooker(uRepo.getReferenceById(bookerId));
-        Booking resBooking = bRepo.save(BookingMapper.toBooking(bookingDto));
-        return BookingMapper.toBookingDto(resBooking);
+        bRepo.save(BookingMapper.toBooking(bookingDto));
+        return bookingDto;
     }
 
     private void validateUser(Long id) {
@@ -91,7 +91,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Booking findBookingById(Long id, Long bId) {
-        if (!uRepo.existsById(id)) throw new NotFoundException("Пользователя с таким id не существует");
+        validateUser(id);
         if (!bRepo.existsById(bId)) throw new NotFoundException("Бронь с таким id не существует");
 
         Booking booking = bRepo.getReferenceById(bId);
