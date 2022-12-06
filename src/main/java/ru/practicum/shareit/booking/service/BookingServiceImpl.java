@@ -56,12 +56,12 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("Владелец не может создать бронь на свою вещь");
 
         if (!item.getIsAvailable())
-            throw new InvalidParameterException("Вещь с указанным id недоступна для запроса на бронирование.");
+            throw new ValidationException("Вещь с указанным id недоступна для запроса на бронирование.");
 
         bookingDto.setBookingStatus(BookingStatus.WAITING);
         bookingDto.setBooker(uRepo.getReferenceById(bookerId));
         Booking resBooking = bRepo.save(BookingMapper.toBooking(bookingDto));
-        return BookingMapper.toBookingDto(bRepo.getReferenceById(resBooking.getId()));
+        return BookingMapper.toBookingDto(resBooking);
     }
 
     private void validateUser(Long id) {
