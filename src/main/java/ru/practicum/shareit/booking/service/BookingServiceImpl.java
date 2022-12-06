@@ -88,9 +88,7 @@ public class BookingServiceImpl implements BookingService {
         if (!bRepo.existsById(bId))
             throw new NotFoundException("Бронь с таким id не существует");
 
-        Booking booking = bRepo.findById(bId)
-                .orElseThrow(() -> new NotFoundException(
-                        "Booking с идентификатором " + bId + " не найден."));
+        Booking booking = bRepo.getReferenceById(bId);
         Item item = booking.getItem();
         if (!item.getOwner().getId().equals(id) && !booking.getBooker().getId().equals(id))
             throw new InvalidParameterException("Данный пользователь не может получить информацию о заданной вещи.");
@@ -104,8 +102,8 @@ public class BookingServiceImpl implements BookingService {
     public BookingDTO confirmOrRejectBooking(Long id, Long bId, Boolean approved) {
         if (!uRepo.existsById(id))
             throw new NotFoundException("Пользователя с таким id не существует");
-        //if (!bRepo.existsById(bId))
-           // throw new NotFoundException("Брони с таким id не существует");
+        if (!bRepo.existsById(bId))
+            throw new NotFoundException("Брони с таким id не существует");
         Booking booking = bRepo.getReferenceById(bId);
 
         Item item = booking.getItem();
