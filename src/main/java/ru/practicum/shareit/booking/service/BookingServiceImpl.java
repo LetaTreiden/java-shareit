@@ -61,9 +61,7 @@ public class BookingServiceImpl implements BookingService {
         bookingDto.setBookingStatus(BookingStatus.WAITING);
         bookingDto.setBooker(uRepo.getReferenceById(bookerId));
         Booking resBooking = bRepo.save(BookingMapper.toBooking(bookingDto));
-        return BookingMapper.toBookingDto(bRepo.findById(resBooking.getId())
-                .orElseThrow(() -> new NotFoundException(
-                        "Booking с идентификатором " + resBooking.getId() + " не найден.")));
+        return BookingMapper.toBookingDto(bRepo.getReferenceById(resBooking.getId()));
     }
 
     private void validateUser(Long id) {
@@ -79,24 +77,22 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void validateState(String state) {
-        if (!state.equals(ALL.name()) &&
-                !state.equals(BookingStatus.REJECTED.name()) &&
-                !state.equals(BookingStatus.WAITING.name()) && 
-                !state.equals(BookingStatus.CURRENT.name()) &&
-                !state.equals(BookingStatus.APPROVED.name()) &&
-                !state.equals(BookingStatus.CANCELED.name()) &&
-                !state.equals(BookingStatus.PAST.name()) &&
-                !state.equals(BookingStatus.FUTURE.name())) {
+        if (!state.equals(ALL.name())
+                && !state.equals(BookingStatus.REJECTED.name())
+                && !state.equals(BookingStatus.WAITING.name())
+                && !state.equals(BookingStatus.CURRENT.name())
+                && !state.equals(BookingStatus.APPROVED.name())
+                && !state.equals(BookingStatus.CANCELED.name())
+                && !state.equals(BookingStatus.PAST.name())
+                && !state.equals(BookingStatus.FUTURE.name())) {
             throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
         }
     }
 
     @Override
     public Booking findBookingById(Long id, Long bId) {
-        if (!uRepo.existsById(id))
-            throw new NotFoundException("Пользователя с таким id не существует");
-        if (!bRepo.existsById(bId))
-            throw new NotFoundException("Бронь с таким id не существует");
+        if (!uRepo.existsById(id)) throw new NotFoundException("Пользователя с таким id не существует");
+        if (!bRepo.existsById(bId)) throw new NotFoundException("Бронь с таким id не существует");
 
         Booking booking = bRepo.getReferenceById(bId);
         Item item = booking.getItem();
@@ -108,10 +104,8 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDTO confirmOrRejectBooking(Long id, Long bId, Boolean approved) {
-        if (!uRepo.existsById(id))
-            throw new NotFoundException("Пользователя с таким id не существует");
-        if (!bRepo.existsById(bId))
-            throw new NotFoundException("Брони с таким id не существует");
+        if (!uRepo.existsById(id)) throw new NotFoundException("Пользователя с таким id не существует");
+        if (!bRepo.existsById(bId)) throw new NotFoundException("Брони с таким id не существует");
         Booking booking = bRepo.getReferenceById(bId);
 
         Item item = booking.getItem();
@@ -121,8 +115,7 @@ public class BookingServiceImpl implements BookingService {
         if (approved) {
             booking.setStatus(BookingStatus.APPROVED);
             booking.setItem(item);
-        } else
-            booking.setStatus(BookingStatus.REJECTED);
+        } else booking.setStatus(BookingStatus.REJECTED);
 
         bRepo.save(booking);
         return BookingMapper.toBookingDto(booking);
@@ -185,23 +178,19 @@ public class BookingServiceImpl implements BookingService {
 
                 break;
             case PAST:
-                result = bRepo.findAllByItemOwnerAndEndIsBefore(uRepo.getReferenceById(id),
-                        LocalDateTime.now());
+                result = bRepo.findAllByItemOwnerAndEndIsBefore(uRepo.getReferenceById(id), LocalDateTime.now());
 
                 break;
             case FUTURE:
-                result = bRepo.findAllByItemOwnerAndStartIsAfter(uRepo.getReferenceById(id),
-                        LocalDateTime.now());
+                result = bRepo.findAllByItemOwnerAndStartIsAfter(uRepo.getReferenceById(id), LocalDateTime.now());
 
                 break;
             case WAITING:
-                result = bRepo.findAllByItemOwnerAndStatus(uRepo.getReferenceById(id),
-                        BookingStatus.WAITING);
+                result = bRepo.findAllByItemOwnerAndStatus(uRepo.getReferenceById(id), BookingStatus.WAITING);
 
                 break;
             case REJECTED:
-                result = bRepo.findAllByItemOwnerAndStatus(uRepo.getReferenceById(id),
-                        BookingStatus.REJECTED);
+                result = bRepo.findAllByItemOwnerAndStatus(uRepo.getReferenceById(id), BookingStatus.REJECTED);
                 break;
             default:
                 throw new InvalidParameterException("Неизвестный статус");
