@@ -71,6 +71,7 @@ public class BookingServiceImpl implements BookingService {
             throw new NotFoundException("Пользователь не найден");
         }
     }
+
     private void validateItem(Long id) {
         if (!iRepo.existsById(id)) {
             throw new NotFoundException("Товар не найден");
@@ -78,10 +79,14 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void validateState(String state) {
-        if (!state.equals(ALL.name()) && !state.equals(BookingStatus.REJECTED.name()) &&
-                !state.equals(BookingStatus.WAITING.name()) && !state.equals(BookingStatus.CURRENT.name()) &&
-                !state.equals(BookingStatus.APPROVED.name()) && !state.equals(BookingStatus.CANCELED.name()) &&
-                !state.equals(BookingStatus.PAST.name()) && !state.equals(BookingStatus.FUTURE.name())) {
+        if (!state.equals(ALL.name()) &&
+                !state.equals(BookingStatus.REJECTED.name()) &&
+                !state.equals(BookingStatus.WAITING.name()) && 
+                !state.equals(BookingStatus.CURRENT.name()) &&
+                !state.equals(BookingStatus.APPROVED.name()) &&
+                !state.equals(BookingStatus.CANCELED.name()) &&
+                !state.equals(BookingStatus.PAST.name()) &&
+                !state.equals(BookingStatus.FUTURE.name())) {
             throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
         }
     }
