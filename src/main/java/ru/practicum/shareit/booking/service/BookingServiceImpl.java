@@ -93,9 +93,7 @@ public class BookingServiceImpl implements BookingService {
         if (!item.getOwner().getId().equals(id) && !booking.getBooker().getId().equals(id))
             throw new InvalidParameterException("Данный пользователь не может получить информацию о заданной вещи.");
 
-        return bRepo.findById(bId)
-                .orElseThrow(() ->
-                        new NotFoundException("Booking с идентификатором " + bId + " не найден."));
+        return booking;
     }
 
     @Override
