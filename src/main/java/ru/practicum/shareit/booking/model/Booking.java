@@ -29,13 +29,14 @@ public class Booking {
     @Column(name = "end_date", nullable = false)
     private LocalDateTime end;
 
-    @ManyToOne
     @JoinColumn(name = "item_id", nullable = false)
-    private Item item;
+    private Long item;
 
-    @ManyToOne
     @JoinColumn(name = "booker_id", nullable = false)
-    private User booker;
+    private Long booker;
+
+    @JoinColumn(name = "owner_id", nullable = false)
+    private Long owner;
 
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)

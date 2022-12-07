@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS bookings (
   end_date TIMESTAMP WITHOUT TIME ZONE CHECK (end_date > start_date) NOT NULL,
   item_id BIGINT REFERENCES items (item_id) NOT NULL,
   booker_id BIGINT REFERENCES users (user_id) NOT NULL,
+  owner_id BIGINT REFERENCES users (user_id) NOT NULL,
   status varchar(50) CHECK (status IN ('WAITING', 'APPROVED', 'REJECTED', 'CANCELED', 'All', 'CURRENT',
   'PAST', 'FUTURE'))
 );
