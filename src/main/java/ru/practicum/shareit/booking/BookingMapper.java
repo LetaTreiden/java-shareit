@@ -12,22 +12,20 @@ public class BookingMapper {
                 .id(booking.getId())
                 .start(booking.getStart())
                 .end(booking.getEnd())
-                .item(booking.getItem())
-                .booker(booking.getBooker())
+                .itemId(booking.getItemId())
+                .bookerId(booking.getBookerId())
                 .bookingStatus(booking.getStatus())
                 .build();
     }
 
     public static Booking toBooking(BookingDTO bookingDto) {
         Booking booking = new Booking();
-        if (bookingDto.getId() != null) {
-            booking.setId(bookingDto.getId());
-        }
+        booking.setId(bookingDto.getId());
 
         booking.setStart(bookingDto.getStart());
         booking.setEnd(bookingDto.getEnd());
-        booking.setItem(bookingDto.getItem());
-        booking.setBooker(bookingDto.getBooker());
+        booking.setItemId(bookingDto.getItemId());
+        booking.setBookerId(bookingDto.getBookerId());
 
         if (bookingDto.getBookingStatus() == null) {
             booking.setStatus(BookingStatus.WAITING);

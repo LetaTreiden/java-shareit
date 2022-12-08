@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService {
 
     public UserDTO findUserById(Long id) {
         validateUser(id);
-        return UserMapper.toUserDto(userRepository.getById(id));
+        return UserMapper.toUserDto(userRepository.getReferenceById(id));
     }
 
     public UserDTO createUser(UserDTO userDto) {
@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public UserDTO updateUser(UserDTO userDto) {
-        UserDTO temp = UserMapper.toUserDto(userRepository.getById(userDto.getId()));
+        UserDTO temp = UserMapper.toUserDto(userRepository.getReferenceById(userDto.getId()));
         if (userDto.getName() != null && !userDto.getName().equals("")) {
             temp.setName(userDto.getName());
         }

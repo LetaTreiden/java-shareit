@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.dto.BookingDTO;
 import ru.practicum.shareit.comment.CommentDTO;
-import ru.practicum.shareit.user.dto.UserDTO;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -33,7 +32,7 @@ public class ItemDTO {
     private Boolean isAvailable;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private UserDTO owner;
+    private Long owner;
 
    // @JsonInclude(JsonInclude.Include.NON_NULL)
     private Long requestId;

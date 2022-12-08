@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.dto.ItemDTOBooking;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.UserMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +20,7 @@ public class ItemMapper {
         item.setName(itemDto.getName());
         item.setDescription(itemDto.getDescription());
         item.setIsAvailable(itemDto.getIsAvailable());
-        item.setOwner(UserMapper.toUser(itemDto.getOwner()));
+        item.setOwner((itemDto.getOwner()));
         item.setRequestId(itemDto.getRequestId());
         return item;
     }
@@ -32,7 +31,7 @@ public class ItemMapper {
         itemDto.setName(item.getName());
         itemDto.setDescription(item.getDescription());
         itemDto.setIsAvailable(item.getIsAvailable());
-        itemDto.setOwner(UserMapper.toUserDto(item.getOwner()));
+        itemDto.setOwner((item.getOwner()));
         itemDto.setRequestId(item.getRequestId());
         return itemDto;
     }
