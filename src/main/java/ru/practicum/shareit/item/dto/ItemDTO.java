@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.dto.BookingDTO;
 import ru.practicum.shareit.comment.CommentDTO;
+import ru.practicum.shareit.user.dto.UserDTO;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -32,16 +33,16 @@ public class ItemDTO {
     private Boolean isAvailable;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Long owner;
+    private UserDTO owner;
 
-   // @JsonInclude(JsonInclude.Include.NON_NULL)
+    // @JsonInclude(JsonInclude.Include.NON_NULL)
     private Long requestId;
 
     private BookingDTO lastBooking;
 
     private BookingDTO nextBooking;
 
- //   @JsonInclude(JsonInclude.Include.NON_NULL)
+    //   @JsonInclude(JsonInclude.Include.NON_NULL)
     private Set<CommentDTO> comments = new HashSet<>();
 
     @Data

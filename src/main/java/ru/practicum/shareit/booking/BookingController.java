@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking;
 
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,6 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@Slf4j
 @RequestMapping("/bookings")
 public class BookingController {
 
@@ -27,7 +25,7 @@ public class BookingController {
 
     @PostMapping
     public BookingDTO saveBooking(@RequestHeader("X-Sharer-User-Id") Long id,
-                                   @Valid @RequestBody BookingDTO bookingDto) {
+                                  @Valid @RequestBody BookingDTO bookingDto) {
         logger.info("запрос отправлен");
         return bookingService.create(id, bookingDto);
     }
@@ -40,7 +38,7 @@ public class BookingController {
 
     @GetMapping
     public List<Booking> findAllBookingsById(@RequestParam(defaultValue = "ALL") String state,
-                                                @RequestHeader("X-Sharer-User-Id") Long id) {
+                                             @RequestHeader("X-Sharer-User-Id") Long id) {
 
         return bookingService.findBookingByIdAndStatus(state, id);
     }
@@ -54,7 +52,7 @@ public class BookingController {
 
     @GetMapping("/owner")
     public List<Booking> findAllOwnersBookings(@RequestParam(defaultValue = "ALL") String state,
-                                                  @RequestHeader("X-Sharer-User-Id") Long id) {
+                                               @RequestHeader("X-Sharer-User-Id") Long id) {
 
         return bookingService.findAllOwnersBookings(state, id);
     }

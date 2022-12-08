@@ -1,11 +1,10 @@
 package ru.practicum.shareit.booking.model;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.Hibernate;
 import ru.practicum.shareit.booking.BookingStatus;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -31,10 +30,13 @@ public class Booking {
     private LocalDateTime end;
 
     @JoinColumn(name = "item_id", nullable = false)
-    private long itemId;
+    private Long item;
 
     @JoinColumn(name = "booker_id", nullable = false)
-    private long bookerId;
+    private Long booker;
+
+    @JoinColumn(name = "owner_id", nullable = false)
+    private Long owner;
 
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)

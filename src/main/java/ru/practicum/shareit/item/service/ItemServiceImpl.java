@@ -20,6 +20,7 @@ import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
+import ru.practicum.shareit.user.service.UserServiceImpl;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -28,15 +29,17 @@ import java.util.*;
 public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
+    private final UserServiceImpl userService;
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
 
     @Autowired
-    public ItemServiceImpl(ItemRepository itemRepository,
+    public ItemServiceImpl(ItemRepository itemRepository, UserServiceImpl userService,
                            BookingRepository bookingRepository, UserRepository userRepository,
                            CommentRepository commentRepository) {
         this.itemRepository = itemRepository;
+        this.userService = userService;
         this.bookingRepository = bookingRepository;
         this.userRepository = userRepository;
         this.commentRepository = commentRepository;
@@ -44,7 +47,7 @@ public class ItemServiceImpl implements ItemService {
 
     public ItemDTO createItem(Long id, ItemDTO itemDto) {
         validateItemDto(itemDto);
-        itemDto.setOwner(id);
+        itemDto.setOwner(userService.findUserById(id));
         return ItemMapper.toIDto(itemRepository.save(ItemMapper.toItem(itemDto)));
     }
 
@@ -59,8 +62,8 @@ public class ItemServiceImpl implements ItemService {
         if (itemDto.getDescription() != null && !itemDto.getDescription().equals("")) {
             temp.setDescription(itemDto.getDescription());
         }
-        if (itemDto.getOwner() != null && itemDto.getOwner() != 0) {
-            temp.setOwner((itemDto.getOwner()));
+        if (itemDto.getOwner().getId() != null && itemDto.getOwner().getId() != 0) {
+            temp.setOwner(UserMapper.toUser(itemDto.getOwner()));
         }
         if (itemDto.getRequestId() != null && itemDto.getRequestId() != 0) {
             temp.setRequestId(itemDto.getRequestId());
@@ -79,17 +82,21 @@ public class ItemServiceImpl implements ItemService {
             }
         }
 
-        if (Objects.equals(itemRepository.getReferenceById(itemId).getId(), userId)) {
+        if (Objects.equals(itemRepository.getReferenceById(itemId).getOwner().getId(), userId)) {
             List<Booking> bookingPast = bookingRepository.findAllItemBookingsPast(itemId);
             if (bookingPast.size() != 0) {
                 bookingPast.sort(Comparator.comparing(Booking::getStart).reversed());
                 BookingDTO bookingDtoPast = BookingMapper.toBookingDto(bookingPast.get(0));
+                bookingDtoPast.setBooker(bookingDtoPast.getBooker());
+                bookingDtoPast.setBooker(null);
                 itemDto.setLastBooking(bookingDtoPast);
             }
             List<Booking> bookingFuture = bookingRepository.findAllItemBookingsFuture(itemId);
             if (bookingFuture.size() != 0) {
                 bookingFuture.sort(Comparator.comparing(Booking::getStart));
                 BookingDTO bookingDtoFuture = BookingMapper.toBookingDto(bookingFuture.get(0));
+                bookingDtoFuture.setBooker(bookingDtoFuture.getBooker());
+                bookingDtoFuture.setBooker(null);
                 itemDto.setNextBooking(bookingDtoFuture);
             }
         }
@@ -107,12 +114,14 @@ public class ItemServiceImpl implements ItemService {
             if (bookingPast.size() != 0) {
                 bookingPast.sort(Comparator.comparing(Booking::getStart).reversed());
                 BookingDTO bookingDtoPast = BookingMapper.toBookingDto(bookingPast.get(0));
+                bookingDtoPast.setBooker(bookingDtoPast.getBooker());
                 itemDto.setLastBooking(bookingDtoPast);
             }
             List<Booking> bookingFuture = bookingRepository.findAllItemBookingsFuture(itemDto.getId());
             if (bookingFuture.size() != 0) {
                 bookingFuture.sort(Comparator.comparing(Booking::getStart));
                 BookingDTO bookingDtoFuture = BookingMapper.toBookingDto(bookingFuture.get(0));
+                bookingDtoFuture.setBooker(bookingDtoFuture.getBooker());
                 itemDto.setNextBooking(bookingDtoFuture);
             }
         }
@@ -138,7 +147,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDTO patchItem(ItemDTO itemDto, Long itemId, Long id) {
         if (findItemById(id, itemId) != null) {
-            if (!Objects.equals(findItemById(id, itemId).getOwner(), id)) {
+            if (!Objects.equals(findItemById(id, itemId).getOwner().getId(), id)) {
                 throw new NotFoundException("Данный товар принадлежит другому пользователю");
             }
         }
@@ -167,7 +176,7 @@ public class ItemServiceImpl implements ItemService {
 
         List<Booking> bookings = bookingRepository.findAllItemBookings(itemId);
         for (Booking booking : bookings) {
-            if (!Objects.equals(booking.getBookerId(), userId)) {
+            if (!Objects.equals(booking.getBooker(), userId)) {
                 throw new InvalidParameterException("Проверьте заданные параметры");
             } else {
                 if (!booking.getStart().isBefore(LocalDateTime.now()) &&
