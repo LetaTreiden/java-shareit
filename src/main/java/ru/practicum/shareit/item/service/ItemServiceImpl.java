@@ -52,7 +52,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     public ItemDTO updateItem(ItemDTO itemDto) {
-        Item temp = itemRepository.getReferenceById(itemDto.getId());
+        Item temp = itemRepository.getById(itemDto.getId());
         if (itemDto.getName() != null && !itemDto.getName().equals("")) {
             temp.setName(itemDto.getName());
         }
@@ -73,7 +73,7 @@ public class ItemServiceImpl implements ItemService {
 
     public ItemDTO findItemById(Long userId, Long itemId) {
         validateItem(itemId);
-        ItemDTO itemDto = ItemMapper.toIDto(itemRepository.getReferenceById(itemId));
+        ItemDTO itemDto = ItemMapper.toIDto(itemRepository.getById(itemId));
         Set<CommentDTO> comments = CommentMapper.toCommentDtos(commentRepository.findAllItemComments(itemId));
         for (CommentDTO commentDto : comments) {
             itemDto.getComments().add(commentDto);
@@ -82,7 +82,7 @@ public class ItemServiceImpl implements ItemService {
             }
         }
 
-        if (Objects.equals(itemRepository.getReferenceById(itemId).getOwner().getId(), userId)) {
+        if (Objects.equals(itemRepository.getById(itemId).getOwner().getId(), userId)) {
             List<Booking> bookingPast = bookingRepository.findAllItemBookingsPast(itemId);
             if (bookingPast.size() != 0) {
                 bookingPast.sort(Comparator.comparing(Booking::getStart).reversed());
@@ -182,12 +182,12 @@ public class ItemServiceImpl implements ItemService {
                 if (!booking.getStart().isBefore(LocalDateTime.now()) &&
                         !booking.getEnd().isBefore(LocalDateTime.now()) &&
                         booking.getStatus().equals(BookingStatus.PAST)) {
-                    commentDto.setItem(ItemMapper.toIDto(itemRepository.getReferenceById(itemId)));
-                    commentDto.setAuthor(UserMapper.toUserDto(userRepository.getReferenceById(userId)));
+                    commentDto.setItem(ItemMapper.toIDto(itemRepository.getById(itemId)));
+                    commentDto.setAuthor(UserMapper.toUserDto(userRepository.getById(userId)));
                     commentDto.setCreated(LocalDateTime.now());
                     Comment commentTemp = commentRepository.save(CommentMapper.toComment(commentDto));
                     CommentDTO commentTempDto = CommentMapper.toCommentDto(commentTemp);
-                    User user = userRepository.getReferenceById(userId);
+                    User user = userRepository.getById(userId);
                     commentTempDto.setAuthorName(user.getName());
                     commentTempDto.setAuthor(null);
                     commentTempDto.setItem(null);

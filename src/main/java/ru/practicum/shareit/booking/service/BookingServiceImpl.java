@@ -54,7 +54,7 @@ public class BookingServiceImpl implements BookingService {
         if (!iRepo.existsById(itemId)) {
             throw new NotFoundException("Товар не найден");
         }
-        Item item = iRepo.getReferenceById(itemId);
+        Item item = iRepo.getById(itemId);
 
         if (item.getOwner().getId().equals(bookerId))
             throw new ValidationException("Владелец не может создать бронь на свою вещь");
@@ -98,8 +98,8 @@ public class BookingServiceImpl implements BookingService {
         validateUser(id);
         if (!bRepo.existsById(bId)) throw new NotFoundException("Бронь с таким id не существует");
 
-        Booking booking = bRepo.getReferenceById(bId);
-        Item item = iRepo.getReferenceById(booking.getItem());
+        Booking booking = bRepo.getById(bId);
+        Item item = iRepo.getById(booking.getItem());
         if (!Objects.equals(item.getOwner().getId(), id) || !Objects.equals(booking.getBooker(), id))
             throw new InvalidParameterException("Данный пользователь не может получить информацию о заданной вещи.");
 
@@ -110,9 +110,9 @@ public class BookingServiceImpl implements BookingService {
     public BookingDTO confirmOrRejectBooking(Long id, Long bId, Boolean approved) {
         if (!uRepo.existsById(id)) throw new NotFoundException("Пользователя с таким id не существует");
         if (!bRepo.existsById(bId)) throw new NotFoundException("Брони с таким id не существует");
-        Booking booking = bRepo.getReferenceById(bId);
+        Booking booking = bRepo.getById(bId);
 
-        Item item = iRepo.getReferenceById(booking.getItem());
+        Item item = iRepo.getById(booking.getItem());
         if (!Objects.equals(item.getOwner().getId(), id))
             throw new InvalidParameterException("Данный пользователь не может управлять запрашиваемой бронью.");
 

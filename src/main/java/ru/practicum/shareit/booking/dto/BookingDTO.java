@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking.dto;
 import lombok.*;
 import ru.practicum.shareit.booking.BookingStatus;
 
+import javax.persistence.JoinColumn;
 import java.time.LocalDateTime;
 
 @Data
