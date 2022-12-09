@@ -21,25 +21,4 @@ public class BookingDTO {
     private Long owner;
     private BookingStatus bookingStatus;
 
-  /*  @Data
-    @Builder
-    @Getter
-    @Setter
-    public static class Item {
-        private Long id;
-        private String name;
-        private String description;
-        private boolean available;
-        private Long requestId;
-    }
-    @Data
-    @Builder
-    @Getter
-    @Setter
-    public static class User {
-        private Long id;
-        private String name;
-        private String email;
-    }
-   */
 }

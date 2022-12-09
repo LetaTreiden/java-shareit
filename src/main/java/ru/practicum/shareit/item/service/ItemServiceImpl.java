@@ -52,6 +52,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     public ItemDTO updateItem(ItemDTO itemDto) {
+        validateItem(itemDto, itemDto.getId(), itemDto.getOwner().getId());
         Item temp = itemRepository.getReferenceById(itemDto.getId());
         if (itemDto.getName() != null && !itemDto.getName().equals("")) {
             temp.setName(itemDto.getName());
@@ -145,7 +146,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDTO patchItem(ItemDTO itemDto, Long itemId, Long id) {
+    public ItemDTO validateItem(ItemDTO itemDto, Long itemId, Long id) {
         if (findItemById(id, itemId) != null) {
             if (!Objects.equals(findItemById(id, itemId).getOwner().getId(), id)) {
                 throw new NotFoundException("Данный товар принадлежит другому пользователю");
