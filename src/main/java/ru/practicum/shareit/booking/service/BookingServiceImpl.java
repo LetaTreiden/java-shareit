@@ -50,7 +50,7 @@ public class BookingServiceImpl implements BookingService {
         }
         dateTimeCheck(bookingDto.getStart(), bookingDto.getEnd());
 
-        Long itemId = bookingDto.getItem();
+        Long itemId = bookingDto.getItem().getId();
         if (!iRepo.existsById(itemId)) {
             throw new NotFoundException("Товар не найден");
         }
@@ -63,7 +63,7 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("Вещь с указанным id недоступна для запроса на бронирование.");
 
         bookingDto.setBookingStatus(BookingStatus.WAITING);
-        bookingDto.setBooker(bookerId);
+        bookingDto.setBooker(uRepo.getReferenceById(bookerId));
         bRepo.save(BookingMapper.toBooking(bookingDto));
         return bookingDto;
     }
@@ -99,7 +99,7 @@ public class BookingServiceImpl implements BookingService {
         if (!bRepo.existsById(bId)) throw new NotFoundException("Бронь с таким id не существует");
 
         Booking booking = bRepo.getReferenceById(bId);
-        Item item = iRepo.getReferenceById(booking.getItem());
+        Item item = iRepo.getReferenceById(booking.getItem().getId());
         if (!Objects.equals(item.getOwner().getId(), id) || !Objects.equals(booking.getBooker(), id))
             throw new InvalidParameterException("Данный пользователь не может получить информацию о заданной вещи.");
 
@@ -112,13 +112,13 @@ public class BookingServiceImpl implements BookingService {
         if (!bRepo.existsById(bId)) throw new NotFoundException("Брони с таким id не существует");
         Booking booking = bRepo.getReferenceById(bId);
 
-        Item item = iRepo.getReferenceById(booking.getItem());
+        Item item = iRepo.getReferenceById(booking.getItem().getId());
         if (!Objects.equals(item.getOwner().getId(), id))
             throw new InvalidParameterException("Данный пользователь не может управлять запрашиваемой бронью.");
 
         if (approved) {
             booking.setStatus(BookingStatus.APPROVED);
-            booking.setItem(item.getId());
+            booking.setItem(item);
         } else booking.setStatus(BookingStatus.REJECTED);
 
         bRepo.save(booking);
