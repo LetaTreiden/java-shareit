@@ -100,7 +100,7 @@ public class BookingServiceImpl implements BookingService {
 
         Booking booking = bRepo.getReferenceById(bId);
         Item item = iRepo.getReferenceById(booking.getItem().getId());
-        if (!Objects.equals(item.getOwner().getId(), id) || !Objects.equals(booking.getBooker(), id))
+        if (!Objects.equals(item.getOwner().getId(), id) || !Objects.equals(booking.getBooker().getId(), id))
             throw new InvalidParameterException("Данный пользователь не может получить информацию о заданной вещи.");
 
         return booking;

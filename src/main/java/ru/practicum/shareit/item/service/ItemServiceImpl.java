@@ -177,7 +177,7 @@ public class ItemServiceImpl implements ItemService {
 
         List<Booking> bookings = bookingRepository.findAllItemBookings(itemId);
         for (Booking booking : bookings) {
-            if (!Objects.equals(booking.getBooker(), userId)) {
+            if (!Objects.equals(booking.getBooker().getId(), userId)) {
                 throw new InvalidParameterException("Проверьте заданные параметры");
             } else {
                 if (!booking.getStart().isBefore(LocalDateTime.now()) &&
