@@ -35,14 +35,14 @@ public class ItemDTO {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private UserDTO owner;
 
-    // @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Long requestId;
+     @JsonInclude(JsonInclude.Include.NON_NULL)
+     private Long requestId;
 
-    private BookingDTO lastBooking;
+     private BookingDTO lastBooking;
 
     private BookingDTO nextBooking;
 
-    //   @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Set<CommentDTO> comments = new HashSet<>();
 
     @Data
