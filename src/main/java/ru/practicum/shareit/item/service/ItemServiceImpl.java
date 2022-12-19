@@ -55,15 +55,17 @@ public class ItemServiceImpl implements ItemService {
         return ItemMapper.toIDto(itemRepository.save(ItemMapper.toItem(itemDto)));
     }
 
-    public ItemDTO updateItem(ItemDTO itemDto) {
-
+    public ItemDTO updateItem(ItemDTO itemDto, Long id) {
         validateItem(itemDto, itemDto.getId());
         Item temp = itemRepository.getReferenceById(itemDto.getId());
-        if (itemDto.getName() != null && !itemDto.getName().equals("")) {
+        if (!temp.getOwner().getId().equals(id)){
+            throw new NotFoundException("Данный пользователь не может изменить товар");
+        }
+        if (!Objects.equals(temp.getName(), itemDto.getName())) {
             temp.setName(itemDto.getName());
             logger.info("Имя обноалено");
         }
-        if (itemDto.getIsAvailable() != null) {
+        if (!Objects.equals(itemDto.getIsAvailable(), temp.getIsAvailable())) {
             temp.setIsAvailable(itemDto.getIsAvailable());
             logger.info("Статус обноален");
         }
@@ -151,6 +153,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDTO validateItem(ItemDTO itemDto, Long itemId) {
 
         if (findItemById(itemId, itemDto.getId()) == null) {
+            logger.info("товар не найден");
             throw new NotFoundException("Такого товара нет");
         }
         ItemDTO patchedItem = findItemById(itemId, itemDto.getId());
