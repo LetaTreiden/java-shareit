@@ -10,7 +10,7 @@ public interface ItemService {
 
     List<ItemDTO> getAllItemsByString(String someText);
 
-    ItemDTO validateItem(ItemDTO itemDto, Long itemId, Long id);
+    ItemDTO validateItem(ItemDTO itemDto, Long itemId);
 
     ItemDTO findItemById(Long userId, Long itemId);
 

@@ -1,5 +1,7 @@
 package ru.practicum.shareit.item.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingMapper;
@@ -33,6 +35,8 @@ public class ItemServiceImpl implements ItemService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
+    Logger logger = LoggerFactory.getLogger("log");
+
 
     @Autowired
     public ItemServiceImpl(ItemRepository itemRepository, UserServiceImpl userService,
@@ -52,22 +56,20 @@ public class ItemServiceImpl implements ItemService {
     }
 
     public ItemDTO updateItem(ItemDTO itemDto) {
-        validateItem(itemDto, itemDto.getId(), itemDto.getOwner().getId());
+
+        validateItem(itemDto, itemDto.getId());
         Item temp = itemRepository.getReferenceById(itemDto.getId());
-        if (itemDto.getName() != null && !itemDto.getName().equals("")) {
+        if (itemDto.getName() != null && !itemDto.getName().equals("") ) {
             temp.setName(itemDto.getName());
+            logger.info("Имя обноалено");
         }
         if (itemDto.getIsAvailable() != null) {
             temp.setIsAvailable(itemDto.getIsAvailable());
+            logger.info("Статус обноален");
         }
         if (itemDto.getDescription() != null && !itemDto.getDescription().equals("")) {
             temp.setDescription(itemDto.getDescription());
-        }
-        if (itemDto.getOwner().getId() != null && itemDto.getOwner().getId() != 0) {
-            temp.setOwner(UserMapper.toUser(itemDto.getOwner()));
-        }
-        if (itemDto.getRequestId() != null && itemDto.getRequestId() != 0) {
-            temp.setRequestId(itemDto.getRequestId());
+            logger.info("Описание обновлено");
         }
         return ItemMapper.toIDto(itemRepository.save(temp));
     }
@@ -146,18 +148,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDTO validateItem(ItemDTO itemDto, Long itemId, Long id) {
-        if (findItemById(id, itemId) != null) {
-            if (!Objects.equals(findItemById(id, itemId).getOwner().getId(), id)) {
-                throw new NotFoundException("Данный товар принадлежит другому пользователю");
-            }
-        }
-        itemDto.setId(itemId);
+    public ItemDTO validateItem(ItemDTO itemDto, Long itemId) {
 
-        if (findItemById(id, itemDto.getId()) == null) {
+        if (findItemById(itemId, itemDto.getId()) == null) {
             throw new NotFoundException("Такого товара нет");
         }
-        ItemDTO patchedItem = findItemById(id, itemDto.getId());
+        ItemDTO patchedItem = findItemById(itemId, itemDto.getId());
         if (itemDto.getName() != null) {
             patchedItem.setName(itemDto.getName());
         }
