@@ -59,7 +59,7 @@ public class ItemServiceImpl implements ItemService {
 
         validateItem(itemDto, itemDto.getId());
         Item temp = itemRepository.getReferenceById(itemDto.getId());
-        if (itemDto.getName() != null && !itemDto.getName().equals("") ) {
+        if (itemDto.getName() != null && !itemDto.getName().equals("")) {
             temp.setName(itemDto.getName());
             logger.info("Имя обноалено");
         }
