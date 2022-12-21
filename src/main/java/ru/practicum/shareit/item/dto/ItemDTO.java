@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -35,11 +36,11 @@ public class ItemDTO {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private UserDTO owner;
 
-     @JsonInclude(JsonInclude.Include.NON_NULL)
-     private Long requestId;
-
-     private BookingDTO lastBooking;
-
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Long requestId;
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private BookingDTO lastBooking;
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private BookingDTO nextBooking;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)

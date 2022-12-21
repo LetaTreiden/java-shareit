@@ -19,7 +19,7 @@ public class BookingDTO {
    // private Long itemId;
     private ru.practicum.shareit.user.model.User booker;
     private Long bookerId;
-  //  private User owner;
+    private User owner;
     private BookingStatus bookingStatus;
 
     @Data
@@ -29,9 +29,9 @@ public class BookingDTO {
     public static class Item {
         private Long id;
         private String name;
-        private String description;
+       // private String description;
         private boolean available;
-        private Long requestId;
+       // private Long requestId;
     }
 
     @Data
@@ -41,6 +41,6 @@ public class BookingDTO {
     public static class User {
         private Long id;
         private String name;
-        private String email;
+     //   private String email;
     }
 }

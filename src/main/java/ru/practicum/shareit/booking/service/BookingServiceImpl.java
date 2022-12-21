@@ -54,7 +54,7 @@ public class BookingServiceImpl implements BookingService {
         if (!iRepo.existsById(itemId)) {
             throw new NotFoundException("Товар не найден");
         }
-        Item item = iRepo.getReferenceById(itemId);
+        Item item = iRepo.findById(itemId).get();
 
         if (item.getOwner().getId().equals(bookerId))
             throw new ValidationException("Владелец не может создать бронь на свою вещь");
@@ -63,7 +63,7 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("Вещь с указанным id недоступна для запроса на бронирование.");
 
         bookingDto.setBookingStatus(BookingStatus.WAITING);
-        bookingDto.setBooker(uRepo.getReferenceById(bookerId));
+        bookingDto.setBooker(uRepo.findById(bookerId).get());
         bRepo.save(BookingMapper.toBooking(bookingDto));
         return bookingDto;
     }
