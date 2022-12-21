@@ -55,22 +55,24 @@ public class ItemServiceImpl implements ItemService {
         return ItemMapper.toIDto(itemRepository.save(ItemMapper.toItem(itemDto)));
     }
 
-    public ItemDTO updateItem(ItemDTO itemDto) {
+    public ItemDTO updateItem(ItemDTO itemDto, Long id) {
+        validateItem(itemDto, itemDto.getId());
         Item temp = itemRepository.getReferenceById(itemDto.getId());
-        if (itemDto.getName() != null && !itemDto.getName().equals("")) {
-            temp.setName(itemDto.getName());
+        if (!temp.getOwner().getId().equals(id)) {
+            logger.info("owner id is " + id);
+            throw new NotFoundException("Данный пользователь не может изменить товар");
         }
-        if (itemDto.getIsAvailable() != null) {
+        if (!Objects.equals(temp.getName(), itemDto.getName())) {
+            temp.setName(itemDto.getName());
+            logger.info("Имя обноалено");
+        }
+        if (!Objects.equals(itemDto.getIsAvailable(), temp.getIsAvailable())) {
             temp.setIsAvailable(itemDto.getIsAvailable());
+            logger.info("Статус обноален");
         }
         if (itemDto.getDescription() != null && !itemDto.getDescription().equals("")) {
             temp.setDescription(itemDto.getDescription());
-        }
-        if (itemDto.getOwner().getId() != null && itemDto.getOwner().getId() != 0) {
-            temp.setOwner(UserMapper.toUser(itemDto.getOwner()));
-        }
-        if (itemDto.getRequestId() != null && itemDto.getRequestId() != 0) {
-            temp.setRequestId(itemDto.getRequestId());
+            logger.info("Описание обновлено");
         }
         return ItemMapper.toIDto(itemRepository.save(temp));
     }
