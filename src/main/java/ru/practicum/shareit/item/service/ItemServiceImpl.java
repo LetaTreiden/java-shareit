@@ -55,24 +55,22 @@ public class ItemServiceImpl implements ItemService {
         return ItemMapper.toIDto(itemRepository.save(ItemMapper.toItem(itemDto)));
     }
 
-    public ItemDTO updateItem(ItemDTO itemDto, Long id) {
-        validateItem(itemDto, itemDto.getId());
+    public ItemDTO updateItem(ItemDTO itemDto) {
         Item temp = itemRepository.getReferenceById(itemDto.getId());
-        if (!temp.getOwner().getId().equals(id)) {
-            logger.info("owner id is " + id);
-            throw new NotFoundException("Данный пользователь не может изменить товар");
-        }
-        if (!Objects.equals(temp.getName(), itemDto.getName())) {
+        if (itemDto.getName() != null && !itemDto.getName().equals("")) {
             temp.setName(itemDto.getName());
-            logger.info("Имя обноалено");
         }
-        if (!Objects.equals(itemDto.getIsAvailable(), temp.getIsAvailable())) {
+        if (itemDto.getIsAvailable() != null) {
             temp.setIsAvailable(itemDto.getIsAvailable());
-            logger.info("Статус обноален");
         }
         if (itemDto.getDescription() != null && !itemDto.getDescription().equals("")) {
             temp.setDescription(itemDto.getDescription());
-            logger.info("Описание обновлено");
+        }
+        if (itemDto.getOwner().getId() != null && itemDto.getOwner().getId() != 0) {
+            temp.setOwner(UserMapper.toUser(itemDto.getOwner()));
+        }
+        if (itemDto.getRequestId() != null && itemDto.getRequestId() != 0) {
+            temp.setRequestId(itemDto.getRequestId());
         }
         return ItemMapper.toIDto(itemRepository.save(temp));
     }
@@ -152,8 +150,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDTO validateItem(ItemDTO itemDto, Long itemId) {
-
-        if (findItemById(itemId, itemDto.getId()) == null) {
+        if (!(itemRepository.existsById(itemId))) {
             logger.info("товар не найден");
             throw new NotFoundException("Такого товара нет");
         }
