@@ -64,6 +64,7 @@ public class BookingServiceImpl implements BookingService {
 
         bookingDto.setBookingStatus(BookingStatus.WAITING);
         bookingDto.setBooker(uRepo.findById(bookerId).get());
+        bookingDto.setOwner(item.getOwner());
         bRepo.save(BookingMapper.toBooking(bookingDto));
         return bookingDto;
     }
