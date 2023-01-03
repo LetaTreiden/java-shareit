@@ -55,11 +55,11 @@ public class ItemServiceImpl implements ItemService {
         return ItemMapper.toIDto(itemRepository.save(ItemMapper.toItem(itemDto)));
     }
 
-    public ItemDTO updateItem(ItemDTO itemDto, Long id) {
-        validateItem(itemDto, itemDto.getId());
-        Item temp = itemRepository.getReferenceById(itemDto.getId());
-        if (!temp.getOwner().getId().equals(id)) {
-            logger.info("owner id is " + id);
+    public ItemDTO updateItem(ItemDTO itemDto, Long uId, Long iId) {
+        validateItem(itemDto, iId);
+        Item temp = itemRepository.getReferenceById(iId);
+        if (!temp.getOwner().getId().equals(uId)) {
+            logger.info("owner id is " + uId);
             throw new NotFoundException("Данный пользователь не может изменить товар");
         }
         if (!Objects.equals(temp.getName(), itemDto.getName())) {
@@ -151,7 +151,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDTO validateItem(ItemDTO itemDto, Long itemId) {
+    public void validateItem(ItemDTO itemDto, Long itemId) {
         if (!(itemRepository.existsById(itemId))) {
             logger.info("товар не найден");
             throw new NotFoundException("Такого товара нет");
@@ -166,7 +166,6 @@ public class ItemServiceImpl implements ItemService {
         if (itemDto.getIsAvailable() != null) {
             patchedItem.setIsAvailable(itemDto.getIsAvailable());
         }
-        return patchedItem;
     }
 
     public CommentDTO postComment(Long userId, Long itemId, CommentDTO commentDto) {
