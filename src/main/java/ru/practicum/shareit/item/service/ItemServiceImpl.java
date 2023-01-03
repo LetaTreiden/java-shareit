@@ -57,12 +57,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     public ItemDTO updateItem(ItemDTO itemDto, Long uId, Long iId) {
-        validateItem(itemDto, iId);
         Item temp = itemRepository.getReferenceById(iId);
         if (!temp.getOwner().getId().equals(uId)) {
             logger.info("owner id is " + uId);
             throw new ValidationException("Данный пользователь не может изменить товар");
         }
+        validateItem(itemDto, iId);
         if (!Objects.equals(temp.getName(), itemDto.getName())) {
             temp.setName(itemDto.getName());
             logger.info("Имя обноалено");
