@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.dto.BookingDTO;
@@ -56,26 +57,24 @@ public class ItemServiceImpl implements ItemService {
         return ItemMapper.toIDto(itemRepository.save(ItemMapper.toItem(itemDto)));
     }
 
-    public ItemDTO updateItem(ItemDTO itemDto, Long uId, Long iId) {
-        Item temp = itemRepository.getReferenceById(iId);
-        if (!temp.getOwner().getId().equals(uId)) {
-            logger.info("owner id is " + uId);
-            throw new ValidationException("Данный пользователь не может изменить товар");
+    @Override
+    @Transactional
+    public Item update(ItemDTO itemDTO, long id, long itemId) {
+        Item item = itemRepository.getReferenceById(itemId);
+        User user = userRepository.getReferenceById(id);
+        validateItem(itemId);
+        validateUser(id);
+        if (item.getOwner().getId() == id) {
+            item.setOwner(user);
+            item.setName(itemDTO.getName() == null ? item.getName() : itemDTO.getName());
+            if (itemDTO.getDescription() == null || itemDTO.getDescription().isBlank())
+                item.setDescription(item.getDescription());
+            else item.setDescription(itemDTO.getDescription());
+            item.setIsAvailable(itemDTO.getIsAvailable() == null ? item.getIsAvailable() : itemDTO.getIsAvailable());
+        } else {
+            throw new NotFoundException("Изменять вещь может только её владелец");
         }
-        validateItem(itemDto, iId);
-        if (!Objects.equals(temp.getName(), itemDto.getName())) {
-            temp.setName(itemDto.getName());
-            logger.info("Имя обноалено");
-        }
-        if (!Objects.equals(itemDto.getIsAvailable(), temp.getIsAvailable())) {
-            temp.setIsAvailable(itemDto.getIsAvailable());
-            logger.info("Статус обноален");
-        }
-        if (itemDto.getDescription() != null && !itemDto.getDescription().equals("")) {
-            temp.setDescription(itemDto.getDescription());
-            logger.info("Описание обновлено");
-        }
-        return ItemMapper.toIDto(itemRepository.save(temp));
+        return item;
     }
 
     public ItemDTO findItemById(Long userId, Long itemId) {
@@ -157,7 +156,7 @@ public class ItemServiceImpl implements ItemService {
             logger.info("товар не найден");
             throw new NotFoundException("Такого товара нет");
         }
-        ItemDTO patchedItem = findItemById(itemId, itemDto.getId());
+        ItemDTO patchedItem = ItemMapper.toIDto(itemRepository.getReferenceById(itemId));
         if (itemDto.getName() != null) {
             patchedItem.setName(itemDto.getName());
         }
