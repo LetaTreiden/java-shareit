@@ -59,15 +59,16 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public Item update(ItemDTO itemDTO, long id, long itemId) {
-        /*logger.info("Процесс пошел");
+        logger.info("Процесс пошел");
         Item item = itemRepository.getReferenceById(itemId);
         logger.info("вещь есть");
-        User user = userRepository.getReferenceById(id);
+        //User user = userRepository.getReferenceById(id);
         logger.info("юзер есть");
         validateItem(itemId);
         logger.info("Вещь");
         validateUser(id);
         logger.info("Пользователь");
+        /*
         if (item.getOwner().getId() == id) {
             item.setOwner(user);
             item.setName(itemDTO.getName() == null ? item.getName() : itemDTO.getName());
@@ -81,7 +82,7 @@ public class ItemServiceImpl implements ItemService {
         return item;
 
          */
-       return itemRepository.save(ItemMapper.toItem(itemDTO));
+       return itemRepository.save(item);
     }
 
     public ItemDTO findItemById(Long userId, Long itemId) {
