@@ -59,10 +59,15 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public Item update(ItemDTO itemDTO, long id, long itemId) {
+        /*logger.info("Процесс пошел");
         Item item = itemRepository.getReferenceById(itemId);
+        logger.info("вещь есть");
         User user = userRepository.getReferenceById(id);
+        logger.info("юзер есть");
         validateItem(itemId);
+        logger.info("Вещь");
         validateUser(id);
+        logger.info("Пользователь");
         if (item.getOwner().getId() == id) {
             item.setOwner(user);
             item.setName(itemDTO.getName() == null ? item.getName() : itemDTO.getName());
@@ -74,6 +79,9 @@ public class ItemServiceImpl implements ItemService {
             throw new NotFoundException("Изменять вещь может только её владелец");
         }
         return item;
+
+         */
+       return itemRepository.save(ItemMapper.toItem(itemDTO));
     }
 
     public ItemDTO findItemById(Long userId, Long itemId) {
