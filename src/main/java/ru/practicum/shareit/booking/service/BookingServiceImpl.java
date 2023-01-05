@@ -61,13 +61,7 @@ public class BookingServiceImpl implements BookingService {
 
         if (!item.getIsAvailable())
             throw new ValidationException("Вещь с указанным id недоступна для запроса на бронирование.");
-
-        /*bookingDto.setBookingStatus(BookingStatus.WAITING);
-        bookingDto.setBooker(uRepo.getReferenceById(bookerId));
-        bookingDto.setOwner(item.getOwner());
         bRepo.save(BookingMapper.toBooking(bookingDto));
-
-         */
         return bookingDto;
     }
 
