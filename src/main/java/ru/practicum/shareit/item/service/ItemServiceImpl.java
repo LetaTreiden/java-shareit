@@ -62,13 +62,12 @@ public class ItemServiceImpl implements ItemService {
         logger.info("Процесс пошел");
         Item item = itemRepository.getReferenceById(itemId);
         logger.info("вещь есть");
-        //User user = userRepository.getReferenceById(id);
+        User user = userRepository.getReferenceById(id);
         logger.info("юзер есть");
         validateItem(itemId);
         logger.info("Вещь");
         validateUser(id);
         logger.info("Пользователь");
-        /*
         if (item.getOwner().getId() == id) {
             item.setOwner(user);
             item.setName(itemDTO.getName() == null ? item.getName() : itemDTO.getName());
@@ -79,10 +78,8 @@ public class ItemServiceImpl implements ItemService {
         } else {
             throw new NotFoundException("Изменять вещь может только её владелец");
         }
+        itemRepository.save(item);
         return item;
-
-         */
-       return itemRepository.save(item);
     }
 
     public ItemDTO findItemById(Long userId, Long itemId) {
