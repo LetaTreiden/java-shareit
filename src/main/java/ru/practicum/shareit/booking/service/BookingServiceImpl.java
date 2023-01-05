@@ -54,7 +54,7 @@ public class BookingServiceImpl implements BookingService {
         if (!iRepo.existsById(itemId)) {
             throw new NotFoundException("Товар не найден");
         }
-        Item item = iRepo.findById(itemId).get();
+        Item item = iRepo.getReferenceById(itemId);
 
         if (item.getOwner().getId().equals(bookerId))
             throw new ValidationException("Владелец не может создать бронь на свою вещь");
@@ -62,10 +62,12 @@ public class BookingServiceImpl implements BookingService {
         if (!item.getIsAvailable())
             throw new ValidationException("Вещь с указанным id недоступна для запроса на бронирование.");
 
-        bookingDto.setBookingStatus(BookingStatus.WAITING);
-        bookingDto.setBooker(uRepo.findById(bookerId).get());
+        /*bookingDto.setBookingStatus(BookingStatus.WAITING);
+        bookingDto.setBooker(uRepo.getReferenceById(bookerId));
         bookingDto.setOwner(item.getOwner());
         bRepo.save(BookingMapper.toBooking(bookingDto));
+
+         */
         return bookingDto;
     }
 
@@ -101,7 +103,7 @@ public class BookingServiceImpl implements BookingService {
 
         Booking booking = bRepo.getReferenceById(bId);
         Item item = iRepo.getReferenceById(booking.getItem().getId());
-        if (!Objects.equals(item.getOwner().getId(), id) || !Objects.equals(booking.getBooker().getId(), id))
+        if (!Objects.equals(item.getOwner().getId(), id) && !Objects.equals(booking.getBooker().getId(), id))
             throw new InvalidParameterException("Данный пользователь не может получить информацию о заданной вещи.");
 
         return booking;

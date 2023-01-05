@@ -20,9 +20,7 @@ public class BookingMapper {
 
     public static Booking toBooking(BookingDTO bookingDto) {
         Booking booking = new Booking();
-        if (bookingDto.getId() != null) {
-            booking.setId(bookingDto.getId());
-        }
+        booking.setId(bookingDto.getId());
 
         booking.setStart(bookingDto.getStart());
         booking.setEnd(bookingDto.getEnd());

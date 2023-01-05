@@ -10,14 +10,14 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class BookingDTO {
-    private Long id;
-    private LocalDateTime start;
-    private LocalDateTime end;
     @NonNull
+    private Long id;
+    @NonNull
+    private LocalDateTime start;
+    @NonNull
+    private LocalDateTime end;
     private ru.practicum.shareit.item.model.Item item;
-   // private Long itemId;
-    private ru.practicum.shareit.user.model.User booker;
-    private Long bookerId;
+    private User booker;
     private User owner;
     private BookingStatus bookingStatus;
 
@@ -28,9 +28,7 @@ public class BookingDTO {
     public static class Item {
         private Long id;
         private String name;
-       // private String description;
         private boolean available;
-       // private Long requestId;
     }
 
     @Data
