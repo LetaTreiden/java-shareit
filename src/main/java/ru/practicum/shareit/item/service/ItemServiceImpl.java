@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item.service;
 
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -187,7 +186,7 @@ public class ItemServiceImpl implements ItemService {
             } else {
                 if (!booking.getStart().isBefore(LocalDateTime.now()) &&
                         !booking.getEnd().isBefore(LocalDateTime.now()) &&
-                        booking.getStatus().equals(State.PAST)) {
+                        booking.getStatus().equals(BookingStatus.APPROVED)) {
                     commentDto.setItem(ItemMapper.toIDto(itemRepository.getReferenceById(itemId)));
                     commentDto.setAuthor(UserMapper.toUserDto(userRepository.getReferenceById(userId)));
                     commentDto.setCreated(LocalDateTime.now());
@@ -233,5 +232,4 @@ public class ItemServiceImpl implements ItemService {
             throw new InvalidParameterException("Комментарий не может юыть пусьым");
         }
     }
-
 }
