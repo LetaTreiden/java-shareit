@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 import org.hibernate.Hibernate;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.comment.Comment;
@@ -15,10 +16,10 @@ import java.util.Objects;
 
 
 @Table(name = "items")
-@Getter
-@Setter
-@ToString
-@RequiredArgsConstructor
+@Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 public class Item {
 

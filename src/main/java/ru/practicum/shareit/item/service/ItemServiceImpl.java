@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.service;
 
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.BookingStatus;
+import ru.practicum.shareit.booking.State;
 import ru.practicum.shareit.booking.dto.BookingDTO;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
@@ -185,7 +187,7 @@ public class ItemServiceImpl implements ItemService {
             } else {
                 if (!booking.getStart().isBefore(LocalDateTime.now()) &&
                         !booking.getEnd().isBefore(LocalDateTime.now()) &&
-                        booking.getStatus().equals(BookingStatus.PAST)) {
+                        booking.getStatus().equals(State.PAST)) {
                     commentDto.setItem(ItemMapper.toIDto(itemRepository.getReferenceById(itemId)));
                     commentDto.setAuthor(UserMapper.toUserDto(userRepository.getReferenceById(userId)));
                     commentDto.setCreated(LocalDateTime.now());
