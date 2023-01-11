@@ -6,9 +6,12 @@ import ru.practicum.shareit.exceptions.InvalidParameterException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.dto.UserDTO;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import javax.transaction.Transactional;
 import javax.validation.ValidationException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -29,6 +32,7 @@ public class UserServiceImpl implements UserService {
         return UserMapper.toUserDto(userRepository.getReferenceById(id));
     }
 
+    @Transactional
     public UserDTO createUser(UserDTO userDto) {
         validateEmail(userDto);
         return UserMapper.toUserDto(userRepository.save(UserMapper.toUser(userDto)));
@@ -62,7 +66,7 @@ public class UserServiceImpl implements UserService {
         if (userDto.getEmail() != null) {
             for (UserDTO storedUser : findAllUsers()) {
                 if (userDto.getEmail().equals(storedUser.getEmail())) {
-                    throw new ValidationException("Пользователь с таекой почтой уже существует");
+                    throw new ValidationException("Пользователь с такой почтой уже существует");
                 }
             }
             patchedUser.setEmail(userDto.getEmail());
@@ -79,6 +83,15 @@ public class UserServiceImpl implements UserService {
     private void validateEmail(UserDTO userDto) {
         if (userDto.getEmail() == null || !userDto.getEmail().contains("@")) {
             throw new InvalidParameterException("Почта не может быть пустой");
+        }
+        List<UserDTO> allUsers = findAllUsers();
+        String emailExists;
+        String userEmail = userDto.getEmail();
+        for (UserDTO user : allUsers) {
+            emailExists = user.getEmail();
+            if (emailExists.equals(userEmail)) {
+                throw new ValidationException("Пользователь с такой почтой уже существует");
+            }
         }
     }
 
