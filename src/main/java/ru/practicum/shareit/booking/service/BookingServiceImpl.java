@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.BookingStatus;
+import ru.practicum.shareit.booking.State;
 import ru.practicum.shareit.booking.dto.BookingDTO;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
@@ -76,10 +77,13 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void validateState(String state) {
-        if (!state.equals(BookingStatus.REJECTED.name())
-                && !state.equals(BookingStatus.WAITING.name())
-                && !state.equals(BookingStatus.APPROVED.name())
-                && !state.equals(BookingStatus.CANCELED.name())) {
+        if (!state.equals(State.REJECTED.name())
+                && !state.equals(State.ALL.name())
+                && !state.equals(State.PAST.name())
+                && !state.equals(State.CURRENT.name())
+                && !state.equals(State.FUTURE.name())
+                && !state.equals(State.WAITING.name())
+                ) {
             throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
         }
     }
@@ -133,7 +137,6 @@ public class BookingServiceImpl implements BookingService {
     public List<Booking> findBookingByIdAndStatus(String state, Long id) {
         if (!uRepo.existsById(id)) throw new NotFoundException("Пользователя с таким id не существует");
         validateState(state);
-
         List<Booking> result = new ArrayList<>();
 
         switch (state) {
@@ -170,16 +173,27 @@ public class BookingServiceImpl implements BookingService {
         validateUser(id);
         validateState(state);
 
-        BookingStatus status = BookingStatus.valueOf(state);
+        State status = State.valueOf(state);
         List<Booking> result;
 
         switch (status) {
             case WAITING:
-                result = bRepo.findAllOwnersBookingsWithStatus(id, BookingStatus.WAITING);
-
+                result = bRepo.findAllOwnersBookingsWithWaitingStatus(id);
                 break;
             case REJECTED:
-                result = bRepo.findAllOwnersBookingsWithStatus(id, BookingStatus.REJECTED);
+                result = bRepo.findAllOwnersBookingsWithRejectedStatus(id);
+                break;
+            case ALL:
+                result = bRepo.findAllOwnersBookings(id);
+                break;
+            case PAST:
+                result = bRepo.findAllOwnersBookingsWithPastStatus(id);
+                break;
+            case FUTURE:
+                result = bRepo.findAllOwnersBookingsWithFutureStatus(id);
+                break;
+            case CURRENT:
+                result = bRepo.findAllOwnersBookingsWithCurrentStatus(id);
                 break;
             default:
                 throw new InvalidParameterException("Неизвестный статус");
