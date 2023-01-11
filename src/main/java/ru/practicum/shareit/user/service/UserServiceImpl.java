@@ -6,12 +6,10 @@ import ru.practicum.shareit.exceptions.InvalidParameterException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.dto.UserDTO;
-import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import javax.transaction.Transactional;
 import javax.validation.ValidationException;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
