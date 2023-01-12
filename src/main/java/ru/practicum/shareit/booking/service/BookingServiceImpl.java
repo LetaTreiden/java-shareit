@@ -178,13 +178,13 @@ public class BookingServiceImpl implements BookingService {
                 result = bRepo.findAllOwnersBookingsWithWaitingStatus(id);
                 break;
             case REJECTED:
-                result = bRepo.findAllOwnersBookingsWithRejectedStatus(id);
+                result = bRepo.findAllOwnersBookingsWithRejectedState(id);
                 break;
             case ALL:
                 result = bRepo.findAllOwnersBookings(id);
                 break;
             case PAST:
-                result = bRepo.findAllOwnersBookingsWithPastStatus(id);
+                result = bRepo.findAllOwnersBookingsWithPastState(id);
                 break;
             case FUTURE:
                 result = bRepo.findAllOwnersBookingsWithFutureStatus(id);

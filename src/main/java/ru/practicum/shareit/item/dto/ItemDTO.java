@@ -34,6 +34,7 @@ public class ItemDTO {
     private Boolean isAvailable;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private UserDTO owner;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
