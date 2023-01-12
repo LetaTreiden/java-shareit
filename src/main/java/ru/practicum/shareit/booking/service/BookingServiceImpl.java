@@ -80,7 +80,7 @@ public class BookingServiceImpl implements BookingService {
                 && !state.equals(State.CURRENT.name())
                 && !state.equals(State.FUTURE.name())
                 && !state.equals(State.WAITING.name())
-                ) {
+        ) {
             throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
         }
     }
