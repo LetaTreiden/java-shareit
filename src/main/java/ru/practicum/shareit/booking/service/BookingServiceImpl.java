@@ -44,14 +44,13 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     @Override
     public BookingDTO create(Long bookerId, BookingDTO bookingDto) {
-        Long itemId = bookingDto.getItem().getId();
-        if (!iRepo.existsById(itemId)) {
+        if (!iRepo.existsById(bookingDto.getItem().getId())) {
             throw new NotFoundException("Товар не найден");
         }
-        Item item = iRepo.getReferenceById(itemId);
+        Item item = iRepo.getReferenceById(bookingDto.getItem().getId());
 
         if (!uRepo.existsById(bookerId) || item.getOwner().getId().equals(bookerId)) {
-            throw new ValidationException("Пользователь yе может создать бронь");
+            throw new ValidationException("Пользователь не может создать бронь");
         }
         dateTimeCheck(bookingDto.getStart(), bookingDto.getEnd());
 
