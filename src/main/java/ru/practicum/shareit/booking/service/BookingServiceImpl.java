@@ -48,7 +48,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingDTO create(Long bookerId, BookingDTO booking) {
         logger.info("Процесс запущен. Пользователь " + bookerId);
-        logger.info(""+ booking);
+        logger.info("" + booking);
         if (bookerId == null) {
             logger.info("Ошибка, пользователь не задан");
             throw new InvalidParameterException("Не задан пользователь");
