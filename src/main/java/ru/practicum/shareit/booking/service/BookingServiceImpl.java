@@ -72,10 +72,9 @@ public class BookingServiceImpl implements BookingService {
         logger.info("Проверка на доступность пройдена");
 
         booking.setBooker(UserMapper.toUserDto(uRepo.getReferenceById(bookerId)));
-        bRepo.save(BookingMapper.toBooking(booking, iRepo));
-        Booking bookingToSave = BookingMapper.toBooking(booking, iRepo);
-        logger.info(" " + bookingToSave);
-        return BookingMapper.toBookingDto(bookingToSave);
+        Booking booking1 = bRepo.save(BookingMapper.toBooking(booking, iRepo));
+        logger.info(" " + booking1);
+        return BookingMapper.toBookingDto(booking1);
     }
 
     private void validateUser(Long id) {
