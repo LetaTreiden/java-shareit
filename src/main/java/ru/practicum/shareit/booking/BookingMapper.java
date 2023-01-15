@@ -19,7 +19,7 @@ public class BookingMapper {
                 .end(booking.getEnd())
                 .itemId(booking.getItem().getId())
                 .booker(UserMapper.toUserDto(booking.getBooker()))
-                .bookingStatus(booking.getStatus())
+                .status(booking.getStatus())
                 .build();
     }
 
@@ -33,10 +33,10 @@ public class BookingMapper {
         booking.setItem(iRepo.getReferenceById(bookingDto.getItemId()));
         booking.setBooker(UserMapper.toUser(bookingDto.getBooker()));
 
-        if (bookingDto.getBookingStatus() == null) {
+        if (bookingDto.getStatus() == null) {
             booking.setStatus(BookingStatus.WAITING);
         } else {
-            booking.setStatus(bookingDto.getBookingStatus());
+            booking.setStatus(bookingDto.getStatus());
         }
         logger.info("the process is finished");
         return booking;

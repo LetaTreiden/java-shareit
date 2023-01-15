@@ -121,15 +121,14 @@ public class BookingServiceImpl implements BookingService {
         if (!Objects.equals(booking.getItem().getOwner().getId(), id)) {
             throw new NotFoundException("Не найден пользователь с правом на обновление статуса заявки");
         }
-        if (booking.getStatus().equals(BookingStatus.APPROVED)) {
-            throw new ValidationException("Нельзя изменять статус заявки после подтверждения");
-        }
         if (approved && bookingUpdateStatusValidator(booking, id)) {
             booking.setStatus(BookingStatus.APPROVED);
         } else {
             booking.setStatus(BookingStatus.REJECTED);
         }
-        return BookingMapper.toBookingDto(bRepo.save(booking));
+        bRepo.save(booking);
+        logger.info("!" + booking);
+        return BookingMapper.toBookingDto(booking);
     }
 
     private boolean bookingUpdateStatusValidator(Booking booking, long ownerId) {
