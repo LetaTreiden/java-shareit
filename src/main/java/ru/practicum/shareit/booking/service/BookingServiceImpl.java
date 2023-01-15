@@ -95,16 +95,22 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Booking findBookingById(Long id, Long bId) {
+    public BookingDTO findBookingById(Long id, Long bId) {
+        logger.info("Process is started");
         validateUser(id);
+        logger.info("User is validated");
         if (!bRepo.existsById(bId)) throw new NotFoundException("Бронь с таким id не существует");
+        logger.info("booking exists");
 
         Booking booking = bRepo.getReferenceById(bId);
+        logger.info("Booking was getting");
         Item item = iRepo.getReferenceById(booking.getItem().getId());
+        logger.info("Item was getting");
         if (!Objects.equals(item.getOwner().getId(), id) && !Objects.equals(booking.getBooker().getId(), id))
             throw new InvalidParameterException("Данный пользователь не может получить информацию о заданной вещи.");
-
-        return booking;
+        logger.info("User can get this information");
+        logger.info(" " + booking);
+        return BookingMapper.toBookingDto(booking);
     }
 
     @Override

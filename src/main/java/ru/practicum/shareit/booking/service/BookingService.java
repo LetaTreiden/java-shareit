@@ -9,7 +9,7 @@ public interface BookingService {
 
     BookingDTO create(Long id, BookingDTO booking);
 
-    Booking findBookingById(Long id, Long bId);
+    BookingDTO findBookingById(Long id, Long bId);
 
     BookingDTO confirmOrRejectBooking(Long id, Long bId, Boolean approved);
 
