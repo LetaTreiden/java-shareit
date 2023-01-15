@@ -16,5 +16,4 @@ public class BookingDTO {
     private Long itemId;
     private User booker;
     private BookingStatus bookingStatus;
-
 }
