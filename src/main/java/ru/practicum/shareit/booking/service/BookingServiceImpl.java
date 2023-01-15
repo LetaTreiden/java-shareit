@@ -60,6 +60,7 @@ public class BookingServiceImpl implements BookingService {
         }
         Item item = iRepo.getReferenceById(booking.getItemId());
         logger.info("товар получен");
+        logger.info(" " + item);
         if (!uRepo.existsById(bookerId) || item.getOwner().getId().equals(bookerId)) {
             throw new InvalidParameterException("Пользователь не может создать бронь");
         }
@@ -68,7 +69,11 @@ public class BookingServiceImpl implements BookingService {
         logger.info("Проверка на даты пройдена");
         if (!item.getIsAvailable())
             throw new ValidationException("Вещь с указанным id недоступна для запроса на бронирование.");
-        bRepo.save(BookingMapper.toBooking(booking, iRepo));
+        logger.info("Проверка на доступность пройдена");
+        Booking bookingToSave = BookingMapper.toBooking(booking, iRepo);
+        bookingToSave.setBooker(uRepo.getReferenceById(bookerId));
+        logger.info(" " + bookingToSave);
+        bRepo.save(bookingToSave);
         return booking;
     }
 
