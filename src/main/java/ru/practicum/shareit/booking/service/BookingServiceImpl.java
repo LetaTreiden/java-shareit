@@ -16,6 +16,7 @@ import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
@@ -67,11 +68,12 @@ public class BookingServiceImpl implements BookingService {
         dateTimeCheck(booking.getStart(), booking.getEnd());
         logger.info("Проверка на даты пройдена");
         if (!item.getIsAvailable())
-            throw new ValidationException("Вещь с указанным id недоступна для запроса на бронирование.");
+            throw new InvalidParameterException("Вещь с указанным id недоступна для запроса на бронирование.");
         logger.info("Проверка на доступность пройдена");
+
+        booking.setBooker(UserMapper.toUserDto(uRepo.getReferenceById(bookerId)));
+        bRepo.save(BookingMapper.toBooking(booking, iRepo));
         Booking bookingToSave = BookingMapper.toBooking(booking, iRepo);
-        bookingToSave.setBooker(uRepo.getReferenceById(bookerId));
-        bookingToSave = bRepo.save(bookingToSave);
         logger.info(" " + bookingToSave);
         return BookingMapper.toBookingDto(bookingToSave);
     }
