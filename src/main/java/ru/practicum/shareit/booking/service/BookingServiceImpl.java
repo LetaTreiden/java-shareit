@@ -66,12 +66,6 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    private void validateItem(Long id) {
-        if (!iRepo.existsById(id)) {
-            throw new NotFoundException("Товар не найден");
-        }
-    }
-
     private void validateState(String state) {
         if (!state.equals(State.REJECTED.name())
                 && !state.equals(State.ALL.name())
