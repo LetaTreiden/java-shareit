@@ -64,7 +64,6 @@ public class BookingServiceImpl implements BookingService {
         if (!uRepo.existsById(bookerId) || item.getOwner().getId().equals(bookerId)) {
             throw new InvalidParameterException("Пользователь не может создать бронь");
         }
-
         dateTimeCheck(booking.getStart(), booking.getEnd());
         logger.info("Проверка на даты пройдена");
         if (!item.getIsAvailable())
