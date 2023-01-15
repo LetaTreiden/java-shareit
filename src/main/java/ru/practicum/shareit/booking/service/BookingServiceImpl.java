@@ -1,5 +1,7 @@
 package ru.practicum.shareit.booking.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +30,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bRepo;
     private final ItemRepository iRepo;
     private final UserRepository uRepo;
+    Logger logger = LoggerFactory.getLogger("log");
 
     @Autowired
     public BookingServiceImpl(BookingRepository bRepo, ItemRepository iRepo, UserRepository uRepo) {
@@ -43,21 +46,30 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional
     @Override
-    public BookingDTO create(Long bookerId, BookingDTO bookingDto) {
-        if (!iRepo.existsById(bookingDto.getItem().getId())) {
+    public BookingDTO create(Long bookerId, BookingDTO booking) {
+        logger.info("Процесс запущен. Пользователь " + bookerId);
+        logger.info(""+ booking);
+        if (bookerId == null) {
+            logger.info("Ошибка, пользователь не задан");
+            throw new InvalidParameterException("Не задан пользователь");
+        }
+        logger.info("Пользователь найден");
+        if (!iRepo.existsById(booking.getItemId())) {
+            logger.info("Ошибка, товар не найден");
             throw new NotFoundException("Товар не найден");
         }
-        Item item = iRepo.getReferenceById(bookingDto.getItem().getId());
-
+        Item item = iRepo.getReferenceById(booking.getItemId());
+        logger.info("товар получен");
         if (!uRepo.existsById(bookerId) || item.getOwner().getId().equals(bookerId)) {
-            throw new ValidationException("Пользователь не может создать бронь");
+            throw new InvalidParameterException("Пользователь не может создать бронь");
         }
-        dateTimeCheck(bookingDto.getStart(), bookingDto.getEnd());
 
+        dateTimeCheck(booking.getStart(), booking.getEnd());
+        logger.info("Проверка на даты пройдена");
         if (!item.getIsAvailable())
             throw new ValidationException("Вещь с указанным id недоступна для запроса на бронирование.");
-        bRepo.save(BookingMapper.toBooking(bookingDto));
-        return bookingDto;
+        bRepo.save(BookingMapper.toBooking(booking, iRepo));
+        return booking;
     }
 
     private void validateUser(Long id) {

@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 import org.hibernate.Hibernate;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.comment.Comment;
+import ru.practicum.shareit.user.dto.UserDTO;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
