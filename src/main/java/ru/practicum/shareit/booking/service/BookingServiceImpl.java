@@ -108,7 +108,7 @@ public class BookingServiceImpl implements BookingService {
         Item item = iRepo.getReferenceById(booking.getItem().getId());
         logger.info("Item was getting");
         if (!Objects.equals(item.getOwner().getId(), id) && !Objects.equals(booking.getBooker().getId(), id))
-            throw new InvalidParameterException("Данный пользователь не может получить информацию о заданной вещи.");
+            throw new NotFoundException("Данный пользователь не может получить информацию о заданной вещи.");
         logger.info("User can get this information");
         logger.info(" " + booking);
         return BookingMapper.toBookingDto(booking);
@@ -121,7 +121,13 @@ public class BookingServiceImpl implements BookingService {
         if (!Objects.equals(booking.getItem().getOwner().getId(), id)) {
             throw new NotFoundException("Не найден пользователь с правом на обновление статуса заявки");
         }
-        if (approved && bookingUpdateStatusValidator(booking, id)) {
+        logger.info("заявка из запроса" + approved);
+        logger.info("все ли норм со временем" + bookingUpdateStatusValidator(booking, id));
+        dateTimeCheck(booking.getStart(), booking.getEnd());
+        if (booking.getStatus().equals(BookingStatus.APPROVED)) {
+            throw new InvalidParameterException("Статус бронирования уже одобрен. Вы не можете его изменить");
+        }
+        if (approved) {
             booking.setStatus(BookingStatus.APPROVED);
         } else {
             booking.setStatus(BookingStatus.REJECTED);
