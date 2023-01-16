@@ -14,6 +14,7 @@ import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exceptions.InvalidParameterException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
+import ru.practicum.shareit.item.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.UserMapper;
@@ -55,11 +56,11 @@ public class BookingServiceImpl implements BookingService {
             throw new InvalidParameterException("Не задан пользователь");
         }
         logger.info("Пользователь найден");
-        if (!iRepo.existsById(booking.getItemId())) {
+        if (!iRepo.existsById(booking.getItem().getId())) {
             logger.info("Ошибка, товар не найден");
             throw new NotFoundException("Товар не найден");
         }
-        Item item = iRepo.getReferenceById(booking.getItemId());
+        Item item = iRepo.getReferenceById(booking.getItem().getId());
         logger.info("товар получен");
         logger.info(" " + item);
         if (!uRepo.existsById(bookerId) || item.getOwner().getId().equals(bookerId)) {
