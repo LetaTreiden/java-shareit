@@ -17,7 +17,7 @@ public class BookingMapper {
                 .id(booking.getId())
                 .start(booking.getStart())
                 .end(booking.getEnd())
-                .itemId(booking.getItem().getId())
+                .item(booking.getItem().getId())
                 .booker(UserMapper.toUserDto(booking.getBooker()))
                 .status(booking.getStatus())
                 .build();
@@ -30,7 +30,7 @@ public class BookingMapper {
         booking.setId(bookingDto.getId());
         booking.setStart(bookingDto.getStart());
         booking.setEnd(bookingDto.getEnd());
-        booking.setItem(iRepo.getReferenceById(bookingDto.getItemId()));
+        booking.setItem(iRepo.getReferenceById(bookingDto.getItem()));
         booking.setBooker(UserMapper.toUser(bookingDto.getBooker()));
 
         if (bookingDto.getStatus() == null) {
