@@ -55,11 +55,11 @@ public class BookingServiceImpl implements BookingService {
             throw new InvalidParameterException("Не задан пользователь");
         }
         logger.info("Пользователь найден");
-        if (!iRepo.existsById(booking.getItem().getId())) {
+        if (!iRepo.existsById(booking.getItemId())) {
             logger.info("Ошибка, товар не найден");
             throw new NotFoundException("Товар не найден");
         }
-        Item item = iRepo.getReferenceById(booking.getItem().getId());
+        Item item = iRepo.getReferenceById(booking.getItemId());
         logger.info("товар получен");
         logger.info(" " + item);
         if (!uRepo.existsById(bookerId) || item.getOwner().getId().equals(bookerId)) {
