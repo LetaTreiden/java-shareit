@@ -63,7 +63,7 @@ public class BookingServiceImpl implements BookingService {
         logger.info("товар получен");
         logger.info(" " + item);
         if (!uRepo.existsById(bookerId) || item.getOwner().getId().equals(bookerId)) {
-            throw new ValidationException("Пользователь не может создать бронь");
+            throw new NotFoundException("Пользователь не может создать бронь");
         }
         dateTimeCheck(booking.getStart(), booking.getEnd());
         logger.info("Проверка на даты пройдена");
