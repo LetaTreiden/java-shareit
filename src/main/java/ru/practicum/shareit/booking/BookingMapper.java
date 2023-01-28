@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.dto.BookingDTO;
+import ru.practicum.shareit.booking.dto.BookingDTOtoReturn;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.ItemMapper;
 import ru.practicum.shareit.item.repository.ItemRepository;
@@ -41,5 +42,13 @@ public class BookingMapper {
         }
         logger.info("the process is finished");
         return booking;
+    }
+    public static BookingDTOtoReturn bookingDTOtoReturn (Booking booking) {
+        BookingDTOtoReturn bookingDTOtoReturn = new BookingDTOtoReturn();
+        bookingDTOtoReturn.setId(booking.getId());
+        bookingDTOtoReturn.setItemId(booking.getItem().getId());
+        bookingDTOtoReturn.setStatus(booking.getStatus());
+        bookingDTOtoReturn.setBooker(UserMapper.toUserDto(booking.getBooker()));
+        return bookingDTOtoReturn;
     }
 }

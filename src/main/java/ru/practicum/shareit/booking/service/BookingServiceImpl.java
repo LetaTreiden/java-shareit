@@ -196,28 +196,30 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> result;
 
         switch (status) {
+            case ALL:
+                logger.info("" + bRepo.findAllOwnersBookings(id));
+                result = (bRepo.findAllOwnersBookings(id));
+                break;
             case WAITING:
-                result = bRepo.findAllOwnersBookingsWithWaitingStatus(id);
+                result = (bRepo.findAllOwnersBookingsWithWaitingStatus(id));
                 break;
             case REJECTED:
-                result = bRepo.findAllOwnersBookingsWithRejectedState(id);
-                break;
-            case ALL:
-                result = bRepo.findAllOwnersBookings(id);
+                result = (bRepo.findAllOwnersBookingsWithRejectedState(id));
                 break;
             case PAST:
-                result = bRepo.findAllOwnersBookingsWithPastState(id);
+                result = (bRepo.findAllOwnersBookingsWithPastState(id));
                 break;
             case FUTURE:
-                result = bRepo.findAllOwnersBookingsWithFutureStatus(id);
+                result = (bRepo.findAllOwnersBookingsWithFutureStatus(id));
                 break;
             case CURRENT:
-                result = bRepo.findAllOwnersBookingsWithCurrentStatus(id);
+                result = (bRepo.findAllOwnersBookingsWithCurrentStatus(id));
                 break;
             default:
                 throw new InvalidParameterException("Неизвестный статус");
         }
         result.sort(Comparator.comparing(Booking::getStart).reversed());
+
         return result;
     }
 }
