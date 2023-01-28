@@ -55,15 +55,15 @@ public class BookingServiceImpl implements BookingService {
             throw new InvalidParameterException("Не задан пользователь");
         }
         logger.info("Пользователь найден");
-        if (!iRepo.existsById(booking.getItem())) {
+        if (!iRepo.existsById(booking.getItemId())) {
             logger.info("Ошибка, товар не найден");
             throw new NotFoundException("Товар не найден");
         }
-        Item item = iRepo.getReferenceById(booking.getItem());
+        Item item = iRepo.getReferenceById(booking.getItemId());
         logger.info("товар получен");
         logger.info(" " + item);
         if (!uRepo.existsById(bookerId) || item.getOwner().getId().equals(bookerId)) {
-            throw new NotFoundException("Пользователь не может создать бронь");
+            throw new ValidationException("Пользователь не может создать бронь");
         }
         dateTimeCheck(booking.getStart(), booking.getEnd());
         logger.info("Проверка на даты пройдена");

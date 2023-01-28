@@ -58,8 +58,6 @@ public class ItemMapper {
         ItemDTOBooking iDtoBooking = new ItemDTOBooking();
         iDtoBooking.setId(item.getId());
         iDtoBooking.setName(item.getName());
-        iDtoBooking.setDescription(item.getDescription());
-        iDtoBooking.setIsAvailable(item.getIsAvailable());
         return iDtoBooking;
     }
 
