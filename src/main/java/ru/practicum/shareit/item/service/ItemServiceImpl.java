@@ -10,6 +10,8 @@ import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.dto.BookingDTO;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.booking.service.BookingServiceImpl;
 import ru.practicum.shareit.comment.Comment;
 import ru.practicum.shareit.comment.CommentDTO;
 import ru.practicum.shareit.comment.CommentMapper;
@@ -36,18 +38,20 @@ public class ItemServiceImpl implements ItemService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
+    private final BookingService bookingService;
     Logger logger = LoggerFactory.getLogger("log");
 
 
     @Autowired
     public ItemServiceImpl(ItemRepository itemRepository, UserServiceImpl userService,
                            BookingRepository bookingRepository, UserRepository userRepository,
-                           CommentRepository commentRepository) {
+                           CommentRepository commentRepository, BookingServiceImpl bookingService) {
         this.itemRepository = itemRepository;
         this.userService = userService;
         this.bookingRepository = bookingRepository;
         this.userRepository = userRepository;
         this.commentRepository = commentRepository;
+        this.bookingService = bookingService;
     }
 
     public ItemDTO createItem(Long id, ItemDTO itemDto) {
@@ -78,40 +82,20 @@ public class ItemServiceImpl implements ItemService {
         } else {
             throw new NotFoundException("Изменять вещь может только её владелец");
         }
+        itemSetBookingsAndComments(item);
         itemRepository.save(item);
         return ItemMapper.toIDto(item);
     }
 
     public ItemDTO findItemById(Long userId, Long itemId) {
         validateItem(itemId);
-        ItemDTO itemDto = ItemMapper.toIDto(itemRepository.getReferenceById(itemId));
-        Set<CommentDTO> comments = CommentMapper.toCommentDtos(commentRepository.findAllItemComments(itemId));
-        for (CommentDTO commentDto : comments) {
-            itemDto.getComments().add(commentDto);
-            for (CommentDTO commentDtoName : itemDto.getComments()) {
-                commentDtoName.setAuthorName(commentDtoName.getAuthor().getName());
-            }
+        Item item = itemRepository.getReferenceById(itemId);
+        itemSetBookingsAndComments(item);
+        if (!item.getOwner().getId().equals(userId)) {
+            item.setLastBooking(null);
+            item.setNextBooking(null);
         }
-
-        if (Objects.equals(itemRepository.getReferenceById(itemId).getOwner().getId(), userId)) {
-            List<Booking> bookingPast = bookingRepository.findAllItemBookingsPast(itemId);
-            if (bookingPast.size() != 0) {
-                bookingPast.sort(Comparator.comparing(Booking::getStart).reversed());
-                BookingDTO bookingDtoPast = BookingMapper.toBookingDto(bookingPast.get(0));
-                bookingDtoPast.setBooker(bookingDtoPast.getBooker());
-                bookingDtoPast.setBooker(null);
-                itemDto.setLastBooking(bookingDtoPast);
-            }
-            List<Booking> bookingFuture = bookingRepository.findAllItemBookingsFuture(itemId);
-            if (bookingFuture.size() != 0) {
-                bookingFuture.sort(Comparator.comparing(Booking::getStart));
-                BookingDTO bookingDtoFuture = BookingMapper.toBookingDto(bookingFuture.get(0));
-                bookingDtoFuture.setBooker(bookingDtoFuture.getBooker());
-                bookingDtoFuture.setBooker(null);
-                itemDto.setNextBooking(bookingDtoFuture);
-            }
-        }
-        return itemDto;
+        return ItemMapper.toIDto(item);
     }
 
     @Override
@@ -178,30 +162,12 @@ public class ItemServiceImpl implements ItemService {
         validateUser(userId);
         validateItem(itemId);
 
-        List<Booking> bookings = bookingRepository.findAllItemBookings(itemId);
-        for (Booking booking : bookings) {
-            if (!Objects.equals(booking.getBooker().getId(), userId)) {
-                throw new InvalidParameterException("Проверьте заданные параметры");
-            } else {
-                if (!booking.getStart().isBefore(LocalDateTime.now()) &&
-                        !booking.getEnd().isBefore(LocalDateTime.now()) &&
-                        booking.getStatus().equals(BookingStatus.APPROVED)) {
-                    commentDto.setItem(ItemMapper.toIDto(itemRepository.getReferenceById(itemId)));
-                    commentDto.setAuthor(UserMapper.toUserDto(userRepository.getReferenceById(userId)));
-                    commentDto.setCreated(LocalDateTime.now());
-                    Comment commentTemp = commentRepository.save(CommentMapper.toComment(commentDto));
-                    CommentDTO commentTempDto = CommentMapper.toCommentDto(commentTemp);
-                    User user = userRepository.getReferenceById(userId);
-                    commentTempDto.setAuthorName(user.getName());
-                    commentTempDto.setAuthor(null);
-                    commentTempDto.setItem(null);
-                    return commentTempDto;
-                } else {
-                    throw new InvalidParameterException("Проверьте заданные параметры");
-                }
-            }
+        if (bookingService.checkBooking(userId, itemId, BookingStatus.APPROVED)) {
+            commentRepository.save(CommentMapper.toComment(commentDto));
+            return commentDto;
+        } else {
+            throw new InvalidParameterException("Пользователь " + userId + " не брал вещь " + itemId + " в аренду");
         }
-        return null;
     }
 
     private void validateUser(Long id) {
@@ -230,5 +196,11 @@ public class ItemServiceImpl implements ItemService {
         if (commentDto.getText().isEmpty() || commentDto.getText().isBlank()) {
             throw new InvalidParameterException("Комментарий не может юыть пусьым");
         }
+    }
+
+    private void itemSetBookingsAndComments(Item item) {
+        item.setComments(new ArrayList<>(commentRepository.findAllItemComments(item.getId())));
+        item.setLastBooking(bookingService.getLastBooking(item.getId()).orElse(null));
+        item.setNextBooking(bookingService.getNextBooking(item.getId()).orElse(null));
     }
 }

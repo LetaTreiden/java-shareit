@@ -20,10 +20,7 @@ import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 public class BookingServiceImpl implements BookingService {
@@ -222,4 +219,23 @@ public class BookingServiceImpl implements BookingService {
 
         return result;
     }
+
+    @Override
+    public Optional<Booking> getLastBooking(Long id) {
+        return bRepo.findFirstBookingByItem_IdAndEndIsBeforeOrderByEndDesc(id,
+                LocalDateTime.now());
+    }
+
+    @Override
+    public Optional<Booking> getNextBooking(Long id) {
+        return bRepo.findFirstBookingByItem_IdAndStartIsAfterOrderByStart(id,
+                LocalDateTime.now());
+    }
+
+    @Override
+    public boolean checkBooking(long userId, long itemId, BookingStatus status) {
+        return bRepo.existsBookingByBooker_IdAndItem_IdAndStatusEqualsAndEndIsBefore(userId,
+                itemId, status, LocalDateTime.now());
+    }
+
 }
