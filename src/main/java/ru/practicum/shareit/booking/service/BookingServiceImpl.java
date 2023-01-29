@@ -117,7 +117,7 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bRepo.findById(bId)
                 .orElseThrow(() -> new NotFoundException("Заявка на аренду не найдена"));
         if (!Objects.equals(booking.getItem().getOwner().getId(), id)) {
-            throw new NotFoundException("Не найден пользователь с правом на обновление статуса заявки");
+            throw new InvalidParameterException("Пользователь не может обновить статус");
         }
         logger.info("заявка из запроса" + approved);
         logger.info("все ли норм со временем" + bookingUpdateStatusValidator(booking, id));
