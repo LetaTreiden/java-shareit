@@ -18,7 +18,9 @@ public interface BookingService {
     List<Booking> findBookingByIdAndStatus(String state, Long id);
 
     List<Booking> findAllOwnersBookings(String state, Long id);
+
     Optional<Booking> getLastBooking(Long id);
+
     Optional<Booking> getNextBooking(Long id);
 
     boolean checkBooking(long userId, long itemId, BookingStatus status);
