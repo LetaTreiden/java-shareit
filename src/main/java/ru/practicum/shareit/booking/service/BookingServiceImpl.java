@@ -172,14 +172,14 @@ public class BookingServiceImpl implements BookingService {
                 break;
             case "FUTURE":
                 result.addAll(bRepo.findBookingsByBookerIdWithFutureStatus(id));
-
+                logger.info("" + result);
                 break;
             case "WAITING":
-                result.addAll(bRepo.findBookingsByBookerIdWithWaitingOrRejectStatus(id, BookingStatus.WAITING));
-
+                result.addAll(bRepo.findAllByBooker_IdAndStatusOrderByStartDesc(id, BookingStatus.WAITING));
+                logger.info("waiteing " + result);
                 break;
             case "REJECTED":
-                result.addAll(bRepo.findBookingsByBookerIdWithWaitingOrRejectStatus(id, BookingStatus.REJECTED));
+                result.addAll(bRepo.findAllByBooker_IdAndStatusOrderByStartDesc(id, BookingStatus.REJECTED));
                 break;
 
             case "ALL":
@@ -202,14 +202,13 @@ public class BookingServiceImpl implements BookingService {
 
         switch (status) {
             case ALL:
-                logger.info("" + bRepo.findAllOwnersBookings(id));
                 result = (bRepo.findAllOwnersBookings(id));
                 break;
             case WAITING:
-                result = (bRepo.findAllOwnersBookingsWithWaitingStatus(id));
+                result = (bRepo.findAllOwnersBookingsWithStatus(id, BookingStatus.WAITING));
                 break;
             case REJECTED:
-                result = (bRepo.findAllOwnersBookingsWithRejectedState(id));
+                result = (bRepo.findAllOwnersBookingsWithStatus(id, BookingStatus.REJECTED));
                 break;
             case PAST:
                 result = (bRepo.findAllOwnersBookingsWithPastState(id));
