@@ -161,30 +161,23 @@ public class BookingServiceImpl implements BookingService {
 
         switch (state) {
             case "CURRENT":
-                result.addAll(bRepo.findBookingsByBookerIdWithCurrentStatus(id));
-
+                result.addAll(bRepo.findAllByBooker_IdAndStartBeforeAndEndAfterOrderByStartDesc(id,
+                        LocalDateTime.now(), LocalDateTime.now()));
                 break;
             case "PAST":
-                logger.info("searching with past status");
-                result.addAll(bRepo.findBookingsByBookerIdWithPastStatus(id));
-                logger.info("end of the searching");
-                logger.info("" + result);
+                result.addAll(bRepo.findAllByBooker_IdAndEndIsBeforeOrderByStartDesc(id, LocalDateTime.now()));
                 break;
             case "FUTURE":
                 result.addAll(bRepo.findBookingsByBookerIdWithFutureStatus(id));
-                logger.info("" + result);
                 break;
             case "WAITING":
                 result.addAll(bRepo.findAllByBooker_IdAndStatusOrderByStartDesc(id, BookingStatus.WAITING));
-                logger.info("waiteing " + result);
                 break;
             case "REJECTED":
                 result.addAll(bRepo.findAllByBooker_IdAndStatusOrderByStartDesc(id, BookingStatus.REJECTED));
                 break;
-
             case "ALL":
                 result.addAll(bRepo.findBookingsByBookerId(id));
-
                 break;
         }
         result.sort(Comparator.comparing(Booking::getStart).reversed());
