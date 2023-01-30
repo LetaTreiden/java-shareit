@@ -15,10 +15,10 @@ public class CommentDTO {
     private long id;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String text;
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private ItemDTO item;
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private UserDTO author;
+    //@JsonInclude(JsonInclude.Include.NON_NULL)
+   // private ItemDTO item;
+   // @JsonInclude(JsonInclude.Include.NON_NULL)
+   // private UserDTO author;
     private String authorName;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private LocalDateTime created;

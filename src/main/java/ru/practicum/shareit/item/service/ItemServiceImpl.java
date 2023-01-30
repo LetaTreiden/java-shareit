@@ -88,11 +88,11 @@ public class ItemServiceImpl implements ItemService {
         validateItem(itemId);
         Item item = itemRepository.getReferenceById(itemId);
         itemSetBookingsAndComments(item);
-        if (!(item.getOwner().getId() == (userId))) {
+        if ((item.getOwner().getId() != (userId))) {
             item.setLastBooking(null);
             item.setNextBooking(null);
         }
-        logger.info("item ", item);
+        logger.info("item " + item.getComments());
         return ItemMapper.toIDto(item);
     }
 
@@ -144,10 +144,8 @@ public class ItemServiceImpl implements ItemService {
         validateItem(itemId);
 
         if (bookingService.checkBooking(userId, itemId, BookingStatus.APPROVED)) {
-            commentRepository.save(CommentMapper.toComment(commentDto, itemRepository.getReferenceById(itemId),
-                    userRepository.getReferenceById(userId)));
-            logger.info("comdto " + commentDto);
-            return commentDto;
+            return CommentMapper.toCommentDto(commentRepository.save(CommentMapper.toComment(commentDto, itemRepository.getReferenceById(itemId),
+                    userRepository.getReferenceById(userId))));
         } else {
             throw new InvalidParameterException("Пользователь " + userId + " не брал вещь " + itemId + " в аренду");
         }

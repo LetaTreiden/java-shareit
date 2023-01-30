@@ -4,13 +4,18 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.BookingMapper;
+import ru.practicum.shareit.comment.Comment;
+import ru.practicum.shareit.comment.CommentDTO;
+import ru.practicum.shareit.comment.CommentMapper;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.dto.ItemDTOBooking;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserMapper;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Component
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -40,6 +45,13 @@ public class ItemMapper {
         }
         if (item.getNextBooking() != null) {
             itemDto.setNextBooking(BookingMapper.toBookingToItem(item.getNextBooking()));
+        }
+        if (item.getComments() != null) {
+            Set<CommentDTO> commentDTOS = new HashSet<>();
+            for (Comment comment : item.getComments()) {
+                commentDTOS.add(CommentMapper.toCommentDto(comment));
+            }
+            itemDto.setComments(commentDTOS);
         }
         return itemDto;
     }
