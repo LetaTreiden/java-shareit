@@ -54,7 +54,9 @@ public class BookingController {
     public List<Booking> findAllOwnersBookings(@RequestParam(defaultValue = "ALL") String state,
                                                @RequestHeader("X-Sharer-User-Id") Long id) {
 
-        return bookingService.findAllOwnersBookings(state, id);
+        List<Booking> result = bookingService.findAllOwnersBookings(state, id);
+        logger.info("done");
+        return result;
     }
 
 }

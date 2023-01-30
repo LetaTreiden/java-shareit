@@ -162,7 +162,9 @@ public class ItemServiceImpl implements ItemService {
         validateItem(itemId);
 
         if (bookingService.checkBooking(userId, itemId, BookingStatus.APPROVED)) {
-            commentRepository.save(CommentMapper.toComment(commentDto));
+            commentRepository.save(CommentMapper.toComment(commentDto, itemRepository.getReferenceById(itemId),
+                    userRepository.getReferenceById(userId)));
+            logger.info("comdto " + commentDto);
             return commentDto;
         } else {
             throw new InvalidParameterException("Пользователь " + userId + " не брал вещь " + itemId + " в аренду");

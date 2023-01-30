@@ -16,11 +16,13 @@ import java.util.Objects;
 
 
 @Table(name = "items")
-@Data
+//@Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Getter
+@Setter
 public class Item {
 
     @Id

@@ -71,7 +71,10 @@ public class BookingServiceImpl implements BookingService {
         booking.setBooker(UserMapper.toUserDto(uRepo.getReferenceById(bookerId)));
         logger.info(" !" + booking);
         Booking booking1 = bRepo.save(BookingMapper.toBooking(booking, iRepo));
+        item.setNextBooking(booking1);
+
         logger.info(" " + booking1);
+
         return BookingMapper.toBookingDto(booking1);
     }
 
@@ -117,7 +120,7 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bRepo.findById(bId)
                 .orElseThrow(() -> new NotFoundException("Заявка на аренду не найдена"));
         if (!Objects.equals(booking.getItem().getOwner().getId(), id)) {
-            throw new InvalidParameterException("Пользователь не может обновить статус");
+            throw new NotFoundException("Пользователь не может обновить статус");
         }
         logger.info("заявка из запроса" + approved);
         logger.info("все ли норм со временем" + bookingUpdateStatusValidator(booking, id));
@@ -131,7 +134,6 @@ public class BookingServiceImpl implements BookingService {
             booking.setStatus(BookingStatus.REJECTED);
         }
         bRepo.save(booking);
-        logger.info("!" + booking);
         return BookingMapper.toBookingDto(booking);
     }
 
@@ -151,22 +153,22 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<Booking> findBookingByIdAndStatus(String state, Long id) {
+        logger.info("start searching");
         if (!uRepo.existsById(id)) throw new NotFoundException("Пользователя с таким id не существует");
         validateState(state);
+        logger.info("everything is ok");
         List<Booking> result = new ArrayList<>();
 
         switch (state) {
-            case "ALL":
-                result.addAll(bRepo.findBookingsByBookerId(id));
-
-                break;
             case "CURRENT":
                 result.addAll(bRepo.findBookingsByBookerIdWithCurrentStatus(id));
 
                 break;
             case "PAST":
+                logger.info("searching with past status");
                 result.addAll(bRepo.findBookingsByBookerIdWithPastStatus(id));
-
+                logger.info("end of the searching");
+                logger.info("" + result);
                 break;
             case "FUTURE":
                 result.addAll(bRepo.findBookingsByBookerIdWithFutureStatus(id));
@@ -179,8 +181,14 @@ public class BookingServiceImpl implements BookingService {
             case "REJECTED":
                 result.addAll(bRepo.findBookingsByBookerIdWithWaitingOrRejectStatus(id, BookingStatus.REJECTED));
                 break;
+
+            case "ALL":
+                result.addAll(bRepo.findBookingsByBookerId(id));
+
+                break;
         }
         result.sort(Comparator.comparing(Booking::getStart).reversed());
+        logger.info("sorting is finished");
         return result;
     }
 

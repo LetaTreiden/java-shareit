@@ -1,20 +1,24 @@
 package ru.practicum.shareit.comment;
 
 import ru.practicum.shareit.item.ItemMapper;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserMapper;
+import ru.practicum.shareit.user.model.User;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
 public class CommentMapper {
 
-    public static Comment toComment(CommentDTO commentDto) {
+    public static Comment toComment(CommentDTO commentDto, Item item, User user) {
         Comment comment = new Comment();
         comment.setId(commentDto.getId());
         comment.setText(commentDto.getText());
-        comment.setItem(ItemMapper.toItem(commentDto.getItem()));
+        comment.setItem(item);
         comment.setCreated(commentDto.getCreated());
-        comment.setAuthor(UserMapper.toUser(commentDto.getAuthor()));
+        comment.setAuthor(user);
+        comment.setCreated(LocalDateTime.now());
         return comment;
     }
 
