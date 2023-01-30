@@ -230,14 +230,18 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Optional<Booking> getLastBooking(Long id) {
-        return bRepo.findFirstBookingByItem_IdAndEndIsBeforeOrderByEndDesc(id,
+        Optional<Booking> result = bRepo.getFirstBookingByItem_IdAndEndIsBeforeOrderByEndDesc(id,
                 LocalDateTime.now());
+        logger.info("" + result.toString());
+        return result;
     }
 
     @Override
     public Optional<Booking> getNextBooking(Long id) {
-        return bRepo.findFirstBookingByItem_IdAndStartIsAfterOrderByStart(id,
+        Optional<Booking> result = bRepo.getFirstBookingByItem_IdAndStartIsAfterOrderByStart(id,
                 LocalDateTime.now());
+        logger.info("" + result.toString());
+        return result;
     }
 
     @Override

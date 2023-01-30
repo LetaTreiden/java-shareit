@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.dto.BookingDTO;
+import ru.practicum.shareit.booking.dto.BookingToItem;
 import ru.practicum.shareit.comment.CommentDTO;
 import ru.practicum.shareit.user.dto.UserDTO;
 
@@ -40,9 +41,9 @@ public class ItemDTO {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Long requestId;
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    private BookingDTO lastBooking;
+    private BookingToItem lastBooking;
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    private BookingDTO nextBooking;
+    private BookingToItem nextBooking;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Set<CommentDTO> comments = new HashSet<>();

@@ -92,6 +92,7 @@ public class ItemServiceImpl implements ItemService {
             item.setLastBooking(null);
             item.setNextBooking(null);
         }
+        logger.info("item ", item);
         return ItemMapper.toIDto(item);
     }
 
@@ -183,6 +184,8 @@ public class ItemServiceImpl implements ItemService {
     private void itemSetBookingsAndComments(Item item) {
         item.setComments(new ArrayList<>(commentRepository.findAllItemComments(item.getId())));
         item.setLastBooking(bookingService.getLastBooking(item.getId()).orElse(null));
+        logger.info("last " + item.getLastBooking());
         item.setNextBooking(bookingService.getNextBooking(item.getId()).orElse(null));
+        logger.info("next " + item.getNextBooking());
     }
 }

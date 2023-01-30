@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
+import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.dto.ItemDTOBooking;
 import ru.practicum.shareit.item.model.Item;
@@ -34,6 +35,12 @@ public class ItemMapper {
         itemDto.setIsAvailable(item.getIsAvailable());
         itemDto.setOwner(UserMapper.toUserDto(item.getOwner()));
         itemDto.setRequestId(item.getRequestId());
+        if (item.getLastBooking() != null) {
+            itemDto.setLastBooking(BookingMapper.toBookingToItem(item.getLastBooking()));
+        }
+        if (item.getNextBooking() != null) {
+            itemDto.setNextBooking(BookingMapper.toBookingToItem(item.getNextBooking()));
+        }
         return itemDto;
     }
 
