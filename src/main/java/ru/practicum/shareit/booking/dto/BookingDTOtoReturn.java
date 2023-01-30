@@ -6,8 +6,8 @@ import ru.practicum.shareit.user.dto.UserDTO;
 
 @Data
 public class BookingDTOtoReturn {
-    private Long id;
-    private Long itemId;
+    private long id;
+    private long itemId;
     private UserDTO booker;
     private BookingStatus status;
 }

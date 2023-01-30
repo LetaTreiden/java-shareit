@@ -88,7 +88,7 @@ public class ItemServiceImpl implements ItemService {
         validateItem(itemId);
         Item item = itemRepository.getReferenceById(itemId);
         itemSetBookingsAndComments(item);
-        if (!item.getOwner().getId().equals(userId)) {
+        if (!(item.getOwner().getId() == (userId))) {
             item.setLastBooking(null);
             item.setNextBooking(null);
         }

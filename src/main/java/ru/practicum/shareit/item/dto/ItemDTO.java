@@ -20,7 +20,7 @@ import java.util.Set;
 @NoArgsConstructor
 public class ItemDTO {
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Long id;
+    private long id;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String name;

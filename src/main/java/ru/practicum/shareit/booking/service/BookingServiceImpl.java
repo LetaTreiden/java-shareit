@@ -59,7 +59,7 @@ public class BookingServiceImpl implements BookingService {
         Item item = iRepo.getReferenceById(booking.getItemId());
         logger.info("товар получен");
         logger.info(" " + item);
-        if (!uRepo.existsById(bookerId) || item.getOwner().getId().equals(bookerId)) {
+        if (!uRepo.existsById(bookerId) || item.getOwner().getId() == (bookerId)) {
             throw new NotFoundException("Пользователь не может создать бронь");
         }
         dateTimeCheck(booking.getStart(), booking.getEnd());

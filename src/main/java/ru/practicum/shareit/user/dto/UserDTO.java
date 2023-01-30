@@ -12,7 +12,7 @@ import javax.validation.constraints.Email;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserDTO {
-    private Long id;
+    private long id;
     private String name;
     @Email
     private String email;
