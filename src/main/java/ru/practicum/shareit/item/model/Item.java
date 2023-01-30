@@ -16,7 +16,6 @@ import java.util.Objects;
 
 
 @Table(name = "items")
-//@Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @AllArgsConstructor
 @NoArgsConstructor

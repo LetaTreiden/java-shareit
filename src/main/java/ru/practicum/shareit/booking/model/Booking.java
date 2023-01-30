@@ -2,17 +2,17 @@ package ru.practicum.shareit.booking.model;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.Hibernate;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Table(name = "bookings", schema = "PUBLIC")
-@Data
+@Getter
+@Setter
+//@ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,7 +22,7 @@ public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "booking_id")
-    private Long id;
+    private long id;
 
     @Column(name = "start_date", nullable = false)
     private LocalDateTime start;
@@ -45,9 +45,9 @@ public class Booking {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         Booking booking = (Booking) o;
-        return id != null && Objects.equals(id, booking.id);
+        return id == booking.id;
     }
 
     @Override

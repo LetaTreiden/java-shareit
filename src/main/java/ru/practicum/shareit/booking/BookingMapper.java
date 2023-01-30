@@ -28,7 +28,6 @@ public class BookingMapper {
         logger.info("Booking DTO to Booking process");
         Booking booking = new Booking();
         logger.info("" + bookingDto);
-        booking.setId(bookingDto.getId());
         booking.setStart(bookingDto.getStart());
         booking.setEnd(bookingDto.getEnd());
         booking.setItem(iRepo.getReferenceById(bookingDto.getItemId()));

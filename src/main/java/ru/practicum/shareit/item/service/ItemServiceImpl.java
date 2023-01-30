@@ -28,6 +28,7 @@ import ru.practicum.shareit.user.service.UserServiceImpl;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ItemServiceImpl implements ItemService {
@@ -100,27 +101,10 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDTO> findAllItemsByOwner(Long id) {
         validateUser(id);
-
-        List<ItemDTO> itemDtoList = ItemMapper.toItemDtos(itemRepository.findAllItemsByOwner(id));
-
-        for (ItemDTO itemDto : itemDtoList) {
-            List<Booking> bookingPast = bookingRepository.findAllItemBookingsPast(itemDto.getId());
-            if (bookingPast.size() != 0) {
-                bookingPast.sort(Comparator.comparing(Booking::getStart).reversed());
-                BookingDTO bookingDtoPast = BookingMapper.toBookingDto(bookingPast.get(0));
-                bookingDtoPast.setBooker(bookingDtoPast.getBooker());
-                itemDto.setLastBooking(bookingDtoPast);
-            }
-            List<Booking> bookingFuture = bookingRepository.findAllItemBookingsFuture(itemDto.getId());
-            if (bookingFuture.size() != 0) {
-                bookingFuture.sort(Comparator.comparing(Booking::getStart));
-                BookingDTO bookingDtoFuture = BookingMapper.toBookingDto(bookingFuture.get(0));
-                bookingDtoFuture.setBooker(bookingDtoFuture.getBooker());
-                itemDto.setNextBooking(bookingDtoFuture);
-            }
-        }
-        itemDtoList.sort(Comparator.comparing(ItemDTO::getId));
-        return itemDtoList;
+        List<Item> items = new ArrayList<>(itemRepository.findAllItemsByOwner(id));
+        items.forEach(this::itemSetBookingsAndComments);
+        items.stream().sorted(Comparator.comparing(Item::getId)).collect(Collectors.toList());
+        return ItemMapper.toItemDtos(items);
     }
 
     @Override
