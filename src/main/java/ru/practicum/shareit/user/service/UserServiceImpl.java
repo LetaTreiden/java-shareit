@@ -82,7 +82,7 @@ public class UserServiceImpl implements UserService {
         if (userDto.getEmail() == null || !userDto.getEmail().contains("@")) {
             throw new InvalidParameterException("Почта не может быть пустой");
         }
-       /* List<UserDTO> allUsers = findAllUsers();
+        List<UserDTO> allUsers = findAllUsers();
         String emailExists;
         String userEmail = userDto.getEmail();
         for (UserDTO user : allUsers) {
@@ -91,8 +91,6 @@ public class UserServiceImpl implements UserService {
                 throw new ValidationException("Пользователь с такой почтой уже существует");
             }
         }
-
-        */
     }
 
 }

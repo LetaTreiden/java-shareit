@@ -41,9 +41,7 @@ public class BookingController {
     @GetMapping
     public List<Booking> findAllBookingsById(@RequestParam(defaultValue = "ALL") String state,
                                              @RequestHeader("X-Sharer-User-Id") Long id) {
-        List<Booking> result = bookingService.findBookingByIdAndStatus(state, id);
-        logger.info("done " + result);
-        return result;
+        return bookingService.findBookingByIdAndStatus(state, id);
     }
 
     @PatchMapping("/{bookingId}")
