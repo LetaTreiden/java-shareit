@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDTO;
 import ru.practicum.shareit.booking.model.Booking;
@@ -13,6 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/bookings")
+@Validated
 public class BookingController {
 
     private final BookingServiceImpl bookingService;
