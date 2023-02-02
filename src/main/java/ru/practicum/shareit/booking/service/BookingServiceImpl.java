@@ -9,6 +9,8 @@ import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.State;
 import ru.practicum.shareit.booking.dto.BookingDTO;
+import ru.practicum.shareit.booking.dto.BookingDTOToList;
+import ru.practicum.shareit.booking.dto.BookingDTOtoReturn;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exceptions.InvalidParameterException;
@@ -186,7 +188,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> findAllOwnersBookings(String state, Long id) {
+    public List<BookingDTOToList> findAllOwnersBookings(String state, Long id) {
         validateUser(id);
         validateState(state);
 
@@ -216,8 +218,15 @@ public class BookingServiceImpl implements BookingService {
                 throw new InvalidParameterException("Неизвестный статус");
         }
         result.sort(Comparator.comparing(Booking::getStart).reversed());
-
-        return result;
+        List<BookingDTOToList> listToReturn = new ArrayList<>();
+        for (Booking booking : result) {
+            logger.info(" " + booking.toString());
+            BookingDTOToList bookingDTOToList = BookingMapper.toBookingDTOToList(booking);
+            logger.info(" " + bookingDTOToList.toString());
+            listToReturn.add(bookingDTOToList);
+        }
+        listToReturn.sort(Comparator.comparing(BookingDTOToList::getStart).reversed());
+        return listToReturn;
     }
 
     @Override

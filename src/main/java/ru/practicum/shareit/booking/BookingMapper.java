@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.dto.BookingDTO;
+import ru.practicum.shareit.booking.dto.BookingDTOToList;
 import ru.practicum.shareit.booking.dto.BookingToItem;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.ItemMapper;
@@ -48,5 +49,17 @@ public class BookingMapper {
         bookingToItem.setId(booking.getId());
         bookingToItem.setBookerId(booking.getBooker().getId());
         return bookingToItem;
+    }
+
+    public static BookingDTOToList toBookingDTOToList(Booking booking) {
+        BookingDTOToList bookingDTOToList = new BookingDTOToList();
+        bookingDTOToList.setId(booking.getId());
+        bookingDTOToList.setStart(booking.getStart());
+        bookingDTOToList.setEnd(booking.getEnd());
+        bookingDTOToList.setStatus(booking.getStatus());
+        bookingDTOToList.setItemId(booking.getItem().getId());
+        bookingDTOToList.setItemName(booking.getItem().getName());
+        bookingDTOToList.setBookerId(booking.getBooker().getId());
+        return bookingDTOToList;
     }
 }

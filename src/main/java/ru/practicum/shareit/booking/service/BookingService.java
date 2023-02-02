@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking.service;
 
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.dto.BookingDTO;
+import ru.practicum.shareit.booking.dto.BookingDTOToList;
 import ru.practicum.shareit.booking.model.Booking;
 
 import java.util.List;
@@ -17,7 +18,7 @@ public interface BookingService {
 
     List<Booking> findBookingByIdAndStatus(String state, Long id);
 
-    List<Booking> findAllOwnersBookings(String state, Long id);
+    List<BookingDTOToList> findAllOwnersBookings(String state, Long id);
 
     Optional<Booking> getLastBooking(Long id);
 

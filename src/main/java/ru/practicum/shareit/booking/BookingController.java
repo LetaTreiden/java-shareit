@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDTO;
+import ru.practicum.shareit.booking.dto.BookingDTOToList;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingServiceImpl;
 
@@ -54,12 +55,9 @@ public class BookingController {
     }
 
     @GetMapping("/owner")
-    public List<Booking> findAllOwnersBookings(@RequestParam(defaultValue = "ALL") String state,
-                                               @RequestHeader("X-Sharer-User-Id") Long id) {
-
-        List<Booking> result = bookingService.findAllOwnersBookings(state, id);
-        logger.info("done");
-        return result;
+    public List<BookingDTOToList> findAllOwnersBookings(@RequestParam(defaultValue = "ALL") String state,
+                                                        @RequestHeader("X-Sharer-User-Id") Long id) {
+        return bookingService.findAllOwnersBookings(state, id);
     }
 
 }
