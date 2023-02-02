@@ -19,6 +19,7 @@ import java.util.Collection;
 @Entity
 @Getter
 @Setter
+//@ToString
 public class Item {
 
     @Id

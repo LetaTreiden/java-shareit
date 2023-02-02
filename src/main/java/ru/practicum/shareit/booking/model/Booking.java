@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Table(name = "bookings", schema = "PUBLIC")
 @Getter
 @Setter
-@ToString
+//@ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @AllArgsConstructor
 @NoArgsConstructor
