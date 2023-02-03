@@ -6,43 +6,43 @@ import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
-@Table(name = "items", schema = "public")
+@Table(name = "comments", schema = "public")
 @Getter
 @Setter
 @ToString
 @RequiredArgsConstructor
-public class Item {
-
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @NotBlank
+    @Size(min = 1, max = 200)
     @Column(nullable = false)
-    private String name;
-
-    @NotBlank
-    @Column(nullable = false)
-    private String description;
-
-    @NotNull
-    @Column
-    private Boolean available;
+    private String text;
 
     @ManyToOne
-    @JoinColumn(name = "owner_id")
-    private User owner;
+    @JoinColumn(name = "item_id")
+    private Item item;
+
+    @ManyToOne
+    @JoinColumn(name = "author_id")
+    private User author;
+
+    @Column(nullable = false)
+    LocalDateTime created = LocalDateTime.now();
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Item item = (Item) o;
-        return id != 0 && Objects.equals(id, item.id);
+        Comment comment = (Comment) o;
+        return id != null && Objects.equals(id, comment.id);
     }
 
     @Override
