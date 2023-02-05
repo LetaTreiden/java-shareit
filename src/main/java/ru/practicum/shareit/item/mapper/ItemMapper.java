@@ -70,7 +70,7 @@ public class ItemMapper {
         return dtos;
     }
 
-    public static BookingDTOToReturn.Item toItemToBookingDTO (Item item) {
+    public static BookingDTOToReturn.Item toItemToBookingDTO(Item item) {
         return new BookingDTOToReturn.Item(item.getId(), item.getName());
     }
 }

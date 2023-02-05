@@ -60,7 +60,7 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     @Override
     public BookingDTOToReturn update(Long userId, Long bookingId, Boolean approved) {
-        Optional <Booking> booking = Optional.ofNullable(Optional.of(bRepository.getReferenceById(bookingId))
+        Optional<Booking> booking = Optional.ofNullable(Optional.of(bRepository.getReferenceById(bookingId))
                 .orElseThrow(() -> new NotFoundException("Booking not found")));
         Long ownerId = booking.get().getItem().getOwner().getId();
 

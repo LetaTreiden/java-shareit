@@ -35,7 +35,7 @@ public class UserMapper {
         return dtos;
     }
 
-    public static BookingDTOToReturn.User toUserToBookingDTO (User user) {
+    public static BookingDTOToReturn.User toUserToBookingDTO(User user) {
         return new BookingDTOToReturn.User(user.getId(), user.getName());
     }
 }
