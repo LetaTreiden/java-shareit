@@ -2,7 +2,6 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingMapper;
@@ -12,24 +11,22 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.CommentRepository;
-import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.ItemRepository;
-import ru.practicum.shareit.item.dto.ItemDTOWithComment;
 import ru.practicum.shareit.item.dto.ItemDTO;
+import ru.practicum.shareit.item.dto.ItemDTOWithComment;
 import ru.practicum.shareit.item.dto.ItemDTOWithDate;
+import ru.practicum.shareit.item.mapper.CommentMapper;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
-import java.util.*;
-
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
-import static org.springframework.data.domain.Sort.Direction.DESC;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
