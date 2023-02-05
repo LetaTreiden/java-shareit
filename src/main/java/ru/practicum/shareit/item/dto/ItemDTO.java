@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item.dto;
 
 import lombok.Data;
-import ru.practicum.shareit.user.model.User;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -24,5 +23,9 @@ public class ItemDTO {
 
     private Long request;
 
-
+    @Data
+    public static class User {
+        private final long id;
+        private final String name;
+    }
 }

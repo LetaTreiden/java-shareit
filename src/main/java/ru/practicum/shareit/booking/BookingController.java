@@ -18,41 +18,41 @@ public class BookingController {
     private final BookingService bookingService;
 
     @PostMapping
-    public BookingDTOToReturn addBooking(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public BookingDTOToReturn add(@RequestHeader("X-Sharer-User-Id") Long userId,
                                          @RequestBody BookingDTO bookingDto) {
         log.info("Добавление запроса на аренду пользователем с id {}", userId);
-        return bookingService.addBooking(userId, bookingDto);
+        return bookingService.add(userId, bookingDto);
     }
 
     @PatchMapping("/{bookingId}")
-    public BookingDTOToReturn updateStatusBooking(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public BookingDTOToReturn update(@RequestHeader("X-Sharer-User-Id") Long userId,
                                              @PathVariable Long bookingId,
                                              @RequestParam Boolean approved) {
         log.info("Обновление статуса запроса на аренду с id {}", bookingId);
-        return bookingService.updateStatusBooking(userId, bookingId, approved);
+        return bookingService.update(userId, bookingId, approved);
 
     }
 
     @GetMapping("/{bookingId}")
-    public BookingDTOToReturn getBooking(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long bookingId) {
+    public BookingDTOToReturn get(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long bookingId) {
         log.info("Просмотр запроса на пренду с id {}", bookingId);
-        return bookingService.getBooking(userId, bookingId);
+        return bookingService.get(userId, bookingId);
     }
 
     @GetMapping
-    public Collection<BookingDTOToReturn> findBookingByBooker(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                         @RequestParam(required = false)
+    public Collection<BookingDTOToReturn> findByBooker(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                                         @RequestParam(defaultValue = "ALL")
                                                          String state) {
         log.info("Получение списка бронирований пользовалеля с id {}", userId);
-        return bookingService.getBookingByBooker(userId, state);
+        return bookingService.getByBooker(userId, state);
     }
 
     @GetMapping("/owner")
-    public Collection<BookingDTOToReturn> findBookingByOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                        @RequestParam(required = false)
+    public Collection<BookingDTOToReturn> findByOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                                        @RequestParam(defaultValue = "ALL")
                                                         String state) {
         log.info("Получение списка бронирований для всех вещей пользователя с id {}", userId);
-        return bookingService.getBookingByOwner(userId, state);
+        return bookingService.getByOwner(userId, state);
     }
 
 }

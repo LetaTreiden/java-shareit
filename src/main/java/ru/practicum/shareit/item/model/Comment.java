@@ -28,14 +28,16 @@ public class Comment {
 
     @ManyToOne
     @JoinColumn(name = "item_id")
+    @ToString.Exclude
     private Item item;
 
     @ManyToOne
     @JoinColumn(name = "author_id")
+    @ToString.Exclude
     private User author;
 
     @Column(nullable = false)
-    LocalDateTime created = LocalDateTime.now();
+    private LocalDateTime created = LocalDateTime.now();
 
     @Override
     public boolean equals(Object o) {

@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.mapper;
 
-import org.springframework.stereotype.Component;
+import lombok.experimental.UtilityClass;
+import ru.practicum.shareit.booking.dto.BookingDTOToReturn;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.dto.ItemDTOWithDate;
 import ru.practicum.shareit.item.model.Item;
@@ -9,7 +10,7 @@ import ru.practicum.shareit.user.model.User;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+@UtilityClass
 public class ItemMapper {
 
     public static ItemDTO toItemDto(Item item) {
@@ -18,7 +19,6 @@ public class ItemMapper {
         itemDto.setName(item.getName());
         itemDto.setDescription(item.getDescription());
         itemDto.setAvailable(item.getAvailable());
-        //itemDto.setRequest(item.getRequest() != null ? item.getRequest().getId() : null);
         return itemDto;
     }
 
@@ -28,7 +28,6 @@ public class ItemMapper {
         itemDto.setName(item.getName());
         itemDto.setDescription(item.getDescription());
         itemDto.setAvailable(item.getAvailable());
-        //itemDto.setRequest(item.getRequest() != null ? item.getRequest().getId() : null);
         return itemDto;
 
     }
@@ -69,6 +68,10 @@ public class ItemMapper {
             dtos.add(toItemDtoWithDate(item));
         }
         return dtos;
+    }
+
+    public static BookingDTOToReturn.Item toItemToBookingDTO (Item item) {
+        return new BookingDTOToReturn.Item(item.getId(), item.getName());
     }
 }
 

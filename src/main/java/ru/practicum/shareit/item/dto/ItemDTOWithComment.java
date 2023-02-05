@@ -19,5 +19,5 @@ public class ItemDTOWithComment {
 
     private String authorName;
 
-    LocalDateTime created;
+    private LocalDateTime created;
 }

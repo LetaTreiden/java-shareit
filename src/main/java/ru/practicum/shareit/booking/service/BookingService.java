@@ -6,13 +6,13 @@ import ru.practicum.shareit.booking.dto.BookingDTOToReturn;
 import java.util.Collection;
 
 public interface BookingService {
-    BookingDTOToReturn addBooking(Long userId, BookingDTO bookingDto);
+    BookingDTOToReturn add(Long userId, BookingDTO bookingDto);
 
-    BookingDTOToReturn updateStatusBooking(Long userId, Long bookingId, Boolean approved);
+    BookingDTOToReturn update(Long userId, Long bookingId, Boolean approved);
 
-    BookingDTOToReturn getBooking(Long bookingId, Long userId);
+    BookingDTOToReturn get(Long bookingId, Long userId);
 
-    Collection<BookingDTOToReturn> getBookingByBooker(Long usersId, String state);
+    Collection<BookingDTOToReturn> getByBooker(Long usersId, String state);
 
-    Collection<BookingDTOToReturn> getBookingByOwner(Long usersId, String status);
+    Collection<BookingDTOToReturn> getByOwner(Long usersId, String status);
 }

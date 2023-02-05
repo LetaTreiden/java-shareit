@@ -35,6 +35,7 @@ public class Item {
 
     @ManyToOne
     @JoinColumn(name = "owner_id")
+    @ToString.Exclude
     private User owner;
 
     @Override

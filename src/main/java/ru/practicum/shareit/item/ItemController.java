@@ -10,7 +10,7 @@ import ru.practicum.shareit.item.dto.ItemDTOWithDate;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
-import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequestMapping("/items")
@@ -21,35 +21,35 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping
-    public ItemDTO addItem(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody ItemDTO itemDto) {
+    public ItemDTO add(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody ItemDTO itemDto) {
         log.info("Добавления новой вещи пользователем с id {}", userId);
-        return itemService.addItem(userId, itemDto);
+        return itemService.add(userId, itemDto);
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDTO changeItem(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId,
+    public ItemDTO update(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId,
                               @RequestBody ItemDTO itemDto) {
         log.info("Обновление данные о вещи");
-        return itemService.changeItem(userId, itemId, itemDto);
+        return itemService.update(userId, itemId, itemDto);
     }
 
     @GetMapping("/{itemId}")
-    public ItemDTOWithDate getItem(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId) {
+    public ItemDTOWithDate get(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId) {
         log.info("Получение вещи с id {}", itemId);
-        return itemService.getItem(userId, itemId);
+        return itemService.get(userId, itemId);
     }
 
     @GetMapping
-    public Collection<ItemDTOWithDate> getAllOwnItems(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public List<ItemDTOWithDate> getAllByOwner(@RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("Получение всех вещей пользователя с id {}", userId);
-        return itemService.getAllOwnItems(userId);
+        return itemService.getAllByOwner(userId);
     }
 
     @GetMapping("/search")
-    public Collection<ItemDTO> getItemsForRent(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                               @RequestParam String text) {
+    public List<ItemDTO> getAllByText(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                      @RequestParam String text) {
         log.info("Получение вещей для аренды содержащие в названии или описании текст {}", text);
-        return itemService.getItemsForRent(text);
+        return itemService.getAllByText(text);
     }
 
     @PostMapping("{itemId}/comment")

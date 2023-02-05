@@ -1,12 +1,13 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.BookingRepository;
-import ru.practicum.shareit.booking.State;
+import ru.practicum.shareit.booking.model.State;
 import ru.practicum.shareit.booking.dto.BookingDTO;
 import ru.practicum.shareit.booking.dto.BookingDTOToReturn;
 import ru.practicum.shareit.booking.model.Booking;
@@ -22,8 +23,9 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
-
+@Transactional(readOnly = true)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
+@Slf4j
 public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bRepository;
@@ -32,17 +34,13 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional
     @Override
-    public BookingDTOToReturn addBooking(Long userId, BookingDTO bookingDto) {
-        Optional<Item> item = iRepository.findById(bookingDto.getItemId());
-        Optional<User> user = uRepository.findById(userId);
-        if (user.isEmpty()) {
-            throw new NotFoundException("User not found");
-        }
+    public BookingDTOToReturn add(Long userId, BookingDTO bookingDto) {
+        Optional<Item> item = Optional.ofNullable(iRepository.findById(bookingDto.getItemId())
+                .orElseThrow(() -> new NotFoundException("User not found")));
+        Optional<User> user = Optional.ofNullable(uRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Item not found")));
         if (item.isPresent() && !item.get().getAvailable()) {
             throw new BadRequestException("You can not book this item");
-        }
-        if (item.isEmpty()) {
-            throw new NotFoundException("Cannot create booking");
         }
         if (Objects.equals(item.get().getOwner().getId(), userId)) {
             throw new NotFoundException("You cannot book your item");
@@ -61,57 +59,47 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional
     @Override
-    public BookingDTOToReturn updateStatusBooking(Long userId, Long bookingId, Boolean approved) {
-        Booking booking;
-        if (bRepository.existsById(bookingId)) {
-            booking = bRepository.getReferenceById(bookingId);
-        } else {
-            throw new NotFoundException("Booking is empty");
-        }
-        Long ownerId = booking.getItem().getOwner().getId();
+    public BookingDTOToReturn update(Long userId, Long bookingId, Boolean approved) {
+        Optional <Booking> booking = Optional.ofNullable(Optional.of(bRepository.getReferenceById(bookingId))
+                .orElseThrow(() -> new NotFoundException("Booking not found")));
+        Long ownerId = booking.get().getItem().getOwner().getId();
 
         if (!Objects.equals(userId, ownerId)) {
             throw new NotFoundException("No rights");
         }
 
-        if (!Objects.equals(String.valueOf(booking.getStatus()), "WAITING")) {
+        if (!Objects.equals(String.valueOf(booking.get().getStatus()), "WAITING")) {
             throw new BadRequestException("Status has already been changed");
         }
 
         if (approved) {
-            booking.setStatus(State.APPROVED);
+            booking.get().setStatus(State.APPROVED);
         } else {
-            booking.setStatus(State.REJECTED);
+            booking.get().setStatus(State.REJECTED);
         }
-        return BookingMapper.toBookingDtoFrom(bRepository.save(booking));
+        return BookingMapper.toBookingDtoFrom(booking.get());
     }
 
     @Override
-    public BookingDTOToReturn getBooking(Long userId, Long bookingId) {
-        Booking booking;
-        if (bRepository.existsById(bookingId)) {
-            booking = bRepository.getReferenceById(bookingId);
-        } else {
-            throw new NotFoundException("Booking not found");
-        }
+    public BookingDTOToReturn get(Long userId, Long bookingId) {
+        log.info("start");
+        Booking booking = Optional.of(bRepository.getReferenceById(bookingId))
+                .orElseThrow(() -> new NotFoundException("Booking not found"));
+        log.info("continue" + booking.getId() + booking.getItem());
         Long ownerId = booking.getItem().getOwner().getId();
         Long bookerId = booking.getBooker().getId();
             if (Objects.equals(ownerId, userId) || Objects.equals(bookerId, userId)) {
+                log.info("end");
                 return BookingMapper.toBookingDtoFrom(booking);
             }
             throw new NotFoundException("No rights");
     }
 
     @Override
-    public Collection<BookingDTOToReturn> getBookingByBooker(Long usersId, String status) {
-        Optional<User> booker = uRepository.findById(usersId);
+    public List<BookingDTOToReturn> getByBooker(Long usersId, String status) {
+        Optional<User> booker = Optional.ofNullable(uRepository.findById(usersId)
+                .orElseThrow(() -> new NotFoundException("No rights")));
         List<Booking> bookingsByBooker;
-        if (booker.isEmpty()) {
-            throw new NotFoundException("No rights");
-        }
-        if (status == null || status.equals("")) {
-            status = "ALL";
-        }
         switch (status) {
             case "ALL":
                 bookingsByBooker = bRepository.findByBookerOrderByStartDesc(booker.get());
@@ -141,35 +129,29 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Collection<BookingDTOToReturn> getBookingByOwner(Long usersId, String status) {
-        Optional<User> owner = uRepository.findById(usersId);
+    public List<BookingDTOToReturn> getByOwner(Long userId, String status) {
+        if (uRepository.findById(userId).isEmpty()) {
+            throw new NotFoundException("User not found");
+        }
         List<Booking> bookingsByOwner;
-        if (owner.isEmpty()) {
-            throw new NotFoundException("No rights");
-        }
-        if (status == null || status.equals("")) {
-            status = "ALL";
-        }
         switch (status) {
             case "ALL":
-                bookingsByOwner = bRepository.findByBookingForOwnerWithAll(usersId);
+                bookingsByOwner = bRepository.findByOwnerAll(userId);
                 break;
             case "CURRENT":
-                bookingsByOwner = bRepository.findByBookingForOwnerWithCurrent(usersId, LocalDateTime.now(),
-                        LocalDateTime.now());
+                bookingsByOwner = bRepository.findByOwnerAndCurrent(userId, LocalDateTime.now());
                 break;
             case "PAST":
-                bookingsByOwner = bRepository.findByBookingForOwnerWithPast(usersId, LocalDateTime.now(),
-                        LocalDateTime.now());
+                bookingsByOwner = bRepository.findByOwnerAndPast(userId, LocalDateTime.now());
                 break;
             case "FUTURE":
-                bookingsByOwner = bRepository.findByBookingForOwnerWithFuture(usersId, LocalDateTime.now());
+                bookingsByOwner = bRepository.findByUserAndFuture(userId, LocalDateTime.now());
                 break;
             case "WAITING":
-                bookingsByOwner = bRepository.findByBookingForOwnerWithWaitingOrRejected(usersId, "WAITING");
+                bookingsByOwner = bRepository.findByOwnerAndByStatus(userId, State.WAITING);
                 break;
             case "REJECTED":
-                bookingsByOwner = bRepository.findByBookingForOwnerWithWaitingOrRejected(usersId, "REJECTED");
+                bookingsByOwner = bRepository.findByOwnerAndByStatus(userId, State.REJECTED);
                 break;
             default:
                 throw new StatusBadRequestException("Unknown state: UNSUPPORTED_STATUS");

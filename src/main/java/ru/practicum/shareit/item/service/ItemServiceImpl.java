@@ -28,6 +28,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
+@Transactional(readOnly = true)
 public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository repository;
@@ -37,7 +38,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional
     @Override
-    public ItemDTO addItem(Long userId, ItemDTO itemDto) throws BadRequestException {
+    public ItemDTO add(Long userId, ItemDTO itemDto) throws BadRequestException {
         Optional<User> user = userRepository.findById(userId);
         if (user.isEmpty()) {
             throw new NotFoundException("User not found");
@@ -48,7 +49,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional
     @Override
-    public ItemDTO changeItem(Long userId, Long itemId, ItemDTO itemDto) throws BadRequestException {
+    public ItemDTO update(Long userId, Long itemId, ItemDTO itemDto) throws BadRequestException {
         Optional<Item> itemOpt = repository.findById(itemId);
         if (itemOpt.isEmpty()) {
             throw new NotFoundException("Item not found");
@@ -72,7 +73,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDTOWithDate getItem(Long userId, Long itemId) {
+    public ItemDTOWithDate get(Long userId, Long itemId) {
         Optional<Item> itemOpt = repository.findById(itemId);
         if (itemOpt.isEmpty()) {
             throw new NotFoundException("Item not found");
@@ -101,7 +102,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Collection<ItemDTOWithDate> getAllOwnItems(Long userId) {
+    public List<ItemDTOWithDate> getAllByOwner(Long userId) {
         Optional<User> userOpt = userRepository.findById(userId);
         if (userOpt.isEmpty()) {
             throw new NotFoundException("User not found");
@@ -128,7 +129,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Collection<ItemDTO> getItemsForRent(String substring) {
+    public List<ItemDTO> getAllByText(String substring) {
         if (!Objects.equals(substring, "")) {
             return ItemMapper.mapToItemDto(repository.findItemsByNameOrDescription(substring));
         }

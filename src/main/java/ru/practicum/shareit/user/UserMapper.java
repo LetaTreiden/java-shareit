@@ -1,13 +1,14 @@
 package ru.practicum.shareit.user;
 
-import org.springframework.stereotype.Component;
+import lombok.experimental.UtilityClass;
+import ru.practicum.shareit.booking.dto.BookingDTOToReturn;
 import ru.practicum.shareit.user.dto.UserDTO;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+@UtilityClass
 public class UserMapper {
 
     public static UserDTO toUserDto(User user) {
@@ -32,5 +33,9 @@ public class UserMapper {
             dtos.add(toUserDto(user));
         }
         return dtos;
+    }
+
+    public static BookingDTOToReturn.User toUserToBookingDTO (User user) {
+        return new BookingDTOToReturn.User(user.getId(), user.getName());
     }
 }

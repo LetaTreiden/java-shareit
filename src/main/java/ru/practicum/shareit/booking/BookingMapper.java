@@ -1,18 +1,20 @@
 package ru.practicum.shareit.booking;
 
-import org.springframework.stereotype.Component;
+import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.booking.dto.BookingDTO;
 import ru.practicum.shareit.booking.dto.BookingDTOForItem;
 import ru.practicum.shareit.booking.dto.BookingDTOToReturn;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+@UtilityClass
 public class BookingMapper {
 
     public static BookingDTO toBookingDto(Booking booking) {
@@ -21,7 +23,7 @@ public class BookingMapper {
         bookingDto.setStart(booking.getStart());
         bookingDto.setEnd(booking.getEnd());
         bookingDto.setStatus(booking.getStatus());
-        bookingDto.setItemId(booking.getItem() != null ? booking.getItem().getId() : null);
+        bookingDto.setItemId(booking.getItem().getId());
         bookingDto.setItemName(booking.getItem() != null ? booking.getItem().getName() : null);
         bookingDto.setBookerId(booking.getBooker() != null ? booking.getBooker().getId() : null);
         return bookingDto;
@@ -34,8 +36,8 @@ public class BookingMapper {
         bookingDto.setStart(booking.getStart());
         bookingDto.setEnd(booking.getEnd());
         bookingDto.setStatus(booking.getStatus());
-        bookingDto.setItem(booking.getItem());
-        bookingDto.setBooker(booking.getBooker());
+        bookingDto.setItem(ItemMapper.toItemToBookingDTO(booking.getItem()));
+        bookingDto.setBooker(UserMapper.toUserToBookingDTO(booking.getBooker()));
         return bookingDto;
     }
 
