@@ -1,15 +1,17 @@
 package ru.practicum.shareit.item.dto;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import ru.practicum.shareit.booking.dto.BookingDTOForItem;
-import ru.practicum.shareit.user.model.User;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
+@Setter
+@Getter
 public class ItemDTOWithDate {
     private long id;
 
@@ -32,4 +34,9 @@ public class ItemDTOWithDate {
 
     private List<ItemDTOWithComment> comments = new ArrayList<>();
 
+    @Data
+    public static class User {
+        private final long id;
+        private final String name;
+    }
 }

@@ -7,7 +7,9 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @UtilityClass
 public class CommentMapper {
@@ -37,5 +39,9 @@ public class CommentMapper {
             dtos.add(toCommentDto(comment));
         }
         return dtos;
+    }
+
+    public static List<Comment> toCommentShortList(Collection<Comment> comments) {
+        return new ArrayList<>(comments);
     }
 }

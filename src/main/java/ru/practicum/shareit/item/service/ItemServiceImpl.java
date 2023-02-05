@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingMapper;
@@ -26,6 +27,10 @@ import ru.practicum.shareit.user.model.User;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static org.springframework.data.domain.Sort.Direction.DESC;
+
 @Service
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Transactional(readOnly = true)
@@ -39,28 +44,23 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     @Override
     public ItemDTO add(Long userId, ItemDTO itemDto) throws BadRequestException {
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isEmpty()) {
-            throw new NotFoundException("User not found");
-        }
-        Item item = repository.save(ItemMapper.toItem(itemDto, user.get()));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+        Item item = repository.save(ItemMapper.toItem(itemDto, user));
         return ItemMapper.toItemDto(item);
     }
 
     @Transactional
     @Override
     public ItemDTO update(Long userId, Long itemId, ItemDTO itemDto) throws BadRequestException {
-        Optional<Item> itemOpt = repository.findById(itemId);
-        if (itemOpt.isEmpty()) {
-            throw new NotFoundException("Item not found");
-        }
-        Item item = itemOpt.get();
+        Item item = repository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException("Item not found"));
         User user = item.getOwner();
         if (Objects.equals(user.getId(), userId)) {
-            if (itemDto.getName() != null) {
+            if (itemDto.getName() != null && !itemDto.getName().isBlank()) {
                 item.setName(itemDto.getName());
             }
-            if (itemDto.getDescription() != null) {
+            if (itemDto.getDescription() != null && !itemDto.getDescription().isBlank()) {
                 item.setDescription(itemDto.getDescription());
             }
             if (itemDto.getAvailable() != null) {
@@ -74,11 +74,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDTOWithDate get(Long userId, Long itemId) {
-        Optional<Item> itemOpt = repository.findById(itemId);
-        if (itemOpt.isEmpty()) {
-            throw new NotFoundException("Item not found");
-        }
-        Item item = itemOpt.get();
+        Item item = repository.findById(itemId).orElseThrow(() -> new NotFoundException("Item not found"));
         ItemDTOWithDate itemDto = ItemMapper.toItemDtoWithDate(item);
         List<Comment> comments = commentRepository.findByItem(item);
         itemDto.setComments(CommentMapper.mapToCommentDto(comments));
@@ -103,11 +99,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDTOWithDate> getAllByOwner(Long userId) {
-        Optional<User> userOpt = userRepository.findById(userId);
-        if (userOpt.isEmpty()) {
-            throw new NotFoundException("User not found");
-        }
-        User user = userOpt.get();
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
         List<Item> items = repository.findByOwner(user);
         List<ItemDTOWithDate> itemDtos = ItemMapper.mapToItemDtoWithDate(items);
         for (ItemDTOWithDate itemDto : itemDtos) {
@@ -139,21 +131,14 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     @Override
     public ItemDTOWithComment addComment(Long authorId, Long itemId, ItemDTOWithComment itemDtoWithComment) {
-        Optional<Item> itemOpt = repository.findById(itemId);
-        if (itemOpt.isEmpty()) {
-            throw new NotFoundException("Item not found");
-        }
-        Item item = itemOpt.get();
-        Optional<User> author = userRepository.findById(authorId);
-        if (author.isEmpty()) {
-            throw new NotFoundException("User not found");
-        }
-        List<Booking> bookings = bookingRepository.findByItemAndBookerAndStartBeforeAndEndBefore(item, author.get(),
+        Item item = repository.findById(itemId).orElseThrow(() -> new NotFoundException("Item not found"));
+        User author = userRepository.findById(authorId).orElseThrow(() -> new NotFoundException("User not found"));
+        List<Booking> bookings = bookingRepository.findByItemAndBookerAndStartBeforeAndEndBefore(item, author,
                 LocalDateTime.now(), LocalDateTime.now());
         if (bookings.isEmpty()) {
             throw new BadRequestException("Booking is empty");
         }
-        Comment comment = CommentMapper.toComment(itemDtoWithComment, item, author.get());
+        Comment comment = CommentMapper.toComment(itemDtoWithComment, item, author);
         return CommentMapper.toCommentDto(commentRepository.save(comment));
     }
 }

@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.item.model.Item;
@@ -15,4 +16,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             "OR (LOWER(description) Like CONCAT('%', LOWER(?1), '%'))) " +
             "AND (available)")
     List<Item> findItemsByNameOrDescription(String substring);
+
+
 }

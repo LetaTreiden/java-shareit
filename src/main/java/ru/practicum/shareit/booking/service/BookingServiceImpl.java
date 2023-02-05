@@ -35,14 +35,14 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     @Override
     public BookingDTOToReturn add(Long userId, BookingDTO bookingDto) {
-        Optional<Item> item = Optional.ofNullable(iRepository.findById(bookingDto.getItemId())
-                .orElseThrow(() -> new NotFoundException("User not found")));
-        Optional<User> user = Optional.ofNullable(uRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Item not found")));
-        if (item.isPresent() && !item.get().getAvailable()) {
+        Item item = iRepository.findById(bookingDto.getItemId())
+                .orElseThrow(() -> new NotFoundException("User not found"));
+        User user = uRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Item not found"));
+        if (!item.getAvailable()) {
             throw new BadRequestException("You can not book this item");
         }
-        if (Objects.equals(item.get().getOwner().getId(), userId)) {
+        if (Objects.equals(item.getOwner().getId(), userId)) {
             throw new NotFoundException("You cannot book your item");
         }
         if (bookingDto.getEnd().isBefore(LocalDateTime.now()) ||
@@ -53,74 +53,71 @@ public class BookingServiceImpl implements BookingService {
         }
         bookingDto.setBookerId(userId);
         bookingDto.setStatus(State.WAITING);
-        Booking booking = bRepository.save(BookingMapper.toBooking(bookingDto, item.get(), user.get()));
+        Booking booking = bRepository.save(BookingMapper.toBooking(bookingDto, item, user));
         return BookingMapper.toBookingDtoFrom(booking);
     }
 
     @Transactional
     @Override
     public BookingDTOToReturn update(Long userId, Long bookingId, Boolean approved) {
-        Optional<Booking> booking = Optional.ofNullable(Optional.of(bRepository.getReferenceById(bookingId))
-                .orElseThrow(() -> new NotFoundException("Booking not found")));
-        Long ownerId = booking.get().getItem().getOwner().getId();
+        Booking booking = Optional.of(bRepository.getReferenceById(bookingId))
+                .orElseThrow(() -> new NotFoundException("Booking not found"));
+        Long ownerId = booking.getItem().getOwner().getId();
 
         if (!Objects.equals(userId, ownerId)) {
             throw new NotFoundException("No rights");
         }
 
-        if (!Objects.equals(String.valueOf(booking.get().getStatus()), "WAITING")) {
+        if (!Objects.equals(String.valueOf(booking.getStatus()), "WAITING")) {
             throw new BadRequestException("Status has already been changed");
         }
 
         if (approved) {
-            booking.get().setStatus(State.APPROVED);
+            booking.setStatus(State.APPROVED);
         } else {
-            booking.get().setStatus(State.REJECTED);
+            booking.setStatus(State.REJECTED);
         }
-        return BookingMapper.toBookingDtoFrom(booking.get());
+        return BookingMapper.toBookingDtoFrom(booking);
     }
 
     @Override
     public BookingDTOToReturn get(Long userId, Long bookingId) {
-        log.info("start");
-        Booking booking = Optional.of(bRepository.getReferenceById(bookingId))
-                .orElseThrow(() -> new NotFoundException("Booking not found"));
-        log.info("continue" + booking.getId() + booking.getItem());
+        Booking booking = bRepository.findById(bookingId)
+                .orElseThrow(() -> new NotFoundException(("Booking not found")));
         Long ownerId = booking.getItem().getOwner().getId();
         Long bookerId = booking.getBooker().getId();
-            if (Objects.equals(ownerId, userId) || Objects.equals(bookerId, userId)) {
-                log.info("end");
-                return BookingMapper.toBookingDtoFrom(booking);
-            }
-            throw new NotFoundException("No rights");
+        if (Objects.equals(ownerId, userId) || Objects.equals(bookerId, userId)) {
+            return BookingMapper.toBookingDtoFrom(booking);
+        }
+        throw new NotFoundException("No rights");
     }
 
     @Override
     public List<BookingDTOToReturn> getByBooker(Long usersId, String status) {
-        Optional<User> booker = Optional.ofNullable(uRepository.findById(usersId)
-                .orElseThrow(() -> new NotFoundException("No rights")));
+        User booker = uRepository.findById(usersId)
+                .orElseThrow(() -> new NotFoundException("No rights"));
         List<Booking> bookingsByBooker;
         switch (status) {
             case "ALL":
-                bookingsByBooker = bRepository.findByBookerOrderByStartDesc(booker.get());
+                bookingsByBooker = bRepository.findByBookerOrderByStartDesc(booker);
                 break;
             case "CURRENT":
-                bookingsByBooker = bRepository.findByBookerAndStartBeforeAndEndAfterOrderByStartDesc(booker.get(),
+                bookingsByBooker = bRepository.findByBookerAndStartBeforeAndEndAfterOrderByStartDesc(booker,
                         LocalDateTime.now(), LocalDateTime.now());
                 break;
             case "PAST":
-                bookingsByBooker = bRepository.findByBookerAndStartBeforeAndEndBeforeOrderByStartDesc(booker.get(),
+                bookingsByBooker = bRepository.findByBookerAndStartBeforeAndEndBeforeOrderByStartDesc(booker,
                         LocalDateTime.now(), LocalDateTime.now());
                 break;
             case "FUTURE":
-                bookingsByBooker = bRepository.findByBookerAndStartAfterOrderByStartDesc(booker.get(),
+                bookingsByBooker = bRepository.findByBookerAndStartAfterOrderByStartDesc(booker,
                         LocalDateTime.now());
                 break;
             case "WAITING":
-                bookingsByBooker = bRepository.findByBookerAndStatusOrderByStartDesc(booker.get(), State.WAITING);
+                bookingsByBooker = bRepository.findByBookerAndStatusOrderByStartDesc(booker, State.WAITING);
                 break;
             case "REJECTED":
-                bookingsByBooker = bRepository.findByBookerAndStatusOrderByStartDesc(booker.get(), State.REJECTED);
+                bookingsByBooker = bRepository.findByBookerAndStatusOrderByStartDesc(booker, State.REJECTED);
                 break;
             default:
                 throw new StatusBadRequestException("Unknown state: UNSUPPORTED_STATUS");
