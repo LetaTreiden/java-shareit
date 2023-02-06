@@ -16,7 +16,7 @@ public class ErrorHandler {
 
     @ExceptionHandler({HttpMessageConversionException.class, BadRequestException.class})
     public ResponseEntity<Map<String, String>> handleValid(final RuntimeException e) {
-        log.error("Validation error");
+        log.error("Validation error{}", e.getMessage());
         return new ResponseEntity<>(
                 Map.of("Ошибка в валидации", e.getMessage()),
                 HttpStatus.BAD_REQUEST
@@ -25,7 +25,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     public ResponseEntity<Map<String, String>> handleValidation(final MethodArgumentNotValidException e) {
-        log.error("Not valid argument");
+        log.error("Not valid argument{}", e.getMessage());
         return new ResponseEntity<>(
                 Map.of("Ошибка в валидации", e.getMessage()),
                 HttpStatus.BAD_REQUEST
@@ -34,7 +34,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     public ResponseEntity<Map<String, String>> handleNotFound(final NotFoundException e) {
-        log.error("Not found");
+        log.error("Not found{}", e.getMessage());
         return new ResponseEntity<>(
                 Map.of("Объект не найден", e.getMessage()),
                 HttpStatus.NOT_FOUND
@@ -43,7 +43,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     public ResponseEntity<Map<String, String>> handleStatus(final StatusBadRequestException e) {
-        log.error("Bad request");
+        log.error("Bad request{}", e.getMessage());
         return new ResponseEntity<>(
                 Map.of("error", e.getMessage()),
                 HttpStatus.BAD_REQUEST);
@@ -51,7 +51,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     public ResponseEntity<Map<String, String>> handleForbiddenError(final ForbiddenException e) {
-        log.error("No rights");
+        log.error("No rights{}", e.getMessage());
         return new ResponseEntity<>(
                 Map.of("Отказано в доступе", e.getMessage()),
                 HttpStatus.FORBIDDEN
@@ -60,7 +60,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     public ResponseEntity<Map<String, String>> handleInternalServerError(final Exception e) {
-        log.error("Server error");
+        log.error("Server error{}", e.getMessage());
         return new ResponseEntity<>(
                 Map.of("Серверу не удается обработать запрос", e.getMessage()),
                 HttpStatus.INTERNAL_SERVER_ERROR
@@ -69,7 +69,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     public ResponseEntity<Map<String, String>> handleConflictError(final ConflictException e) {
-        log.error("Conflict!");
+        log.error("Conflict!{}", e.getMessage());
         return new ResponseEntity<>(
                 Map.of("Запрос не может быть выполнен из-за конфликтного обращения к ресурсу", e.getMessage()),
                 HttpStatus.CONFLICT

@@ -13,6 +13,7 @@ import java.util.List;
 @Setter
 @Getter
 public class ItemDTOWithDate {
+    @NotNull
     private long id;
 
     @NotBlank

@@ -45,15 +45,10 @@ public class BookingServiceImpl implements BookingService {
         if (Objects.equals(item.getOwner().getId(), userId)) {
             throw new NotFoundException("You cannot book your item");
         }
-        if (bookingDto.getEnd().isBefore(LocalDateTime.now()) ||
-                bookingDto.getStart().isBefore(LocalDateTime.now()) ||
-                (bookingDto.getEnd().isBefore(bookingDto.getStart()) &&
-                        !bookingDto.getEnd().equals(bookingDto.getStart()))) {
+        if ((!bookingDto.getEnd().isAfter(bookingDto.getStart()))) {
             throw new BadRequestException("Wrong date");
         }
-        bookingDto.setBookerId(userId);
-        bookingDto.setStatus(State.WAITING);
-        Booking booking = bRepository.save(BookingMapper.toBooking(bookingDto, item, user));
+        Booking booking = BookingMapper.toBooking(bookingDto, item, user);
         return BookingMapper.toBookingDtoFrom(booking);
     }
 

@@ -11,5 +11,5 @@ import java.util.Map;
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findByItem(Item item);
 
-    Map<Item, List<Comment>> findByItemIn(List<Item> items, Sort sort);
+    Map<Long, List<Comment>> findByItemIn(List<Item> item, Sort sort);
 }

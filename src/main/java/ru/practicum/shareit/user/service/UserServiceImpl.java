@@ -8,6 +8,7 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.dto.UserDTO;
+import ru.practicum.shareit.user.dto.UserDTOToUpd;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
@@ -22,23 +23,23 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public UserDTO create(UserDTO userDto) {
+
         User user = repository.save(UserMapper.toUser(userDto));
         return UserMapper.toUserDto(user);
     }
 
     @Transactional
     @Override
-    public UserDTO update(Long userId, UserDTO userDto) {
-        Optional<User> userOptional = Optional.ofNullable(repository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found")));
-        User user = userOptional.get();
+    public UserDTOToUpd update(Long userId, UserDTO userDto) {
+        User user = repository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
         if (userDto.getName() != null) {
             user.setName(userDto.getName());
         }
         if (userDto.getEmail() != null) {
             user.setEmail(userDto.getEmail());
         }
-        return UserMapper.toUserDto(repository.save(user));
+        return UserMapper.toUserDtoToUpd(user);
     }
 
     @Transactional

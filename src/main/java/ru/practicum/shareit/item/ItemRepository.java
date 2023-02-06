@@ -15,6 +15,4 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             "OR (LOWER(description) Like CONCAT('%', LOWER(?1), '%'))) " +
             "AND (available)")
     List<Item> findItemsByNameOrDescription(String substring);
-
-
 }

@@ -3,6 +3,7 @@ package ru.practicum.shareit.user;
 import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.booking.dto.BookingDTOToReturn;
 import ru.practicum.shareit.user.dto.UserDTO;
+import ru.practicum.shareit.user.dto.UserDTOToUpd;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.ArrayList;
@@ -13,6 +14,14 @@ public class UserMapper {
 
     public static UserDTO toUserDto(User user) {
         UserDTO userDto = new UserDTO();
+        userDto.setId(user.getId());
+        userDto.setName(user.getName());
+        userDto.setEmail(user.getEmail());
+        return userDto;
+    }
+
+    public static UserDTOToUpd toUserDtoToUpd(User user) {
+        UserDTOToUpd userDto = new UserDTOToUpd();
         userDto.setId(user.getId());
         userDto.setName(user.getName());
         userDto.setEmail(user.getEmail());
