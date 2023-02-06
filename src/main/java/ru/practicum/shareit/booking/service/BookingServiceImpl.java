@@ -48,7 +48,7 @@ public class BookingServiceImpl implements BookingService {
         if ((!bookingDto.getEnd().isAfter(bookingDto.getStart()))) {
             throw new BadRequestException("Wrong date");
         }
-        Booking booking = BookingMapper.toBooking(bookingDto, item, user);
+        Booking booking = bRepository.save(BookingMapper.toBooking(bookingDto, item, user));
         return BookingMapper.toBookingDtoFrom(booking);
     }
 

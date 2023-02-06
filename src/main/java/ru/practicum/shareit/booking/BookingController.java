@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDTO;
 import ru.practicum.shareit.booking.dto.BookingDTOToReturn;
-import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.service.BookingService;
 
 import javax.validation.Valid;
@@ -21,15 +20,15 @@ public class BookingController {
 
     @PostMapping
     public BookingDTOToReturn add(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                         @Valid @RequestBody BookingDTO bookingDto) {
+                                  @Valid @RequestBody BookingDTO bookingDto) {
         log.info("Добавление запроса на аренду пользователем с id {}", userId);
         return bookingService.add(userId, bookingDto);
     }
 
     @PatchMapping("/{bookingId}")
     public BookingDTOToReturn update(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                             @PathVariable Long bookingId,
-                                             @RequestParam Boolean approved) {
+                                     @PathVariable Long bookingId,
+                                     @RequestParam Boolean approved) {
         log.info("Обновление статуса запроса на аренду с id {}", bookingId);
         return bookingService.update(userId, bookingId, approved);
 
@@ -43,18 +42,18 @@ public class BookingController {
 
     @GetMapping
     public Collection<BookingDTOToReturn> findByBooker(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                         @RequestParam(defaultValue = "ALL")
-                                                         String status) {
+                                                       @RequestParam(defaultValue = "ALL")
+                                                       String state) {
         log.info("Получение списка бронирований пользовалеля с id {}", userId);
-        return bookingService.getByBooker(userId, status);
+        return bookingService.getByBooker(userId, state);
     }
 
     @GetMapping("/owner")
     public Collection<BookingDTOToReturn> findByOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                        @RequestParam(defaultValue = "ALL")
-                                                        String status) {
+                                                      @RequestParam(defaultValue = "ALL")
+                                                      String state) {
         log.info("Получение списка бронирований для всех вещей пользователя с id {}", userId);
-        return bookingService.getByOwner(userId, status);
+        return bookingService.getByOwner(userId, state);
     }
 
 }
