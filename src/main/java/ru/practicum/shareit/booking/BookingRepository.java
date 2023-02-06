@@ -10,7 +10,6 @@ import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
@@ -24,35 +23,31 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> findByBookerAndStartBeforeAndEndAfterOrderByStartDesc(User booker, LocalDateTime s, LocalDateTime e);
 
-    List<Booking> findByBookerAndStartBeforeAndEndBeforeOrderByStartDesc(User booker, LocalDateTime s,
-                                                                         LocalDateTime e);
+    List<Booking> findByBookerAndStartBeforeAndEndBeforeOrderByStartDesc(User booker, LocalDateTime s, LocalDateTime e);
 
     List<Booking> findByItemAndBookerAndStartBeforeAndEndBefore(Item item, User booker, LocalDateTime s,
                                                                 LocalDateTime e);
 
-    @Query("SELECT b FROM Booking b WHERE b.item.id IN" +
-            " (SELECT i.id FROM Item i WHERE i.owner.id = ?1)" +
-            " ORDER BY b.id DESC")
+    @Query("SELECT b FROM Booking b WHERE b.item.id IN" + " (SELECT i.id FROM Item i WHERE i.owner.id = ?1)"
+            + " ORDER BY b.id DESC")
     List<Booking> findByOwnerAll(long userId);
 
-    @Query("SELECT b FROM Booking b WHERE b.item.id IN " +
-            "(SELECT i.id FROM Item i WHERE i.owner.id = ?1) AND b.start < ?2 AND b.end > ?2" +
-            " ORDER BY b.id DESC")
+    @Query("SELECT b FROM Booking b WHERE b.item.id IN "
+            + "(SELECT i.id FROM Item i WHERE i.owner.id = ?1) AND b.start < ?2 AND b.end > ?2"
+            + " ORDER BY b.id DESC")
     List<Booking> findByOwnerAndCurrent(long userId, LocalDateTime currentDate);
 
-    @Query("SELECT b FROM Booking b WHERE b.item.id IN " +
-            "(SELECT i.id FROM Item i WHERE i.owner.id = ?1) AND b.end < ?2" +
-            " ORDER BY b.id DESC")
+    @Query("SELECT b FROM Booking b WHERE b.item.id IN "
+            + "(SELECT i.id FROM Item i WHERE i.owner.id = ?1) AND b.end < ?2"
+            + " ORDER BY b.id DESC")
     List<Booking> findByOwnerAndPast(long userId, LocalDateTime currentDate);
 
-    @Query("SELECT b FROM Booking b WHERE b.item.id IN " +
-            "(SELECT i.id FROM Item i WHERE i.owner.id = ?1) AND b.start > ?2" +
-            " ORDER BY b.id DESC")
+    @Query("SELECT b FROM Booking b WHERE b.item.id IN "
+            + "(SELECT i.id FROM Item i WHERE i.owner.id = ?1) AND b.start > ?2" + " ORDER BY b.id DESC")
     List<Booking> findByUserAndFuture(long userId, LocalDateTime currentDate);
 
-    @Query("SELECT b FROM Booking b WHERE b.item.id IN " +
-            "(SELECT i.id FROM Item i WHERE i.owner.id = ?1) AND b.status = ?2" +
-            " ORDER BY b.id DESC")
+    @Query("SELECT b FROM Booking b WHERE b.item.id IN "
+            + "(SELECT i.id FROM Item i WHERE i.owner.id = ?1) AND b.status = ?2" + " ORDER BY b.id DESC")
     List<Booking> findByOwnerAndByStatus(long userId, State status);
 
     Booking findFirst1BookingByItem_IdAndStartIsBefore(long itemId, LocalDateTime currentTime, Sort sort);
