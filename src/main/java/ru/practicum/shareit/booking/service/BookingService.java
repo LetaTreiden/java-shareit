@@ -3,7 +3,7 @@ package ru.practicum.shareit.booking.service;
 import ru.practicum.shareit.booking.dto.BookingDTO;
 import ru.practicum.shareit.booking.dto.BookingDTOToReturn;
 
-import java.util.Collection;
+import java.util.List;
 
 public interface BookingService {
     BookingDTOToReturn add(Long userId, BookingDTO bookingDto);
@@ -12,7 +12,7 @@ public interface BookingService {
 
     BookingDTOToReturn get(Long bookingId, Long userId);
 
-    Collection<BookingDTOToReturn> getByBooker(Long usersId, String state);
+    List<BookingDTOToReturn> getByBooker(Long usersId, String stateString);
 
-    Collection<BookingDTOToReturn> getByOwner(Long usersId, String status);
+    List<BookingDTOToReturn> getByOwner(Long usersId, String state);
 }

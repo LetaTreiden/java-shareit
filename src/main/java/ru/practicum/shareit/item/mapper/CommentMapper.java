@@ -1,7 +1,7 @@
 package ru.practicum.shareit.item.mapper;
 
 import lombok.experimental.UtilityClass;
-import ru.practicum.shareit.item.dto.ItemDTOWithComment;
+import ru.practicum.shareit.item.dto.CommentDTO;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
@@ -13,8 +13,8 @@ import java.util.List;
 @UtilityClass
 public class CommentMapper {
 
-    public static ItemDTOWithComment toCommentDto(Comment comment) {
-        ItemDTOWithComment itemDtoWithComment = new ItemDTOWithComment();
+    public static CommentDTO toCommentDto(Comment comment) {
+        CommentDTO itemDtoWithComment = new CommentDTO();
         itemDtoWithComment.setId(comment.getId());
         itemDtoWithComment.setText(comment.getText());
         itemDtoWithComment.setItemName(comment.getItem().getName());
@@ -23,7 +23,7 @@ public class CommentMapper {
         return itemDtoWithComment;
     }
 
-    public static Comment toComment(ItemDTOWithComment itemDtoWithComment, Item item, User author) {
+    public static Comment toComment(CommentDTO itemDtoWithComment, Item item, User author) {
         Comment comment = new Comment();
         comment.setId(comment.getId());
         comment.setText(itemDtoWithComment.getText());
@@ -32,8 +32,8 @@ public class CommentMapper {
         return comment;
     }
 
-    public static List<ItemDTOWithComment> mapToCommentDto(Iterable<Comment> comments) {
-        List<ItemDTOWithComment> dtos = new ArrayList<>();
+    public static List<CommentDTO> mapToCommentDto(Iterable<Comment> comments) {
+        List<CommentDTO> dtos = new ArrayList<>();
         for (Comment comment : comments) {
             dtos.add(toCommentDto(comment));
         }

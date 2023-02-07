@@ -7,20 +7,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.BookingRepository;
-import ru.practicum.shareit.booking.model.State;
 import ru.practicum.shareit.booking.dto.BookingDTO;
 import ru.practicum.shareit.booking.dto.BookingDTOToReturn;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.State;
+import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.exception.BadRequestException;
-import ru.practicum.shareit.exception.StatusBadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.StatusBadRequestException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -68,9 +71,9 @@ public class BookingServiceImpl implements BookingService {
         }
 
         if (approved) {
-            booking.setStatus(State.APPROVED);
+            booking.setStatus(Status.APPROVED);
         } else {
-            booking.setStatus(State.REJECTED);
+            booking.setStatus(Status.REJECTED);
         }
         return BookingMapper.toBookingDtoFrom(booking);
     }
@@ -88,31 +91,33 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDTOToReturn> getByBooker(Long usersId, String status) {
+    public List<BookingDTOToReturn> getByBooker(Long usersId, String stateString) {
         User booker = uRepository.findById(usersId)
                 .orElseThrow(() -> new NotFoundException("No rights"));
         List<Booking> bookingsByBooker;
-        switch (status) {
-            case "ALL":
+        stateValidation(stateString);
+        State state = State.valueOf(stateString);
+        switch (state) {
+            case ALL:
                 bookingsByBooker = bRepository.findByBookerOrderByStartDesc(booker);
                 break;
-            case "CURRENT":
+            case CURRENT:
                 bookingsByBooker = bRepository.findByBookerAndStartBeforeAndEndAfterOrderByStartDesc(booker,
                         LocalDateTime.now(), LocalDateTime.now());
                 break;
-            case "PAST":
+            case PAST:
                 bookingsByBooker = bRepository.findByBookerAndStartBeforeAndEndBeforeOrderByStartDesc(booker,
                         LocalDateTime.now(), LocalDateTime.now());
                 break;
-            case "FUTURE":
+            case FUTURE:
                 bookingsByBooker = bRepository.findByBookerAndStartAfterOrderByStartDesc(booker,
                         LocalDateTime.now());
                 break;
-            case "WAITING":
-                bookingsByBooker = bRepository.findByBookerAndStatusOrderByStartDesc(booker, State.WAITING);
+            case WAITING:
+                bookingsByBooker = bRepository.findByBookerAndStatusOrderByStartDesc(booker, Status.WAITING);
                 break;
-            case "REJECTED":
-                bookingsByBooker = bRepository.findByBookerAndStatusOrderByStartDesc(booker, State.REJECTED);
+            case REJECTED:
+                bookingsByBooker = bRepository.findByBookerAndStatusOrderByStartDesc(booker, Status.REJECTED);
                 break;
             default:
                 throw new StatusBadRequestException("Unknown state: UNSUPPORTED_STATUS");
@@ -121,33 +126,43 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDTOToReturn> getByOwner(Long userId, String status) {
+    public List<BookingDTOToReturn> getByOwner(Long userId, String stateString) {
         if (uRepository.findById(userId).isEmpty()) {
             throw new NotFoundException("User not found");
         }
         List<Booking> bookingsByOwner;
-        switch (status) {
-            case "ALL":
+        stateValidation(stateString);
+        State state = State.valueOf(stateString);
+        switch (state) {
+            case ALL:
                 bookingsByOwner = bRepository.findByOwnerAll(userId);
                 break;
-            case "CURRENT":
+            case CURRENT:
                 bookingsByOwner = bRepository.findByOwnerAndCurrent(userId, LocalDateTime.now());
                 break;
-            case "PAST":
+            case PAST:
                 bookingsByOwner = bRepository.findByOwnerAndPast(userId, LocalDateTime.now());
                 break;
-            case "FUTURE":
+            case FUTURE:
                 bookingsByOwner = bRepository.findByUserAndFuture(userId, LocalDateTime.now());
                 break;
-            case "WAITING":
-                bookingsByOwner = bRepository.findByOwnerAndByStatus(userId, State.WAITING);
+            case WAITING:
+                bookingsByOwner = bRepository.findByOwnerAndByStatus(userId, Status.WAITING);
                 break;
-            case "REJECTED":
-                bookingsByOwner = bRepository.findByOwnerAndByStatus(userId, State.REJECTED);
+            case REJECTED:
+                bookingsByOwner = bRepository.findByOwnerAndByStatus(userId, Status.REJECTED);
                 break;
             default:
                 throw new StatusBadRequestException("Unknown state: UNSUPPORTED_STATUS");
         }
         return BookingMapper.mapToBookingDtoFrom(bookingsByOwner);
+    }
+
+    private void stateValidation(String state) {
+        try {
+            Enum.valueOf(State.class, state);
+        } catch (IllegalArgumentException e) {
+            throw new StatusBadRequestException("Unknown state: UNSUPPORTED_STATUS");
+        }
     }
 }

@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.dto.ItemDTOWithComment;
+import ru.practicum.shareit.item.dto.CommentDTO;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.dto.ItemDTOWithDate;
 import ru.practicum.shareit.item.service.ItemService;
@@ -53,8 +53,8 @@ public class ItemController {
     }
 
     @PostMapping("{itemId}/comment")
-    public ItemDTOWithComment addComment(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId,
-                                         @Valid @RequestBody ItemDTOWithComment itemDtoWithComment) {
+    public CommentDTO addComment(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId,
+                                 @Valid @RequestBody CommentDTO itemDtoWithComment) {
         log.info("Добавление комментария для вещи с id {}", itemId);
         return itemService.addComment(userId, itemId, itemDtoWithComment);
     }

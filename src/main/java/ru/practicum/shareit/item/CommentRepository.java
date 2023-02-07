@@ -6,10 +6,9 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
-import java.util.Map;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
-    List<Comment> findByItem(Item item);
+    List<Comment> findAllByItem(Item item);
 
-    Map<Long, List<Comment>> findByItemIn(List<Item> item, Sort sort);
+    List<Comment> findAllByItemIdIn(List<Long> id, Sort created);
 }

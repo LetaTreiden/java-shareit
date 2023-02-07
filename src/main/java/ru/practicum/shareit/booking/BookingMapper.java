@@ -5,7 +5,7 @@ import ru.practicum.shareit.booking.dto.BookingDTO;
 import ru.practicum.shareit.booking.dto.BookingDTOForItem;
 import ru.practicum.shareit.booking.dto.BookingDTOToReturn;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.model.State;
+import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserMapper;
@@ -17,16 +17,6 @@ import java.util.List;
 
 @UtilityClass
 public class BookingMapper {
-
-    public static BookingDTO toBookingDto(Booking booking) {
-        BookingDTO bookingDto = new BookingDTO();
-        bookingDto.setId(booking.getId());
-        bookingDto.setStart(booking.getStart());
-        bookingDto.setEnd(booking.getEnd());
-        bookingDto.setItemId(booking.getItem().getId());
-        return bookingDto;
-    }
-
 
     public static BookingDTOToReturn toBookingDtoFrom(Booking booking) {
         BookingDTOToReturn bookingDto = new BookingDTOToReturn();
@@ -44,17 +34,16 @@ public class BookingMapper {
         booking.setStart(bookingDto.getStart());
         booking.setEnd(bookingDto.getEnd());
         booking.setId(bookingDto.getId());
-        booking.setStatus(State.WAITING);
+        booking.setStatus(Status.WAITING);
         booking.setItem(item);
         booking.setBooker(user);
         return booking;
     }
 
-    public static BookingDTOForItem toBookingDtoForItem(Booking booking, LocalDateTime dateTime) {
+    public static BookingDTOForItem toBookingDtoForItem(Booking booking) {
         BookingDTOForItem bookingDtoForItem = new BookingDTOForItem();
         bookingDtoForItem.setId(booking.getId());
         bookingDtoForItem.setBookerId(booking.getBooker().getId());
-        bookingDtoForItem.setDateTime(dateTime);
         return bookingDtoForItem;
     }
 

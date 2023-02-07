@@ -21,8 +21,8 @@ public class ItemRequest {
     private String description;
 
     @OneToOne
-    @JoinColumn(name = "requestor_id")
-    private User requestor;
+    @JoinColumn(name = "requester_id")
+    private User requester;
 
     @NotNull
     private LocalDateTime created;

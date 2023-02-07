@@ -1,6 +1,6 @@
 package ru.practicum.shareit.item.service;
 
-import ru.practicum.shareit.item.dto.ItemDTOWithComment;
+import ru.practicum.shareit.item.dto.CommentDTO;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.dto.ItemDTOWithDate;
 
@@ -18,5 +18,5 @@ public interface ItemService {
 
     List<ItemDTO> getAllByText(String substring);
 
-    ItemDTOWithComment addComment(Long authorId, Long itemId, ItemDTOWithComment comment);
+    CommentDTO addComment(Long authorId, Long itemId, CommentDTO comment);
 }

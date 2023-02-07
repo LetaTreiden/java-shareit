@@ -9,7 +9,7 @@ import ru.practicum.shareit.booking.dto.BookingDTOToReturn;
 import ru.practicum.shareit.booking.service.BookingService;
 
 import javax.validation.Valid;
-import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequestMapping(path = "/bookings")
@@ -41,17 +41,17 @@ public class BookingController {
     }
 
     @GetMapping
-    public Collection<BookingDTOToReturn> findByBooker(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                       @RequestParam(defaultValue = "ALL")
-                                                       String state) {
+    public List<BookingDTOToReturn> findByBooker(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                                 @RequestParam(required = false, defaultValue = "ALL")
+                                                 String state) {
         log.info("Получение списка бронирований пользовалеля с id {}", userId);
         return bookingService.getByBooker(userId, state);
     }
 
     @GetMapping("/owner")
-    public Collection<BookingDTOToReturn> findByOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                      @RequestParam(defaultValue = "ALL")
-                                                      String state) {
+    public List<BookingDTOToReturn> findByOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                                @RequestParam(required = false, defaultValue = "ALL")
+                                                String state) {
         log.info("Получение списка бронирований для всех вещей пользователя с id {}", userId);
         return bookingService.getByOwner(userId, state);
     }

@@ -12,7 +12,7 @@ public class ItemRequestDto {
 
     private String description;
 
-    private User requestor;
+    private User requester;
 
     private LocalDateTime created;
 }
