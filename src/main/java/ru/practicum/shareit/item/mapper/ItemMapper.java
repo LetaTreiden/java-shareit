@@ -85,7 +85,7 @@ public class ItemMapper {
     }
 
     public static List<ItemDTOWithDate> mapToItemDtoWithDate(List<ItemWithBookings> items,
-                                                             Map<Long, List <Comment>> comments){
+                                                             Map<Long, List<Comment>> comments) {
         return items.stream()
                 .map(i -> toItemDtoWithDate2(i, comments.get(i.getId())))
                 .collect(Collectors.toUnmodifiableList());
