@@ -10,6 +10,7 @@ import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingDTOForItem;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -27,7 +28,6 @@ import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ItemServiceImpl implements ItemService {
 
-    private final ItemRepository repository;
+    private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
@@ -48,14 +48,14 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDTO add(Long userId, ItemDTO itemDto) throws BadRequestException {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
-        Item item = repository.save(ItemMapper.toItem(itemDto, user));
+        Item item = itemRepository.save(ItemMapper.toItem(itemDto, user));
         return ItemMapper.toItemDto(item);
     }
 
     @Transactional
     @Override
     public ItemDTO update(Long userId, Long itemId, ItemDTO itemDto) throws BadRequestException {
-        Item item = repository.findById(itemId).orElseThrow(() -> new NotFoundException("Item not found"));
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Item not found"));
         User user = item.getOwner();
         if (Objects.equals(user.getId(), userId)) {
             if (itemDto.getName() != null && !itemDto.getName().isBlank()) {
@@ -74,12 +74,12 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDTOWithDate get(Long userId, Long itemId) {
-        Item item = repository.findById(itemId).orElseThrow(() -> new NotFoundException("Item not found"));
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Item not found"));
         ItemDTOWithDate itemDto = ItemMapper.mapToItemDtoWithDate(item);
         List<Comment> comments = commentRepository.findAllByItem(item);
         itemDto.setComments(CommentMapper.mapToCommentDto(comments));
         if (Objects.equals(item.getOwner().getId(), userId)) {
-            List<Booking> bookings = bookingRepository.findByItemOrderByStartDesc(item);
+            List<Booking> bookings = bookingRepository.findByItemAndStatusOrderByStartDesc(item, Status.APPROVED);
             if (!bookings.isEmpty()) {
                 Booking nextBooking = bookings.get(0);
                 BookingDTOForItem bookingNext = BookingMapper.toBookingDtoForItem(nextBooking);
@@ -97,7 +97,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDTOWithDate> getAllByOwner(Long userId) {
         User owner = userRepository.getReferenceById(userId);
-        List<ItemWithBookings> items = repository.findAllByOwnerWithBookings(
+        List<ItemWithBookings> items = itemRepository.findAllByOwnerWithBookingsAndStatusAPPROVED(
                 LocalDateTime.now(), owner.getId());
         Map<Long, List<Comment>> comments =
                 commentRepository.findAllByItemIdIn(
@@ -111,16 +111,13 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDTO> getAllByText(String substring) {
-        if (!Objects.equals(substring, "")) {
-            return ItemMapper.mapToItemDto(repository.findItemsByNameOrDescription(substring));
-        }
-        return new ArrayList<>();
+            return ItemMapper.mapToItemDto(itemRepository.findItemsByNameOrDescription(substring));
     }
 
     @Transactional
     @Override
     public CommentDTO addComment(Long authorId, Long itemId, CommentDTO itemDtoWithComment) {
-        Item item = repository.findById(itemId).orElseThrow(() -> new NotFoundException("Item not found"));
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Item not found"));
         User author = userRepository.findById(authorId).orElseThrow(() -> new NotFoundException("User not found"));
         List<Booking> bookings = bookingRepository
                 .findByItemAndBookerAndStartBeforeAndEndBefore(item, author, LocalDateTime.now(), LocalDateTime.now());

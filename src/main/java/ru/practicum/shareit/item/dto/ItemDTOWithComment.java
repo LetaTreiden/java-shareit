@@ -11,8 +11,6 @@ public class ItemDTOWithComment {
 
     private Long id;
 
-    @NotBlank
-    @Size(min = 1, max = 1000)
     private String text;
 
     private String itemName;

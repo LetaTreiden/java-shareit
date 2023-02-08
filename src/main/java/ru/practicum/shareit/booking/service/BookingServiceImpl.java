@@ -95,8 +95,7 @@ public class BookingServiceImpl implements BookingService {
         User booker = uRepository.findById(usersId)
                 .orElseThrow(() -> new NotFoundException("No rights"));
         List<Booking> bookingsByBooker;
-        stateValidation(stateString);
-        State state = State.valueOf(stateString);
+        State state = stateValidation(stateString);
         switch (state) {
             case ALL:
                 bookingsByBooker = bRepository.findByBookerOrderByStartDesc(booker);
@@ -131,8 +130,7 @@ public class BookingServiceImpl implements BookingService {
             throw new NotFoundException("User not found");
         }
         List<Booking> bookingsByOwner;
-        stateValidation(stateString);
-        State state = State.valueOf(stateString);
+        State state = stateValidation(stateString);
         switch (state) {
             case ALL:
                 bookingsByOwner = bRepository.findByOwnerAll(userId);
@@ -158,9 +156,10 @@ public class BookingServiceImpl implements BookingService {
         return BookingMapper.mapToBookingDtoFrom(bookingsByOwner);
     }
 
-    private void stateValidation(String state) {
+    private State stateValidation(String state) {
         try {
             Enum.valueOf(State.class, state);
+            return State.valueOf(state);
         } catch (IllegalArgumentException e) {
             throw new StatusBadRequestException("Unknown state: UNSUPPORTED_STATUS");
         }

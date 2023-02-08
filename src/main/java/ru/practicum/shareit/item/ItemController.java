@@ -7,10 +7,13 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDTO;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.dto.ItemDTOWithDate;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/items")
@@ -49,6 +52,9 @@ public class ItemController {
     public List<ItemDTO> getAllByText(@RequestHeader("X-Sharer-User-Id") Long userId,
                                       @RequestParam String text) {
         log.info("Получение вещей для аренды содержащие в названии или описании текст {}", text);
+        if (text.isBlank()) {
+            return Collections.emptyList();
+        }
         return itemService.getAllByText(text);
     }
 
