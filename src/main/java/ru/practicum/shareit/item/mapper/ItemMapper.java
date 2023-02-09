@@ -69,7 +69,7 @@ public class ItemMapper {
         iDTO.setDescription(item.getDescription());
         iDTO.setAvailable(item.getAvailable());
         bookings.stream()
-                .filter(b -> b.getEnd().isBefore(LocalDateTime.now()))
+                .filter(b -> !b.getStart().isAfter(LocalDateTime.now()))
                 .findFirst()
                 .ifPresent(lastBooking -> iDTO.setLastBooking(BookingMapper
                         .toBookingDtoForItem(lastBooking.getId(), lastBooking.getBooker().getId())));
