@@ -1,21 +1,19 @@
 package ru.practicum.shareit.item.mapper;
 
 import lombok.experimental.UtilityClass;
-import ru.practicum.shareit.booking.dto.BookingDTOForItem;
+import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.dto.BookingDTOToReturn;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.dto.ItemDTO;
-import ru.practicum.shareit.item.dto.ItemDTOWithDate;
+import ru.practicum.shareit.item.dto.ItemDTOWithBookings;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.model.ItemWithBookings;
-import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @UtilityClass
 public class ItemMapper {
@@ -29,39 +27,18 @@ public class ItemMapper {
         return itemDto;
     }
 
-    public static ItemDTOWithDate mapToItemDtoWithDate(Item item) {
-        ItemDTOWithDate itemDto = new ItemDTOWithDate();
+    public static ItemDTOWithBookings ToItemDtoWithBookings(Item item) {
+        ItemDTOWithBookings itemDto = new ItemDTOWithBookings();
         itemDto.setId(item.getId());
         itemDto.setName(item.getName());
         itemDto.setDescription(item.getDescription());
         itemDto.setAvailable(item.getAvailable());
+        itemDto.setOwner(UserMapper.toUserToItemWithBookingsDto(item.getOwner()));
         return itemDto;
 
     }
 
     public static Item toItem(ItemDTO itemDto, User user) {
-        Item item = new Item();
-        item.setId(itemDto.getId());
-        item.setName(itemDto.getName());
-        item.setDescription(itemDto.getDescription());
-        item.setAvailable(itemDto.getAvailable());
-        item.setOwner(user);
-        return item;
-
-    }
-
-    public static Item toItem(ItemDTOWithDate itemDto, UserRepository uRepo) {
-        Item item = new Item();
-        item.setId(itemDto.getId());
-        item.setName(itemDto.getName());
-        item.setDescription(itemDto.getDescription());
-        item.setAvailable(itemDto.getAvailable());
-        item.setOwner(uRepo.getReferenceById(itemDto.getOwner().getId()));
-        return item;
-
-    }
-
-    public static Item toItemWithDate(ItemDTOWithDate itemDto, User user) {
         Item item = new Item();
         item.setId(itemDto.getId());
         item.setName(itemDto.getName());
@@ -84,41 +61,28 @@ public class ItemMapper {
         return new BookingDTOToReturn.Item(item.getId(), item.getName());
     }
 
-    public static List<ItemDTOWithDate> mapToItemDtoWithDate(List<ItemWithBookings> items,
-                                                             Map<Long, List<Comment>> comments) {
-        return items.stream()
-                .map(i -> toItemDtoWithDate2(i, comments.get(i.getId())))
-                .collect(Collectors.toUnmodifiableList());
-    }
-
-    public static ItemDTOWithDate toItemDtoWithDate2(ItemWithBookings item, List<Comment> comments) {
-        ItemDTOWithDate dto = toDtoWithDateFromWithBookings(item);
-        List<Comment> commentsList = new ArrayList<>();
-
-        if (comments != null) {
-            commentsList.addAll(comments);
-        }
-        dto.setComments(CommentMapper.mapToCommentDto(commentsList));
-        return dto;
-    }
-
-    public static ItemDTOWithDate toDtoWithDateFromWithBookings(ItemWithBookings item) {
-        ItemDTOWithDate iDTO = new ItemDTOWithDate();
+    public static ItemDTOWithBookings toDtoWithBookings(Item item, List<Booking> bookings,
+                                                        List<Comment> comments) {
+        ItemDTOWithBookings iDTO = new ItemDTOWithBookings();
         iDTO.setId(item.getId());
         iDTO.setName(item.getName());
         iDTO.setDescription(item.getDescription());
         iDTO.setAvailable(item.getAvailable());
-        if (item.getLastBookingId() != null) {
-            iDTO.setLastBooking(new BookingDTOForItem(item.getLastBookingId(), item.getLastBookerId()));
-        }
-        if (item.getNextBookingId() != null) {
-            iDTO.setNextBooking(new BookingDTOForItem(item.getNextBookingId(), item.getNextBookerId()));
-        }
-        iDTO.setComments(Collections.emptyList());
+        bookings.stream()
+                .filter(b -> b.getEnd().isBefore(LocalDateTime.now()))
+                .findFirst()
+                .ifPresent(lastBooking -> iDTO.setLastBooking(BookingMapper
+                        .toBookingDtoForItem(lastBooking.getId(), lastBooking.getBooker().getId())));
 
+        bookings.stream()
+                .filter(b -> b.getStart().isAfter(LocalDateTime.now()))
+                .reduce((first, second) -> second)
+                .ifPresent(nextBooking -> iDTO.setNextBooking(BookingMapper
+                        .toBookingDtoForItem(nextBooking.getId(), nextBooking.getBooker().getId())));
+
+        iDTO.setComments(CommentMapper.mapToCommentDto(comments));
         return iDTO;
     }
-
 }
 
 

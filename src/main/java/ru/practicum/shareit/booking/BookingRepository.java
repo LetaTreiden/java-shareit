@@ -9,11 +9,10 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
-
-    List<Booking> findByItemAndStatusOrderByStartDesc(Item item, Status status);
 
     List<Booking> findByBookerAndStatusOrderByStartDesc(User booker, Status status);
 
@@ -54,4 +53,9 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     Booking findLastByStatusAndItemAndEndIsBefore(Status state, Item item, LocalDateTime time, Sort sort);
 
+    @Query("select b " +
+            "from Booking b " +
+            "where b.item in ?1 " +
+            " and b.status = 'APPROVED'")
+    List<Booking> findApprovedForItems(Collection<Item> items, Sort sort);
 }

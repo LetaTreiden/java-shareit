@@ -2,6 +2,7 @@ package ru.practicum.shareit.user;
 
 import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.booking.dto.BookingDTOToReturn;
+import ru.practicum.shareit.item.dto.ItemDTOWithBookings;
 import ru.practicum.shareit.user.dto.UserDTO;
 import ru.practicum.shareit.user.model.User;
 
@@ -37,5 +38,9 @@ public class UserMapper {
 
     public static BookingDTOToReturn.User toUserToBookingDTO(User user) {
         return new BookingDTOToReturn.User(user.getId(), user.getName());
+    }
+
+    public static ItemDTOWithBookings.User toUserToItemWithBookingsDto(User user) {
+        return new ItemDTOWithBookings.User(user.getId(), user.getName());
     }
 }

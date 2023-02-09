@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDTO;
 import ru.practicum.shareit.item.dto.ItemDTO;
-import ru.practicum.shareit.item.dto.ItemDTOWithDate;
+import ru.practicum.shareit.item.dto.ItemDTOWithBookings;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
@@ -34,13 +34,13 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDTOWithDate get(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId) {
+    public ItemDTOWithBookings get(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId) {
         log.info("Получение вещи с id {}", itemId);
         return itemService.get(userId, itemId);
     }
 
     @GetMapping
-    public List<ItemDTOWithDate> getAllByOwner(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public List<ItemDTOWithBookings> getAllByOwner(@RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("Получение всех вещей пользователя с id {}", userId);
         return itemService.getAllByOwner(userId);
     }
