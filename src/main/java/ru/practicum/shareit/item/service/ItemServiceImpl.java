@@ -75,7 +75,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDTOWithBookings get(Long userId, Long itemId) {
         Item item = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Item not found"));
-        ItemDTOWithBookings itemDto = ItemMapper.ToItemDtoWithBookings(item);
+        ItemDTOWithBookings itemDto = ItemMapper.toItemDtoWithBookings(item);
         List<Comment> comments = commentRepository.findAllByItem(item);
         itemDto.setComments(CommentMapper.mapToCommentDto(comments));
         if (Objects.equals(item.getOwner().getId(), userId)) {
