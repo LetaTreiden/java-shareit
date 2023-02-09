@@ -10,7 +10,6 @@ import ru.practicum.shareit.Update;
 import ru.practicum.shareit.user.dto.UserDTO;
 import ru.practicum.shareit.user.service.UserService;
 
-import javax.validation.Valid;
 import java.util.Collection;
 
 @RestController

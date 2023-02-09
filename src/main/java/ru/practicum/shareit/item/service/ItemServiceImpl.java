@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.BookingRepository;
-import ru.practicum.shareit.booking.dto.BookingDTOForItem;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.exception.BadRequestException;
@@ -28,6 +27,7 @@ import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -79,26 +79,26 @@ public class ItemServiceImpl implements ItemService {
         List<Comment> comments = commentRepository.findAllByItem(item);
         itemDto.setComments(CommentMapper.mapToCommentDto(comments));
         if (Objects.equals(item.getOwner().getId(), userId)) {
-            List<Booking> bookings = bookingRepository.findByItemAndStatusOrderByStartDesc(item, Status.APPROVED);
-            if (!bookings.isEmpty()) {
-                Booking nextBooking = bookings.get(0);
-                BookingDTOForItem bookingNext = BookingMapper.toBookingDtoForItem(nextBooking);
-                itemDto.setNextBooking(bookingNext);
-                if (bookings.size() >= 2) {
-                    Booking lastBooking = bookings.get(1);
-                    BookingDTOForItem bookingLast = BookingMapper.toBookingDtoForItem(lastBooking);
-                    itemDto.setLastBooking(bookingLast);
-                }
+            Booking nextBooking = bookingRepository.findFirstByStatusAndItemAndStartIsAfter(Status.APPROVED, item,
+                    LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
+            Booking lastBooking = bookingRepository.findLastByStatusAndItemAndEndIsBefore(Status.APPROVED, item,
+                    LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "end"));
+            if (nextBooking != null){
+                itemDto.setNextBooking(BookingMapper.toBookingDtoForItem(nextBooking));
             }
+            if (lastBooking != null) itemDto.setLastBooking(BookingMapper.toBookingDtoForItem(lastBooking));
         }
         return itemDto;
     }
 
     @Override
     public List<ItemDTOWithDate> getAllByOwner(Long userId) {
-        User owner = userRepository.getReferenceById(userId);
-        List<ItemWithBookings> items = itemRepository.findAllByOwnerWithBookingsAndStatusAPPROVED(
-                LocalDateTime.now(), owner.getId());
+        if (!userRepository.existsById(userId)) {
+            throw new NotFoundException("User not found");
+        }
+        log.info(userId.toString());
+        List<ItemWithBookings> items = itemRepository.findAllByOwner(
+                LocalDateTime.now(), userId, String.valueOf(Status.APPROVED));
         Map<Long, List<Comment>> comments =
                 commentRepository.findAllByItemIdIn(
                                 items.stream()
@@ -111,6 +111,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDTO> getAllByText(String substring) {
+        if (substring.isBlank()) {
+            return Collections.emptyList();
+        }
             return ItemMapper.mapToItemDto(itemRepository.findItemsByNameOrDescription(substring));
     }
 
