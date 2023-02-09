@@ -83,7 +83,7 @@ public class ItemServiceImpl implements ItemService {
                     LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
             Booking lastBooking = bookingRepository.findLastByStatusAndItemAndEndIsBefore(Status.APPROVED, item,
                     LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "end"));
-            if (nextBooking != null){
+            if (nextBooking != null) {
                 itemDto.setNextBooking(BookingMapper.toBookingDtoForItem(nextBooking));
             }
             if (lastBooking != null) itemDto.setLastBooking(BookingMapper.toBookingDtoForItem(lastBooking));
@@ -114,7 +114,7 @@ public class ItemServiceImpl implements ItemService {
         if (substring.isBlank()) {
             return Collections.emptyList();
         }
-            return ItemMapper.mapToItemDto(itemRepository.findItemsByNameOrDescription(substring));
+        return ItemMapper.mapToItemDto(itemRepository.findItemsByNameOrDescription(substring));
     }
 
     @Transactional
