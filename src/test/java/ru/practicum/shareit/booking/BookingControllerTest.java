@@ -21,7 +21,6 @@ import ru.practicum.shareit.user.model.User;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
@@ -35,20 +34,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = BookingController.class)
 class BookingControllerTest {
 
-    @Autowired
-    ObjectMapper mapper;
-
-    @MockBean
-    BookingServiceImpl bookingService;
-
-    @Autowired
-    private MockMvc mvc;
-
     private final Booking booking = new Booking();
-
     private final BookingDTOToReturn bookingDto = new BookingDTOToReturn();
     private final Item item = new Item();
     private final User user = new User();
+    @Autowired
+    ObjectMapper mapper;
+    @MockBean
+    BookingServiceImpl bookingService;
+    @Autowired
+    private MockMvc mvc;
 
     @Test
     void addBookingControllerTest() throws Exception {

@@ -36,23 +36,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = ItemRequestController.class)
 class ItemRequestControllerTest {
 
-    @Autowired
-    ObjectMapper mapper;
-
-    @MockBean
-    RequestService requestService;
-
-    @Autowired
-    private MockMvc mvc;
-
     private final RequestDTO requestDto = new RequestDTO();
     private final RequestDTOWithItems requestWithItems = new RequestDTOWithItems();
     private final ItemDTO itemDto = new ItemDTO();
-    private final Item item = new Item();
     private final User user = new User();
     private final Comment comment = new Comment();
-    private final ItemDTOWithBookings itemDtoWithBooking = new ItemDTOWithBookings();
-    private final BookingDTOForItem booking = new BookingDTOForItem();
+    @Autowired
+    ObjectMapper mapper;
+    @MockBean
+    RequestService requestService;
+    @Autowired
+    private MockMvc mvc;
 
     @Test
     void addRequestControllerTest() throws Exception {
@@ -70,7 +64,7 @@ class ItemRequestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(requestDto.getId()), Long.class))
                 .andExpect(jsonPath("$.created", is(requestDto.getCreated().toString())))
-                .andExpect(jsonPath("$.requester.id", is( requestDto.getRequester().getId())))
+                .andExpect(jsonPath("$.requester.id", is(requestDto.getRequester().getId())))
                 .andExpect(jsonPath("$.requester.name", is(requestDto.getRequester().getName())))
                 .andExpect(jsonPath("$.requester.email", is(requestDto.getRequester().getEmail())))
                 .andExpect(jsonPath("$.description", is(requestDto.getDescription())));

@@ -12,9 +12,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import ru.practicum.shareit.booking.dto.BookingDTOForItem;
 import ru.practicum.shareit.exception.BadRequestException;
+import ru.practicum.shareit.item.dto.CommentDTO;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.dto.ItemDTOWithBookings;
-import ru.practicum.shareit.item.dto.CommentDTO;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemServiceImpl;
@@ -31,20 +31,12 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @WebMvcTest(controllers = ItemController.class)
 class ItemControllerTest {
-
-    @Autowired
-    ObjectMapper mapper;
-
-    @MockBean
-    ItemServiceImpl itemService;
-
-    @Autowired
-    private MockMvc mvc;
 
     private final ItemDTO itemDto = new ItemDTO();
     private final Item item = new Item();
@@ -52,6 +44,12 @@ class ItemControllerTest {
     private final Comment comment = new Comment();
     private final ItemDTOWithBookings itemDtoWithBooking = new ItemDTOWithBookings();
     private final BookingDTOForItem booking = new BookingDTOForItem();
+    @Autowired
+    ObjectMapper mapper;
+    @MockBean
+    ItemServiceImpl itemService;
+    @Autowired
+    private MockMvc mvc;
 
     @Test
     void addItemControllerTest() throws Exception {
@@ -156,7 +154,7 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$[0].lastBooking.dateTime", is(itemDtoWithBooking.getLastBooking()
                         .getDateTime().toString())))
                 .andExpect(jsonPath("$[0].nextBooking.id", is((int) itemDtoWithBooking.getNextBooking().getId())))
-                .andExpect(jsonPath("$[0].nextBooking.bookerId", is( itemDtoWithBooking.getNextBooking()
+                .andExpect(jsonPath("$[0].nextBooking.bookerId", is(itemDtoWithBooking.getNextBooking()
                         .getBookerId())))
                 .andExpect(jsonPath("$[0].nextBooking.dateTime", is(itemDtoWithBooking.getNextBooking()
                         .getDateTime().toString())))
