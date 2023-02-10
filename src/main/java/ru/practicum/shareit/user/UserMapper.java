@@ -2,6 +2,7 @@ package ru.practicum.shareit.user;
 
 import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.booking.dto.BookingDTOToReturn;
+import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.dto.ItemDTOWithBookings;
 import ru.practicum.shareit.user.dto.UserDTO;
 import ru.practicum.shareit.user.model.User;
@@ -28,6 +29,13 @@ public class UserMapper {
         return user;
     }
 
+    public static User toUser(ItemDTOWithBookings.User user) {
+        User newUser = new User();
+        newUser.setId(user.getId());
+        newUser.setName(user.getName());
+        return newUser;
+    }
+
     public static List<UserDTO> mapToUserDto(Iterable<User> users) {
         List<UserDTO> dtos = new ArrayList<>();
         for (User user : users) {
@@ -37,10 +45,22 @@ public class UserMapper {
     }
 
     public static BookingDTOToReturn.User toUserToBookingDTO(User user) {
-        return new BookingDTOToReturn.User(user.getId(), user.getName());
+        return new BookingDTOToReturn.User(user.getId(), user.getName(), user.getEmail());
     }
 
     public static ItemDTOWithBookings.User toUserToItemWithBookingsDto(User user) {
-        return new ItemDTOWithBookings.User(user.getId(), user.getName());
+        return new ItemDTOWithBookings.User(user.getId(), user.getName(), user.getEmail());
+    }
+
+    public static ItemDTO.User toUserToItemDto(User user) {
+        return new ItemDTO.User(user.getId(), user.getName(), user.getEmail());
+    }
+
+    public static List<User> mapToUser(Iterable<UserDTO> users) {
+        List<User> dtos = new ArrayList<>();
+        for (UserDTO user : users) {
+            dtos.add(toUser(user));
+        }
+        return dtos;
     }
 }

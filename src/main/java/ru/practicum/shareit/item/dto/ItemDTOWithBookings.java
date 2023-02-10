@@ -31,5 +31,6 @@ public class ItemDTOWithBookings {
     public static class User {
         private final long id;
         private final String name;
+        private final String email;
     }
 }

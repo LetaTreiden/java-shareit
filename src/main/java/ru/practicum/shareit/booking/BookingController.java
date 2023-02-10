@@ -9,6 +9,7 @@ import ru.practicum.shareit.booking.dto.BookingDTOToReturn;
 import ru.practicum.shareit.booking.service.BookingService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
@@ -42,18 +43,24 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDTOToReturn> findByBooker(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                 @RequestParam(required = false, defaultValue = "ALL")
-                                                 String state) {
+                                                 @RequestParam(required = false, defaultValue = "ALL") String state,
+                                                 @PositiveOrZero @RequestParam(name = "from", required = false)
+                                                     Integer from,
+                                                 @PositiveOrZero @RequestParam(name = "size", required = false)
+                                                     Integer size) {
         log.info("Получение списка бронирований пользовалеля с id {}", userId);
-        return bookingService.getByBooker(userId, state);
+        return bookingService.getByBooker(userId, state, from, size);
     }
 
     @GetMapping("/owner")
     public List<BookingDTOToReturn> findByOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                @RequestParam(required = false, defaultValue = "ALL")
-                                                String state) {
+                                                @RequestParam(required = false, defaultValue = "ALL") String state,
+                                                @PositiveOrZero @RequestParam(name = "from", required = false)
+                                                    Integer from,
+                                                @PositiveOrZero @RequestParam(name = "size", required = false)
+                                                    Integer size) {
         log.info("Получение списка бронирований для всех вещей пользователя с id {}", userId);
-        return bookingService.getByOwner(userId, state);
+        return bookingService.getByOwner(userId, state, from, size);
     }
 
 }

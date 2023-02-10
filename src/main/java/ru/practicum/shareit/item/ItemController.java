@@ -28,7 +28,7 @@ public class ItemController {
 
     @PatchMapping("/{itemId}")
     public ItemDTO update(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId,
-                              @RequestBody ItemDTO itemDto) {
+                          @RequestBody ItemDTO itemDto) {
         log.info("Обновление данные о вещи");
         return itemService.update(userId, itemId, itemDto);
     }
@@ -40,9 +40,11 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDTOWithBookings> getAllByOwner(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public List<ItemDTOWithBookings> getAllByOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                                   @RequestParam(name = "from", required = false) Integer from,
+                                                   @RequestParam(name = "size", required = false) Integer size) {
         log.info("Получение всех вещей пользователя с id {}", userId);
-        return itemService.getAllByOwner(userId);
+        return itemService.getAllByOwner(userId, from, size);
     }
 
     @GetMapping("/search")

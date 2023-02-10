@@ -3,6 +3,8 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,13 +17,14 @@ import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.CommentRepository;
 import ru.practicum.shareit.item.ItemRepository;
-import ru.practicum.shareit.item.dto.CommentDTO;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.dto.ItemDTOWithBookings;
+import ru.practicum.shareit.item.dto.CommentDTO;
 import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.RequestRepository;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
@@ -40,16 +43,21 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 @Slf4j
 public class ItemServiceImpl implements ItemService {
 
+    //переписать методы с новыми переменными
+
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
 
+    private final RequestRepository requestRepository;
+
     @Transactional
     @Override
     public ItemDTO add(Long userId, ItemDTO itemDto) throws BadRequestException {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
-        Item item = itemRepository.save(ItemMapper.toItem(itemDto, user));
+        Item item = itemRepository.save(ItemMapper.toItem(itemDto, user, requestRepository));
+        log.info(item.toString());
         return ItemMapper.toItemDto(item);
     }
 
@@ -95,7 +103,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDTOWithBookings> getAllByOwner(Long userId) {
+    public List<ItemDTOWithBookings> getAllByOwner(Long userId, Integer page, Integer size) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("User not found");
         }
@@ -138,7 +146,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional
     @Override
-    public CommentDTO addComment(Long authorId, Long itemId, CommentDTO itemDtoWithComment) {
+    public CommentDTO addComment(Long authorId, Long itemId, CommentDTO comment) {
         Item item = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Item not found"));
         User author = userRepository.findById(authorId).orElseThrow(() -> new NotFoundException("User not found"));
         List<Booking> bookings = bookingRepository
@@ -146,7 +154,32 @@ public class ItemServiceImpl implements ItemService {
         if (bookings.isEmpty()) {
             throw new BadRequestException("Booking is empty");
         }
-        Comment comment = CommentMapper.toComment(itemDtoWithComment, item, author);
-        return CommentMapper.toCommentDto(commentRepository.save(comment));
+        if (comment == null) {
+            throw new BadRequestException("Comment is empty");
+        }
+        Comment comment1 = CommentMapper.toComment(comment, item, author);
+        return CommentMapper.toCommentDto(commentRepository.save(comment1));
+    }
+
+    @Override
+    public Collection<ItemDTO> getForRent(String substring, Integer page, Integer size) {
+        if (!Objects.equals(substring, "")) {
+            if (page != null && size != null) {
+                sizeAndPage(size, page);
+                Pageable pageable = PageRequest.of(page / size, size);
+                return ItemMapper.mapToItemDto(itemRepository.findItemsByNameOrDescription(substring, pageable));
+            }
+            return ItemMapper.mapToItemDto(itemRepository.findItemsByNameOrDescription(substring));
+        }
+        return new ArrayList<>();
+    }
+
+    private void sizeAndPage(Integer size, Integer page) {
+        if (page < 0 || size < 0) {
+            throw new BadRequestException("From или size не могут принимать отрицательноге значение");
+        }
+        if (size == 0) {
+            throw new BadRequestException("Size не может принимать значение 0");
+        }
     }
 }

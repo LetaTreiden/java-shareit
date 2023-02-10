@@ -21,11 +21,12 @@ public class ItemDTO {
 
     private User owner;
 
-    private Long request;
+    private Long requestId;
 
     @Data
     public static class User {
         private final long id;
         private final String name;
+        private final String email;
     }
 }

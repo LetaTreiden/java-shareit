@@ -32,6 +32,7 @@ public class CommentMapper {
         return comment;
     }
 
+
     public static List<CommentDTO> mapToCommentDto(Iterable<Comment> comments) {
         List<CommentDTO> dtos = new ArrayList<>();
         for (Comment comment : comments) {

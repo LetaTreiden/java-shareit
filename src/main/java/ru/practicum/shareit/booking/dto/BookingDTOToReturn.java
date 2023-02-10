@@ -24,11 +24,13 @@ public class BookingDTOToReturn {
     public static class User {
         private final long id;
         private final String name;
+        private final String email;
     }
 
     @Data
     public static class Item {
         private final long id;
         private final String name;
+        private final String description;
     }
 }

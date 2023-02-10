@@ -3,6 +3,9 @@ package ru.practicum.shareit.booking.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingMapper;
@@ -21,6 +24,7 @@ import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -48,10 +52,14 @@ public class BookingServiceImpl implements BookingService {
         if (Objects.equals(item.getOwner().getId(), userId)) {
             throw new NotFoundException("You cannot book your item");
         }
-        if ((!bookingDto.getEnd().isAfter(bookingDto.getStart()))) {
+        if (bookingDto.getEnd().isBefore(LocalDateTime.now()) ||
+                bookingDto.getStart().isBefore(LocalDateTime.now()) ||
+                (bookingDto.getEnd().isBefore(bookingDto.getStart()) &&
+                        !bookingDto.getEnd().equals(bookingDto.getStart()))) {
             throw new BadRequestException("Wrong date");
         }
         Booking booking = bRepository.save(BookingMapper.toBooking(bookingDto, item, user));
+        log.info(booking.toString());
         return BookingMapper.toBookingDtoFrom(booking);
     }
 
@@ -91,11 +99,32 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDTOToReturn> getByBooker(Long usersId, String stateString) {
-        User booker = uRepository.findById(usersId)
+    public List<BookingDTOToReturn> getByBooker(Long userId, String status, Integer page, Integer size) {
+        Optional<User> booker = uRepository.findById(userId);
+        Pageable pageable;
+        if (booker.isEmpty()) {
+            throw new NotFoundException("Для пользователя нет доступа");
+        }
+        User user = booker.get();
+        if (page != null && size != null) {
+            if (page < 0 || size < 0) {
+                throw new BadRequestException("From или size не могут принимать отрицательноге значение");
+            }
+            if (size == 0) {
+                throw new BadRequestException("Size не может принимать значение 0");
+            }
+            pageable = PageRequest.of(page / size, size);
+            return findBookingByBookerByPage(user, status, pageable);
+        } else {
+            return findBookingByBooker(user.getId(), status);
+        }
+    }
+
+    private List<BookingDTOToReturn> findBookingByBooker(Long userId, String status) {
+        User booker = uRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("No rights"));
         List<Booking> bookingsByBooker;
-        State state = stateValidation(stateString);
+        State state = stateValidation(status);
         switch (state) {
             case ALL:
                 bookingsByBooker = bRepository.findByBookerOrderByStartDesc(booker);
@@ -124,13 +153,99 @@ public class BookingServiceImpl implements BookingService {
         return BookingMapper.mapToBookingDtoFrom(bookingsByBooker);
     }
 
+    private List<BookingDTOToReturn> findBookingByBookerByPage(User booker, String status, Pageable pageable) {
+        Page<Booking> bookingsPage;
+        if (status == null || status.equals("")) {
+            status = "ALL";
+        }
+        switch (status) {
+            case "ALL":
+                bookingsPage = bRepository.findByBookerOrderByStartDesc(booker, pageable);
+                break;
+            case "CURRENT":
+                bookingsPage = bRepository.findByBookerAndStartBeforeAndEndAfterOrderByStartDesc(booker,
+                        LocalDateTime.now(), LocalDateTime.now(), pageable);
+                break;
+            case "PAST":
+                bookingsPage = bRepository.findByBookerAndStartBeforeAndEndBeforeOrderByStartDesc(booker,
+                        LocalDateTime.now(), LocalDateTime.now(), pageable);
+                break;
+            case "FUTURE":
+                bookingsPage = bRepository.findByBookerAndStartAfterOrderByStartDesc(booker, LocalDateTime.now(), pageable);
+                break;
+            case "WAITING":
+                bookingsPage = bRepository.findByBookerAndStatusOrderByStartDesc(booker, Status.WAITING, pageable);
+                break;
+            case "REJECTED":
+                bookingsPage = bRepository.findByBookerAndStatusOrderByStartDesc(booker, Status.REJECTED, pageable);
+                break;
+            default:
+                throw new StatusBadRequestException("Unknown state: UNSUPPORTED_STATUS");
+
+        }
+        return BookingMapper.mapToBookingDtoFrom(bookingsPage);
+
+    }
+
     @Override
-    public List<BookingDTOToReturn> getByOwner(Long userId, String stateString) {
+    public List<BookingDTOToReturn> getByOwner(Long userId, String status, Integer page, Integer size) {
+        Optional<User> owner = uRepository.findById(userId);
+        Pageable pageable;
+        if (owner.isEmpty()) {
+            throw new NotFoundException("Для пользователя нет доступа");
+        }
+        if (page != null && size != null) {
+            if (page < 0 || size < 0) {
+                throw new BadRequestException("From или size не могут принимать отрицательноге значение");
+            }
+            if (size == 0) {
+                throw new BadRequestException("Size не может принимать значение 0");
+            }
+            pageable = PageRequest.of(page / size, size);
+
+            return findBookingByOwnerByPage(userId, status, pageable);
+        } else {
+            return findBookingByOwner(userId, status);
+        }
+    }
+
+    private List<BookingDTOToReturn> findBookingByOwnerByPage(Long userId, String status, Pageable pageable) {
         if (uRepository.findById(userId).isEmpty()) {
             throw new NotFoundException("User not found");
         }
         List<Booking> bookingsByOwner;
-        State state = stateValidation(stateString);
+        State state = stateValidation(status);
+        switch (state) {
+            case ALL:
+                bookingsByOwner = bRepository.findByOwnerAll(userId, pageable);
+                break;
+            case CURRENT:
+                bookingsByOwner = bRepository.findByOwnerAndCurrent(userId, LocalDateTime.now(), pageable);
+                break;
+            case PAST:
+                bookingsByOwner = bRepository.findByOwnerAndPast(userId, LocalDateTime.now(), pageable);
+                break;
+            case FUTURE:
+                bookingsByOwner = bRepository.findByUserAndFuture(userId, LocalDateTime.now(), pageable);
+                break;
+            case WAITING:
+                bookingsByOwner = bRepository.findByOwnerAndByStatus(userId, String.valueOf(Status.WAITING), pageable);
+                break;
+            case REJECTED:
+                bookingsByOwner = bRepository.findByOwnerAndByStatus(userId, String.valueOf(Status.REJECTED), pageable);
+                break;
+            default:
+                throw new StatusBadRequestException("Unknown state: UNSUPPORTED_STATUS");
+        }
+        return BookingMapper.mapToBookingDtoFrom(bookingsByOwner);
+    }
+
+    private List<BookingDTOToReturn> findBookingByOwner(Long userId, String status) {
+        if (uRepository.findById(userId).isEmpty()) {
+            throw new NotFoundException("User not found");
+        }
+        List<Booking> bookingsByOwner;
+        State state = stateValidation(status);
         switch (state) {
             case ALL:
                 bookingsByOwner = bRepository.findByOwnerAll(userId);

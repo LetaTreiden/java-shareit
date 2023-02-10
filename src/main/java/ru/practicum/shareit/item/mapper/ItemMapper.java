@@ -8,6 +8,7 @@ import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.dto.ItemDTOWithBookings;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.RequestRepository;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
@@ -24,6 +25,9 @@ public class ItemMapper {
         itemDto.setName(item.getName());
         itemDto.setDescription(item.getDescription());
         itemDto.setAvailable(item.getAvailable());
+        if (item.getRequestId() != null) {
+            itemDto.setRequestId(item.getRequestId().getId());
+        }
         return itemDto;
     }
 
@@ -38,13 +42,26 @@ public class ItemMapper {
 
     }
 
-    public static Item toItem(ItemDTO itemDto, User user) {
+    public static Item toItem(ItemDTO itemDto, User user, RequestRepository requestRepository) {
         Item item = new Item();
         item.setId(itemDto.getId());
         item.setName(itemDto.getName());
         item.setDescription(itemDto.getDescription());
         item.setAvailable(itemDto.getAvailable());
         item.setOwner(user);
+        if (itemDto.getRequestId() != null) {
+            item.setRequestId(requestRepository.getReferenceById(itemDto.getRequestId()));
+        }
+        return item;
+    }
+
+    public static Item toItem(ItemDTOWithBookings itemDtoWithBooking) {
+        Item item = new Item();
+        item.setId(itemDtoWithBooking.getId());
+        item.setName(itemDtoWithBooking.getName());
+        item.setDescription(itemDtoWithBooking.getDescription());
+        item.setAvailable(itemDtoWithBooking.getAvailable());
+        item.setOwner(UserMapper.toUser(itemDtoWithBooking.getOwner()));
         return item;
 
     }
@@ -58,7 +75,7 @@ public class ItemMapper {
     }
 
     public static BookingDTOToReturn.Item toItemToBookingDTO(Item item) {
-        return new BookingDTOToReturn.Item(item.getId(), item.getName());
+        return new BookingDTOToReturn.Item(item.getId(), item.getName(), item.getDescription());
     }
 
     public static ItemDTOWithBookings toDtoWithBookings(Item item, List<Booking> bookings,
@@ -82,6 +99,14 @@ public class ItemMapper {
 
         iDTO.setComments(CommentMapper.mapToCommentDto(comments));
         return iDTO;
+    }
+
+    public static List<Item> mapToItem(Iterable<ItemDTOWithBookings> items) {
+        List<Item> dtos = new ArrayList<>();
+        for (ItemDTOWithBookings item : items) {
+            dtos.add(toItem(item));
+        }
+        return dtos;
     }
 }
 
