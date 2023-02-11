@@ -9,9 +9,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.shareit.item.dto.CommentDTO;
 import ru.practicum.shareit.item.dto.ItemDTO;
-import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.request.dto.RequestDTO;
 import ru.practicum.shareit.request.dto.RequestDTOWithItems;
 import ru.practicum.shareit.request.service.RequestService;
@@ -37,7 +35,6 @@ class ItemRequestControllerTest {
     private final RequestDTOWithItems requestWithItems = new RequestDTOWithItems();
     private final ItemDTO itemDto = new ItemDTO();
     private final User user = new User();
-    private final Comment comment = new Comment();
     @Autowired
     ObjectMapper mapper;
     @MockBean
@@ -61,7 +58,7 @@ class ItemRequestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(requestDto.getId()), Long.class))
                 .andExpect(jsonPath("$.created", is(requestDto.getCreated().toString())))
-                .andExpect(jsonPath("$.requester.id", is(requestDto.getRequester().getId())))
+                .andExpect(jsonPath("$.requester.id", is(requestDto.getRequester().getId().intValue())))
                 .andExpect(jsonPath("$.requester.name", is(requestDto.getRequester().getName())))
                 .andExpect(jsonPath("$.requester.email", is(requestDto.getRequester().getEmail())))
                 .andExpect(jsonPath("$.description", is(requestDto.getDescription())));
@@ -83,7 +80,7 @@ class ItemRequestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id", is(requestWithItems.getId()), Long.class))
                 .andExpect(jsonPath("$[0].created", is(requestWithItems.getCreated().toString())))
-                .andExpect(jsonPath("$[0].requester.id", is(requestWithItems.getRequester().getId())))
+                .andExpect(jsonPath("$[0].requester.id", is(requestWithItems.getRequester().getId().intValue())))
                 .andExpect(jsonPath("$[0].requester.name", is(requestWithItems.getRequester().getName())))
                 .andExpect(jsonPath("$[0].requester.email", is(requestWithItems.getRequester().getEmail())))
                 .andExpect(jsonPath("$[0].description", is(requestWithItems.getDescription())));
@@ -107,7 +104,7 @@ class ItemRequestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id", is(requestWithItems.getId()), Long.class))
                 .andExpect(jsonPath("$[0].created", is(requestWithItems.getCreated().toString())))
-                .andExpect(jsonPath("$[0].requester.id", is(requestWithItems.getRequester().getId())))
+                .andExpect(jsonPath("$[0].requester.id", is(requestWithItems.getRequester().getId().intValue())))
                 .andExpect(jsonPath("$[0].requester.name", is(requestWithItems.getRequester().getName())))
                 .andExpect(jsonPath("$[0].requester.email", is(requestWithItems.getRequester().getEmail())))
                 .andExpect(jsonPath("$[0].description", is(requestWithItems.getDescription())));
@@ -129,7 +126,7 @@ class ItemRequestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(requestWithItems.getId()), Long.class))
                 .andExpect(jsonPath("$.created", is(requestWithItems.getCreated().toString())))
-                .andExpect(jsonPath("$.requester.id", is(requestWithItems.getRequester().getId())))
+                .andExpect(jsonPath("$.requester.id", is(requestWithItems.getRequester().getId().intValue())))
                 .andExpect(jsonPath("$.requester.name", is(requestWithItems.getRequester().getName())))
                 .andExpect(jsonPath("$.requester.email", is(requestWithItems.getRequester().getEmail())))
                 .andExpect(jsonPath("$.description", is(requestWithItems.getDescription())));
@@ -137,24 +134,14 @@ class ItemRequestControllerTest {
 
     private void addUser() {
         user.setId(1L);
-        user.setName("Buffy");
-        user.setEmail("buffy@vampire.com");
-    }
-
-    private CommentDTO addItemDtoWithComment() {
-        CommentDTO dtoWithComment = new CommentDTO();
-        dtoWithComment.setId(itemDto.getId());
-        dtoWithComment.setText(comment.getText());
-        dtoWithComment.setItemName(itemDto.getName());
-        dtoWithComment.setCreated(comment.getCreated());
-        dtoWithComment.setAuthorName(comment.getAuthor().getName());
-        return dtoWithComment;
+        user.setName("Aelin");
+        user.setEmail("aelin@whitethorn.com");
     }
 
     private void addRequestDto() {
         addUser();
         requestDto.setId(1L);
-        requestDto.setDescription("I need a fork");
+        requestDto.setDescription("waiting for fight");
         requestDto.setRequester(user);
         String date = "2022-11-23T12:30:54";
         LocalDateTime localdatetime = LocalDateTime.parse(date);
@@ -164,9 +151,9 @@ class ItemRequestControllerTest {
     private void addRequest() {
         addUser();
         user.setId(1L);
-        user.setName("Cat");
+        user.setName("Rowan");
         requestWithItems.setId(2L);
-        requestWithItems.setDescription("I need a fork");
+        requestWithItems.setDescription("waiting for fight");
         requestWithItems.setRequester(user);
         String date = "2022-11-24T12:30:54";
         LocalDateTime localdatetime = LocalDateTime.parse(date);

@@ -49,9 +49,11 @@ public class ItemController {
 
     @GetMapping("/search")
     public List<ItemDTO> getAllByText(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                      @RequestParam String text) {
+                                      @RequestParam String text,
+                                      @RequestParam(name = "from", required = false) Integer from,
+                                      @RequestParam(name = "size", required = false) Integer size) {
         log.info("Получение вещей для аренды содержащие в названии или описании текст {}", text);
-        return itemService.getAllByText(text);
+        return itemService.getForRent(text, from, size);
     }
 
     @PostMapping("{itemId}/comment")

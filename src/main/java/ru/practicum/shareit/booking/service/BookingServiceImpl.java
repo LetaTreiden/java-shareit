@@ -42,9 +42,9 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingDTOToReturn add(Long userId, BookingDTO bookingDto) {
         Item item = iRepository.findById(bookingDto.getItemId())
-                .orElseThrow(() -> new NotFoundException("User not found"));
-        User user = uRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Item not found"));
+        User user = uRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
         if (!item.getAvailable()) {
             throw new BadRequestException("You can not book this item");
         }
@@ -58,15 +58,20 @@ public class BookingServiceImpl implements BookingService {
             throw new BadRequestException("Wrong date");
         }
         Booking booking = bRepository.save(BookingMapper.toBooking(bookingDto, item, user));
-        log.info(booking.toString());
+//        log.info(booking.toString());
         return BookingMapper.toBookingDtoFrom(booking);
     }
 
     @Transactional
     @Override
     public BookingDTOToReturn update(Long userId, Long bookingId, Boolean approved) {
-        Booking booking = Optional.of(bRepository.getReferenceById(bookingId))
-                .orElseThrow(() -> new NotFoundException("Booking not found"));
+        Booking booking;
+        try {
+            booking = bRepository.getReferenceById(bookingId);
+            log.info(booking.toString());
+        } catch (NullPointerException e) {
+            throw new NotFoundException("Booking not found");
+        }
         Long ownerId = booking.getItem().getOwner().getId();
 
         if (!Objects.equals(userId, ownerId)) {
@@ -102,15 +107,15 @@ public class BookingServiceImpl implements BookingService {
         Optional<User> booker = uRepository.findById(userId);
         Pageable pageable;
         if (booker.isEmpty()) {
-            throw new NotFoundException("Для пользователя нет доступа");
+            throw new NotFoundException("No rights");
         }
         User user = booker.get();
         if (page != null && size != null) {
             if (page < 0 || size < 0) {
-                throw new BadRequestException("From или size не могут принимать отрицательноге значение");
+                throw new BadRequestException("Wrong meaning page or size");
             }
             if (size == 0) {
-                throw new BadRequestException("Size не может принимать значение 0");
+                throw new BadRequestException("Size equals 0!");
             }
             pageable = PageRequest.of(page / size, size);
             return findBookingByBookerByPage(user, status, pageable);
@@ -188,17 +193,14 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingDTOToReturn> getByOwner(Long userId, String status, Integer page, Integer size) {
-        Optional<User> owner = uRepository.findById(userId);
+        User owner = uRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
         Pageable pageable;
-        if (owner.isEmpty()) {
-            throw new NotFoundException("Для пользователя нет доступа");
-        }
         if (page != null && size != null) {
             if (page < 0 || size < 0) {
-                throw new BadRequestException("From или size не могут принимать отрицательноге значение");
+                throw new BadRequestException("From or size is less than 0");
             }
             if (size == 0) {
-                throw new BadRequestException("Size не может принимать значение 0");
+                throw new BadRequestException("Size equals 0");
             }
             pageable = PageRequest.of(page / size, size);
 

@@ -115,12 +115,12 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.owner.email", is(itemDtoWithBooking.getOwner().getEmail())))
                 .andExpect(jsonPath("$.lastBooking.id", is((int) itemDtoWithBooking.getLastBooking().getId())))
                 .andExpect(jsonPath("$.lastBooking.bookerId", is(itemDtoWithBooking.getLastBooking()
-                        .getBookerId())))
+                        .getBookerId().intValue())))
                 .andExpect(jsonPath("$.lastBooking.dateTime", is(itemDtoWithBooking.getLastBooking()
                         .getDateTime().toString())))
                 .andExpect(jsonPath("$.nextBooking.id", is((int) itemDtoWithBooking.getNextBooking().getId())))
                 .andExpect(jsonPath("$.nextBooking.bookerId", is(itemDtoWithBooking.getNextBooking()
-                        .getBookerId())))
+                        .getBookerId().intValue())))
                 .andExpect(jsonPath("$.nextBooking.dateTime", is(itemDtoWithBooking.getNextBooking()
                         .getDateTime().toString())))
                 .andExpect(jsonPath("$.description", is(itemDtoWithBooking.getDescription())))
@@ -150,12 +150,12 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$[0].lastBooking.id", is((int) itemDtoWithBooking.getLastBooking()
                         .getId())))
                 .andExpect(jsonPath("$[0].lastBooking.bookerId", is(itemDtoWithBooking.getLastBooking()
-                        .getBookerId())))
+                        .getBookerId().intValue())))
                 .andExpect(jsonPath("$[0].lastBooking.dateTime", is(itemDtoWithBooking.getLastBooking()
                         .getDateTime().toString())))
                 .andExpect(jsonPath("$[0].nextBooking.id", is((int) itemDtoWithBooking.getNextBooking().getId())))
                 .andExpect(jsonPath("$[0].nextBooking.bookerId", is(itemDtoWithBooking.getNextBooking()
-                        .getBookerId())))
+                        .getBookerId().intValue())))
                 .andExpect(jsonPath("$[0].nextBooking.dateTime", is(itemDtoWithBooking.getNextBooking()
                         .getDateTime().toString())))
                 .andExpect(jsonPath("$[0].available", is(itemDtoWithBooking.getAvailable())));
@@ -165,8 +165,10 @@ class ItemControllerTest {
     @Test
     void getItemsForRentControllerTest() throws Exception {
         addItemDto();
+        List<ItemDTO> items = new ArrayList<>();
+        items.add(itemDto);
         when(itemService.getForRent(Mockito.anyString(), any(), any()))
-                .thenReturn(List.of(itemDto));
+                .thenReturn(items);
 
         mvc.perform(get("/items/search?text=F")
                         .header("X-Sharer-User-Id", 1L)
@@ -188,7 +190,6 @@ class ItemControllerTest {
         CommentDTO item = addItemDtoWithComment();
         when(itemService.addComment(Mockito.anyLong(), Mockito.anyLong(), any(CommentDTO.class)))
                 .thenReturn(item);
-        //что???
 
         mvc.perform(post("/items/1/comment")
                         .header("X-Sharer-User-Id", 1L)
@@ -237,63 +238,63 @@ class ItemControllerTest {
     private void addItemDto() {
         addUser();
         itemDto.setId(1L);
-        itemDto.setName("Fork");
+        itemDto.setName("Sword");
         itemDto.setOwner(UserMapper.toUserToItemDto(user));
         itemDto.setAvailable(true);
-        itemDto.setDescription("Designed for food");
+        itemDto.setDescription("For fights");
     }
 
     private void addItemDtoWithBooking() {
         addBooking();
         addUser();
         itemDtoWithBooking.setId(2L);
-        itemDtoWithBooking.setName("Fork");
+        itemDtoWithBooking.setName("Sword");
         itemDtoWithBooking.setLastBooking(booking);
         booking.setId(2L);
         booking.setBookerId(4L);
-        String date = "2022-11-23T12:30:54";
+        String date = "2017-10-19T23:50:50";
         LocalDateTime localdatetime = LocalDateTime.parse(date);
         booking.setDateTime(localdatetime);
         booking.setBookerId(4L);
         itemDtoWithBooking.setNextBooking(booking);
         itemDtoWithBooking.setOwner(UserMapper.toUserToItemWithBookingsDto(user));
         itemDtoWithBooking.setAvailable(true);
-        itemDtoWithBooking.setDescription("Designed for food");
+        itemDtoWithBooking.setDescription("For fights");
     }
 
     private void addUser() {
         user.setId(1L);
-        user.setName("Buffy");
-        user.setEmail("buffy@vampire.com");
+        user.setName("Aelin");
+        user.setEmail("aelin@whitethorn.com");
     }
 
     private void addBooking() {
         User booker = new User();
         booker.setId(3L);
-        booker.setName("Katya");
-        booker.setEmail("katya@katya.com");
+        booker.setName("Dorian");
+        booker.setEmail("dorian@havilliard.com");
         booking.setId(1L);
         booking.setBookerId(3L);
-        String date = "2022-11-22T12:30:54";
+        String date = "2017-10-19T23:50:50";
         LocalDateTime localdatetime = LocalDateTime.parse(date);
         booking.setDateTime(localdatetime);
         User booker2 = new User();
         booker2.setId(4L);
-        booker2.setName("Kat");
-        booker2.setEmail("kat@kat.com");
+        booker2.setName("Manon");
+        booker2.setEmail("manon@blackbeak.com");
 
     }
 
     private void addComment() {
         User booker = new User();
         booker.setId(3L);
-        booker.setName("Katya");
-        booker.setEmail("katya@katya.com");
+        booker.setName("Dorian");
+        booker.setEmail("dorian@havilliard.com");
         comment.setId(1L);
         comment.setAuthor(booker);
         comment.setItem(item);
-        comment.setText("cool fork");
-        String date = "2022-11-23T18:08:54";
+        comment.setText("amazing sword");
+        String date = "2017-10-19T23:50:50";
         LocalDateTime localdatetime = LocalDateTime.parse(date);
         comment.setCreated(localdatetime);
     }

@@ -43,7 +43,7 @@ class CommentRepositoryTest {
         addUser();
         addItem();
         comment.setAuthor(user);
-        comment.setText("I need a fork");
+        comment.setText("I am waiting for fights");
         comment.setItem(item);
         comment.setCreated(LocalDateTime.now());
     }
@@ -51,19 +51,19 @@ class CommentRepositoryTest {
     private void addItem() {
         User user1 = new User();
         user1.setId(2L);
-        user1.setName("Cat");
-        user1.setEmail("leo@cat.com");
+        user1.setName("Dorian");
+        user1.setEmail("dorian@havilliard.com");
         item.setId(1L);
-        item.setName("Fork");
+        item.setName("Sword");
         item.setOwner(user1);
         item.setAvailable(true);
-        item.setDescription("Designed for food");
+        item.setDescription("For fights");
     }
 
     private void addUser() {
         user.setId(1L);
-        user.setName("Leo");
-        user.setEmail("leo@angel.com");
+        user.setName("Rowan");
+        user.setEmail("rowan@whitethorn.com");
     }
 
 }

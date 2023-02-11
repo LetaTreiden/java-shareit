@@ -154,8 +154,7 @@ class UserControllerTest {
 
     private void addUser() {
         userDto.setId(1L);
-        userDto.setName("Leo");
-        userDto.setEmail("leo@angel.com");
+        userDto.setName("Aelin");
+        userDto.setEmail("aelin@whitethorn.com");
     }
-
 }

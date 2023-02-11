@@ -4,7 +4,6 @@ import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.dto.ItemDTOWithBookings;
 import ru.practicum.shareit.item.dto.CommentDTO;
 
-import java.util.Collection;
 import java.util.List;
 
 public interface ItemService {
@@ -21,5 +20,5 @@ public interface ItemService {
 
     CommentDTO addComment(Long authorId, Long itemId, CommentDTO comment);
 
-    Collection<ItemDTO> getForRent(String substring, Integer page, Integer size);
+    List<ItemDTO> getForRent(String substring, Integer page, Integer size);
 }

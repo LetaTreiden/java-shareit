@@ -16,8 +16,6 @@ import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    //переделать все запросы с натив куери
-
     List<Booking> findByBookerAndStatusOrderByStartDesc(User booker, Status status);
 
     List<Booking> findByBookerOrderByStartDesc(User booker);

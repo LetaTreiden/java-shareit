@@ -32,12 +32,25 @@ class UserServiceTest {
     @Mock
     UserRepository userRepository;
 
+    private final User user = new User();
+
+    private final UserDTO userDTO = new UserDTO();
+
+    private void addUser() {
+        user.setName("Aelin");
+        user.setId(1L);
+        user.setEmail("aelin@whitethorn.com");
+    }
+
+    private void addUserDTO() {
+        user.setName("Aelin");
+        user.setId(1L);
+        user.setEmail("aelin@whitethorn.com");
+    }
+
     @Test
     void addUserTest() {
-        User user = new User();
-        user.setId(1L);
-        user.setName("Buffy");
-        user.setEmail("buffy@vampire.com");
+        addUser();
 
         Mockito
                 .when(userRepository.save(any()))
@@ -56,49 +69,38 @@ class UserServiceTest {
 
     @Test
     void updateUserExceptionTest() {
-        UserDTO user = new UserDTO();
-        user.setName("Buffy");
-        user.setEmail("buffy@vampire.com");
+        addUserDTO();
 
         Mockito
                 .when(userRepository.findById(2L))
-                .thenThrow(new NotFoundException("Пользователь не найден"));
+                .thenThrow(new NotFoundException("User not found"));
 
 
         final NotFoundException exception = Assertions.assertThrows(
                 NotFoundException.class,
-                () -> mockUserService.update(2L, user));
+                () -> mockUserService.update(2L, userDTO));
 
-        Assertions.assertEquals("Пользователь не найден", exception.getMessage());
+        Assertions.assertEquals("User not found", exception.getMessage());
 
 
     }
 
     @Test
     void updateUserEmptyTest() {
-        UserDTO user = new UserDTO();
-        user.setName("Buffy");
-        user.setEmail("buffy@vampire.com");
+        addUserDTO();
         Mockito
                 .when(userRepository.findById(0L))
                 .thenReturn(Optional.empty());
         final NotFoundException exception = Assertions.assertThrows(
                 NotFoundException.class,
-                () -> mockUserService.update(0L, user));
+                () -> mockUserService.update(0L, userDTO));
 
-        Assertions.assertEquals("Пользователь не найден", exception.getMessage());
+        Assertions.assertEquals("User not found", exception.getMessage());
     }
 
     @Test
     void updateUserTest() {
-        User user = new User();
-        user.setId(1L);
-        user.setName("Buffy");
-        user.setEmail("buffy@vampire.com");
-
-        Mockito
-                .when(userRepository.save(any()))
-                .thenReturn(user);
+        addUser();
 
         Mockito
                 .when(userRepository.findById(1L))
@@ -124,15 +126,12 @@ class UserServiceTest {
                 NotFoundException.class,
                 () -> mockUserService.delete(1L));
 
-        Assertions.assertEquals("Пользователь не найден", exception.getMessage());
+        Assertions.assertEquals("User not found", exception.getMessage());
     }
 
     @Test
     void deleteUserTest() {
-        User user = new User();
-        user.setId(1L);
-        user.setName("Buffy");
-        user.setEmail("buffy@vampire.com");
+       addUser();
 
         Mockito
                 .when(userRepository.findById(1L))
@@ -155,15 +154,12 @@ class UserServiceTest {
 
     @Test
     void getAllUsersTest() {
-        User user = new User();
-        user.setId(1L);
-        user.setName("Buffy");
-        user.setEmail("buffy@vampire.com");
+        addUser();
 
         User user1 = new User();
         user1.setId(2L);
-        user1.setName("Leo");
-        user1.setEmail("leo@angel.com");
+        user1.setName("Rowan");
+        user1.setEmail("rowan@whitethorn.com");
 
         List<User> users = new ArrayList<>();
         users.add(user1);
@@ -186,15 +182,12 @@ class UserServiceTest {
                 NotFoundException.class,
                 () -> mockUserService.get(1L));
 
-        Assertions.assertEquals("Пользователь не найден", exception.getMessage());
+        Assertions.assertEquals("User not found", exception.getMessage());
     }
 
     @Test
     void getUserTest() {
-        User user = new User();
-        user.setId(1L);
-        user.setName("Buffy");
-        user.setEmail("buffy@vampire.com");
+        addUser();
 
         Mockito
                 .when(userRepository.findById(1L))

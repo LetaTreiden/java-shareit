@@ -10,12 +10,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.dto.BookingDTOToReturn;
-import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.service.BookingServiceImpl;
-import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
 import java.nio.charset.StandardCharsets;
@@ -34,7 +31,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = BookingController.class)
 class BookingControllerTest {
 
-    private final Booking booking = new Booking();
     private final BookingDTOToReturn bookingDto = new BookingDTOToReturn();
     private final Item item = new Item();
     private final User user = new User();
@@ -62,7 +58,7 @@ class BookingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(bookingDto.getId()), Long.class))
                 .andExpect(jsonPath("$.start", is(bookingDto.getStart().toString())))
-                .andExpect(jsonPath("$.booker.id", is((int) bookingDto.getBooker().getId())))
+                .andExpect(jsonPath("$.booker.id", is(bookingDto.getBooker().getId().intValue())))
                 .andExpect(jsonPath("$.booker.name", is(bookingDto.getBooker().getName())))
                 .andExpect(jsonPath("$.booker.email", is(bookingDto.getBooker().getEmail())))
                 .andExpect(jsonPath("$.end", is(bookingDto.getEnd().toString())))
@@ -91,7 +87,7 @@ class BookingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(bookingDto.getId()), Long.class))
                 .andExpect(jsonPath("$.start", is(bookingDto.getStart().toString())))
-                .andExpect(jsonPath("$.booker.id", is((int) bookingDto.getBooker().getId())))
+                .andExpect(jsonPath("$.booker.id", is(bookingDto.getBooker().getId().intValue())))
                 .andExpect(jsonPath("$.booker.name", is(bookingDto.getBooker().getName())))
                 .andExpect(jsonPath("$.booker.email", is(bookingDto.getBooker().getEmail())))
                 .andExpect(jsonPath("$.end", is(bookingDto.getEnd().toString())))
@@ -118,7 +114,7 @@ class BookingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(bookingDto.getId()), Long.class))
                 .andExpect(jsonPath("$.start", is(bookingDto.getStart().toString())))
-                .andExpect(jsonPath("$.booker.id", is((int) bookingDto.getBooker().getId())))
+                .andExpect(jsonPath("$.booker.id", is( bookingDto.getBooker().getId().intValue())))
                 .andExpect(jsonPath("$.booker.name", is(bookingDto.getBooker().getName())))
                 .andExpect(jsonPath("$.booker.email", is(bookingDto.getBooker().getEmail())))
                 .andExpect(jsonPath("$.end", is(bookingDto.getEnd().toString())))
@@ -148,7 +144,7 @@ class BookingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id", is(bookingDto.getId()), Long.class))
                 .andExpect(jsonPath("$[0].start", is(bookingDto.getStart().toString())))
-                .andExpect(jsonPath("$[0].booker.id", is((int) bookingDto.getBooker().getId())))
+                .andExpect(jsonPath("$[0].booker.id", is( bookingDto.getBooker().getId().intValue())))
                 .andExpect(jsonPath("$[0].booker.name", is(bookingDto.getBooker().getName())))
                 .andExpect(jsonPath("$[0].booker.email", is(bookingDto.getBooker().getEmail())))
                 .andExpect(jsonPath("$[0].end", is(bookingDto.getEnd().toString())))
@@ -178,7 +174,7 @@ class BookingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id", is(bookingDto.getId()), Long.class))
                 .andExpect(jsonPath("$[0].start", is(bookingDto.getStart().toString())))
-                .andExpect(jsonPath("$[0].booker.id", is((int) bookingDto.getBooker().getId())))
+                .andExpect(jsonPath("$[0].booker.id", is( bookingDto.getBooker().getId().intValue())))
                 .andExpect(jsonPath("$[0].booker.name", is(bookingDto.getBooker().getName())))
                 .andExpect(jsonPath("$[0].booker.email", is(bookingDto.getBooker().getEmail())))
                 .andExpect(jsonPath("$[0].end", is(bookingDto.getEnd().toString())))
@@ -191,27 +187,27 @@ class BookingControllerTest {
     private void addItem() {
         addUser();
         item.setId(1L);
-        item.setName("Fork");
+        item.setName("Sword");
         item.setOwner(user);
         item.setAvailable(true);
-        item.setDescription("Designed for food");
+        item.setDescription("For fight");
     }
 
     private void addUser() {
         user.setId(1L);
-        user.setName("Buffy");
-        user.setEmail("buffy@vampire.com");
+        user.setName("Aelin");
+        user.setEmail("aelin@whitethorn.com");
     }
 
     private void addBookingDto() {
         User booker = new User();
         booker.setId(4L);
-        booker.setName("Katya");
-        booker.setEmail("katya@katya.com");
+        booker.setName("Rowan");
+        booker.setEmail("rowan@whitethorn.com");
         bookingDto.setId(2L);
-        bookingDto.setItem(ItemMapper.toItemToBookingDTO(item));
+        bookingDto.setItem(item);
         bookingDto.setStatus(Status.WAITING);
-        bookingDto.setBooker(UserMapper.toUserToBookingDTO(booker));
+        bookingDto.setBooker(booker);
         String date = "2023-11-24T18:08:54";
         LocalDateTime localdatetime = LocalDateTime.parse(date);
         bookingDto.setStart(localdatetime);

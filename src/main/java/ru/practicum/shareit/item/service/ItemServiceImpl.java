@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -42,8 +43,6 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 @Transactional(readOnly = true)
 @Slf4j
 public class ItemServiceImpl implements ItemService {
-
-    //переписать методы с новыми переменными
 
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
@@ -104,11 +103,21 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDTOWithBookings> getAllByOwner(Long userId, Integer page, Integer size) {
-        if (!userRepository.existsById(userId)) {
-            throw new NotFoundException("User not found");
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+        List<Item> items = new ArrayList<>();
+        if (page != null && size != null) {
+            sizeAndPage(size, page);
+            Pageable pageable = PageRequest.of(page / size, size);
+            Page<Item> itemsPage = itemRepository.findByOwner(user, pageable);
+            for (Item item : itemsPage) {
+                items.add(item);
+            }
+        } else {
+            items = itemRepository.findByOwner(user);
         }
+
         log.info(userId.toString());
-        List<Item> items = itemRepository.getAllByOwnerId(userId);
+
         log.info(String.valueOf(items.size()));
         Map<Item, List<Booking>> approvedBookings =
                 bookingRepository.findApprovedForItems(items, Sort.by(DESC, "start"))
@@ -162,7 +171,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Collection<ItemDTO> getForRent(String substring, Integer page, Integer size) {
+    public List<ItemDTO> getForRent(String substring, Integer page, Integer size) {
         if (!Objects.equals(substring, "")) {
             if (page != null && size != null) {
                 sizeAndPage(size, page);
@@ -176,10 +185,10 @@ public class ItemServiceImpl implements ItemService {
 
     private void sizeAndPage(Integer size, Integer page) {
         if (page < 0 || size < 0) {
-            throw new BadRequestException("From или size не могут принимать отрицательноге значение");
+            throw new BadRequestException("From or size is less than 0");
         }
         if (size == 0) {
-            throw new BadRequestException("Size не может принимать значение 0");
+            throw new BadRequestException("Size equals 0");
         }
     }
 }

@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -16,6 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@Slf4j
 class ItemRepositoryTest {
 
     @Autowired
@@ -52,9 +54,10 @@ class ItemRepositoryTest {
     void findItemsByNameOrDescriptionJpaTest() {
         addItem();
         Item itemPersist = em.persist(item);
-        List<Item> items = itemRepository.findItemsByNameOrDescription("F");
-        assertThat(itemPersist).isEqualTo(items.get(3));
-        assertThat(itemPersist.getId()).isEqualTo(items.get(3).getId());
+        List<Item> items = itemRepository.findItemsByNameOrDescription("S");
+        log.info(items.toString());
+        assertThat(itemPersist).isEqualTo(items.get(4));
+        assertThat(itemPersist.getId()).isEqualTo(items.get(4).getId());
     }
 
     @Test
@@ -70,26 +73,26 @@ class ItemRepositoryTest {
 
     private void addItem() {
         addUser();
-        item.setName("Fork");
+        item.setName("Sword");
         item.setOwner(user);
         item.setAvailable(true);
-        item.setDescription("Designed for food");
+        item.setDescription("For fights");
     }
 
     private void addUser() {
         user.setId(1L);
-        user.setName("Buffy");
-        user.setEmail("buffy@vampire.com");
+        user.setName("Aelin");
+        user.setEmail("aelin@whitethorn.com");
     }
 
     private void addRequest() {
         User requester = new User();
         requester.setId(3L);
-        requester.setName("Kat");
-        requester.setEmail("Kat@kat.com");
+        requester.setName("Dorin");
+        requester.setEmail("dorin@havilliard.com");
         request.setId(1L);
         request.setRequester(requester);
-        request.setDescription("I need a fork to eat");
+        request.setDescription("waiting for fight");
         request.setCreated(LocalDateTime.now());
     }
 }

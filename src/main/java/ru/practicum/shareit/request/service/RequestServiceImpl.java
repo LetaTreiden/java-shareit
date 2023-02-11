@@ -40,10 +40,10 @@ public class RequestServiceImpl implements RequestService {
     @Override
     @Transactional
     public RequestDTO add(Long userId, RequestDTO request) {
-        User user = uRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        User user = uRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
         log.info(request.toString());
         if (request.getDescription() == null || Objects.equals(request.getDescription(), "")) {
-            throw new BadRequestException("Отсутствует описание для поиска вещи");
+            throw new BadRequestException("Description is empty");
         }
         request.setCreated(LocalDateTime.now());
         request.setRequester(user);
@@ -53,7 +53,7 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public List<RequestDTOWithItems> findAllByOwner(Long userId) {
-        User user = uRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        User user = uRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
         List<RequestDTOWithItems> requests = new ArrayList<>();
         List<ItemRequest> itemRequests = rRepository.findByRequesterOrderByCreatedDesc(user);
         for (ItemRequest request : itemRequests) {
@@ -70,35 +70,24 @@ public class RequestServiceImpl implements RequestService {
         Pageable pageable;
         Sort sortById = Sort.by(Sort.Direction.DESC, "created");
         if (page != null && size != null) {
-            log.info("page and size");
             if (page < 0 || size < 0) {
-                log.info("wrong from or size");
-                throw new BadRequestException("From или size не могут принимать отрицательноге значение");
+                throw new BadRequestException("From and size cannot be less than 0");
             }
             if (size == 0) {
-                log.info("size equals null");
-                throw new BadRequestException("Size не может принимать значение 0");
+                throw new BadRequestException("Size cannot be 0");
             }
             pageable = PageRequest.of(page / size, size, sortById);
-            log.info("page");
 
             Page<ItemRequest> requests = rRepository.findAllBy(userId, pageable);
-            log.info(requests.toString());
             for (ItemRequest request : requests) {
-                log.info(request.toString());
-                log.info("request");
                 List<Item> items = iRepository.findByRequest(request.getId());
-                log.info(String.valueOf(items.size()));
                 RequestDTOWithItems request1 = RequestMapper.toRequestForFindDto(request, ItemMapper.mapToItemDto(items));
-                log.info(request1.toString());
                 requestForFindDtos.add(request1);
             }
-            log.info("request get");
             return requestForFindDtos;
         }
         List<ItemRequest> requests = rRepository.findAll();
         for (ItemRequest request : requests) {
-            log.info("request without pageable" + request.getId());
             List<Item> items = iRepository.findByRequest(request.getId());
             RequestDTOWithItems request1 = RequestMapper.toRequestForFindDto(request, ItemMapper.mapToItemDto(items));
             requestForFindDtos.add(request1);
@@ -108,9 +97,9 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public RequestDTOWithItems findById(Long userId, Long requestId) {
-        uRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        uRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
         ItemRequest request = rRepository.findById(requestId)
-                .orElseThrow(() -> new NotFoundException("Запрос не найден"));
+                .orElseThrow(() -> new NotFoundException("Request not found"));
         List<Item> items = iRepository.findByRequest(requestId);
         return RequestMapper.toRequestForFindDto(request, ItemMapper.mapToItemDto(items));
     }

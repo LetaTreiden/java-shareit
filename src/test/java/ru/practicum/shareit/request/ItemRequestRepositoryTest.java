@@ -33,7 +33,7 @@ class ItemRequestRepositoryTest {
     List<ItemRequest> requestsPersist = new ArrayList<>();
 
     @Test
-    void findByRequestorOrderByCreatedDesc() {
+    void findByRequesterOrderByCreatedDesc() {
         addRequestOne();
         em.persist(requestOne);
         addRequestTwo();
@@ -56,20 +56,20 @@ class ItemRequestRepositoryTest {
     private void addRequestOne() {
         User requester = new User();
         requester.setId(2L);
-        requester.setName("Kat");
-        requester.setEmail("Kat@kat.com");
+        requester.setName("Rowan");
+        requester.setEmail("rowan@whitethorn.com");
         requestOne.setRequester(requester);
-        requestOne.setDescription("I need a fork to eat");
+        requestOne.setDescription("waiting for fight");
         requestOne.setCreated(LocalDateTime.now());
     }
 
     private void addRequestTwo() {
         User requester = new User();
         requester.setId(2L);
-        requester.setName("Kat");
-        requester.setEmail("Kat@kat.com");
+        requester.setName("Rowan");
+        requester.setEmail("rowan@whitethorn.com");
         requestTwo.setRequester(requester);
-        requestTwo.setDescription("I need a fork to eat");
+        requestTwo.setDescription("waiting for fight");
         requestTwo.setCreated(LocalDateTime.now());
     }
 

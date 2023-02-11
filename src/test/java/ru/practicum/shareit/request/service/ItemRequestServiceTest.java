@@ -35,7 +35,7 @@ import static org.mockito.ArgumentMatchers.any;
 class ItemRequestServiceTest {
 
     @InjectMocks
-    RequestService requestService;
+    RequestServiceImpl requestService;
 
     @Mock
     ItemRepository itemRepository;
@@ -91,7 +91,7 @@ class ItemRequestServiceTest {
                 NotFoundException.class,
                 () -> requestService.add(3L, RequestMapper.toRequestDto(request)));
 
-        Assertions.assertEquals("Пользователь не найден", exception.getMessage());
+        Assertions.assertEquals("User not found", exception.getMessage());
     }
 
     @Test
@@ -107,7 +107,7 @@ class ItemRequestServiceTest {
                 BadRequestException.class,
                 () -> requestService.add(1L, RequestMapper.toRequestDto(request)));
 
-        Assertions.assertEquals("Отсутствует описание для поиска вещи", exception.getMessage());
+        Assertions.assertEquals("Description is empty", exception.getMessage());
     }
 
     @Test
@@ -159,7 +159,7 @@ class ItemRequestServiceTest {
                 NotFoundException.class,
                 () -> requestService.findAllByOwner(5L));
 
-        Assertions.assertEquals("Пользователь не найден", exception.getMessage());
+        Assertions.assertEquals("User not found", exception.getMessage());
     }
 
     @Test
@@ -200,7 +200,6 @@ class ItemRequestServiceTest {
         request.setCreated(LocalDateTime.now().minusHours(5));
         request.setId(2L);
         requests.add(request);
-        Page<ItemRequest> page = new PageImpl<>(requests);
 
         Mockito
                 .when(requestRepository.findAll())
@@ -222,7 +221,7 @@ class ItemRequestServiceTest {
                 BadRequestException.class,
                 () -> requestService.findAll(1L, 1, -1));
 
-        Assertions.assertEquals("From или size не могут принимать отрицательноге значение",
+        Assertions.assertEquals("From and size cannot be less than 0",
                 exception.getMessage());
 
     }
@@ -233,7 +232,7 @@ class ItemRequestServiceTest {
                 BadRequestException.class,
                 () -> requestService.findAll(1L, 1, 0));
 
-        Assertions.assertEquals("Size не может принимать значение 0",
+        Assertions.assertEquals("Size cannot be 0",
                 exception.getMessage());
 
     }
@@ -257,7 +256,7 @@ class ItemRequestServiceTest {
                 .isPresent()
                 .hasValueSatisfying(addRequestTest -> {
                             assertThat(addRequestTest).hasFieldOrPropertyWithValue("id", request.getId());
-                            assertThat(addRequestTest).hasFieldOrPropertyWithValue("requestor",
+                            assertThat(addRequestTest).hasFieldOrPropertyWithValue("requester",
                                     request.getRequester());
                             assertThat(addRequestTest).hasFieldOrPropertyWithValue("description",
                                     request.getDescription());
@@ -269,7 +268,7 @@ class ItemRequestServiceTest {
     }
 
     @Test
-    void findRequestNotFounUserTest() {
+    void findRequestNotFoundUserTest() {
         Mockito
                 .when(userRepository.findById(Mockito.anyLong()))
                 .thenReturn(Optional.empty());
@@ -278,7 +277,7 @@ class ItemRequestServiceTest {
                 NotFoundException.class,
                 () -> requestService.findById(3L, 1L));
 
-        Assertions.assertEquals("Пользователь не найден", exception.getMessage());
+        Assertions.assertEquals("User not found", exception.getMessage());
 
     }
 
@@ -298,34 +297,34 @@ class ItemRequestServiceTest {
                 NotFoundException.class,
                 () -> requestService.findById(3L, 1L));
 
-        Assertions.assertEquals("Запрос не найден", exception.getMessage());
+        Assertions.assertEquals("Request not found", exception.getMessage());
 
     }
 
     private void addUser() {
         requester.setId(1L);
-        requester.setName("Leo");
-        requester.setEmail("leo@angel.com");
+        requester.setName("Aelin");
+        requester.setEmail("aelin@whitethorn.com");
     }
 
     private void addRequest() {
         addUser();
         request.setId(1L);
         request.setRequester(requester);
-        request.setDescription("I need a fork");
+        request.setDescription("waiting for fight");
         request.setCreated(LocalDateTime.now());
     }
 
     private void addItem() {
         User owner = new User();
         owner.setId(2L);
-        owner.setName("Buffy");
-        owner.setEmail("buffy@vampire.com");
+        owner.setName("Aelin");
+        owner.setEmail("aelin@whitethorn.com");
         item.setId(1L);
-        item.setName("Fork");
+        item.setName("Sword");
         item.setOwner(owner);
         item.setAvailable(true);
-        item.setDescription("Designed for food");
+        item.setDescription("For fights");
         item.setRequestId(request);
     }
 }

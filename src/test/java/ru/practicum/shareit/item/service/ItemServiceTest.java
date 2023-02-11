@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,9 +19,9 @@ import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.CommentRepository;
 import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.item.dto.CommentDTO;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.dto.ItemDTOWithBookings;
-import ru.practicum.shareit.item.dto.CommentDTO;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
@@ -39,6 +40,7 @@ import static org.mockito.ArgumentMatchers.any;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(MockitoExtension.class)
+@Slf4j
 class ItemServiceTest {
 
     @InjectMocks
@@ -106,10 +108,6 @@ class ItemServiceTest {
                 .thenReturn(Optional.of(userOwner));
 
         Mockito
-                .when(requestRepository.findById(Mockito.anyLong()))
-                .thenReturn(Optional.ofNullable(request));
-
-        Mockito
                 .when(itemRepository.save(any()))
                 .thenReturn(item);
 
@@ -142,16 +140,12 @@ class ItemServiceTest {
                 NotFoundException.class,
                 () -> itemService.add(3L, ItemMapper.toItemDto(item)));
 
-        Assertions.assertEquals("Пользователь не найден", exception.getMessage());
+        Assertions.assertEquals("User not found", exception.getMessage());
     }
 
     @Test
     void changeItemTest() {
         addItem();
-
-        Mockito
-                .when(itemRepository.save(any()))
-                .thenReturn(item);
 
         Mockito
                 .when(itemRepository.findById(Mockito.anyLong()))
@@ -184,7 +178,7 @@ class ItemServiceTest {
                 NotFoundException.class,
                 () -> itemService.update(1L, 3L, ItemMapper.toItemDto(item)));
 
-        Assertions.assertEquals("Вещь не найдена", exception.getMessage());
+        Assertions.assertEquals("Item not found", exception.getMessage());
     }
 
     @Test
@@ -199,14 +193,13 @@ class ItemServiceTest {
                 ForbiddenException.class,
                 () -> itemService.update(5L, 1L, ItemMapper.toItemDto(item)));
 
-        Assertions.assertEquals("Для пользователя нет доступа", exception.getMessage());
+        Assertions.assertEquals("No rights", exception.getMessage());
     }
 
     @Test
     void getItemTest() {
         addItem();
         List<Comment> comments = new ArrayList<>();
-        List<Booking> bookings = new ArrayList<>();
 
         Mockito
                 .when(itemRepository.findById(Mockito.anyLong()))
@@ -215,10 +208,6 @@ class ItemServiceTest {
         Mockito
                 .when(commentRepository.findAllByItem(any()))
                 .thenReturn(comments);
-
-        Mockito
-                .when(bookingRepository.findByItemOrderByStartDesc(any()))
-                .thenReturn(bookings);
 
         Optional<ItemDTOWithBookings> itemDto = Optional.ofNullable(itemService.get(userOwner.getId(), item.getId()));
 
@@ -252,10 +241,6 @@ class ItemServiceTest {
                 .when(commentRepository.findAllByItem(any()))
                 .thenReturn(comments);
 
-        Mockito
-                .when(bookingRepository.findByItemOrderByStartDesc(any()))
-                .thenReturn(bookings);
-
         Optional<ItemDTOWithBookings> itemDto = Optional.ofNullable(itemService.get(userOwner.getId(), item.getId()));
 
         assertThat(itemDto)
@@ -280,7 +265,7 @@ class ItemServiceTest {
                 NotFoundException.class,
                 () -> itemService.get(1L, 5L));
 
-        Assertions.assertEquals("Вещь не найдена", exception.getMessage());
+        Assertions.assertEquals("Item not found", exception.getMessage());
 
     }
 
@@ -288,7 +273,6 @@ class ItemServiceTest {
     void getAllOwnItemsTest() {
         addItem();
         addBooking();
-        List<Comment> comments = new ArrayList<>();
         List<Booking> bookings = new ArrayList<>();
         List<Item> items = new ArrayList<>();
         items.add(item);
@@ -301,18 +285,10 @@ class ItemServiceTest {
                 .thenReturn(Optional.ofNullable(userOwner));
 
         Mockito
-                .when(commentRepository.findAllByItem(any()))
-                .thenReturn(comments);
-
-        Mockito
-                .when(bookingRepository.findByItemOrderByStartDesc(any()))
-                .thenReturn(bookings);
-
-        Mockito
                 .when(itemRepository.findByOwner(any()))
                 .thenReturn(items);
 
-        List<Item> getItems = ItemMapper.mapToItem(itemService.getAllByOwner(1L, null, null));
+        List<ItemDTOWithBookings> getItems = itemService.getAllByOwner(1L, null, null);
 
         Assertions.assertEquals(getItems.get(0).getId(), items.get(0).getId());
     }
@@ -327,7 +303,7 @@ class ItemServiceTest {
                 NotFoundException.class,
                 () -> itemService.getAllByOwner(4L, null, null));
 
-        Assertions.assertEquals("Пользователь не найден", exception.getMessage());
+        Assertions.assertEquals("User not found", exception.getMessage());
     }
 
     @Test
@@ -342,7 +318,7 @@ class ItemServiceTest {
                 BadRequestException.class,
                 () -> itemService.getAllByOwner(1L, -1, 0));
 
-        Assertions.assertEquals("From или size не могут принимать отрицательноге значение",
+        Assertions.assertEquals("From or size is less than 0",
                 exception.getMessage());
     }
 
@@ -350,22 +326,28 @@ class ItemServiceTest {
     void getAllOwnItemsSizeEqualToZeroTest() {
         addItem();
 
-        Mockito
-                .when(userRepository.findById(Mockito.anyLong()))
-                .thenReturn(Optional.ofNullable(userOwner));
+        List<Item> items = new ArrayList<>();
+        items.add(item);
+
+
+        Mockito.when(userRepository.findById(any()))
+                .thenReturn(Optional.ofNullable((userOwner)));
+
+        log.info(userOwner.toString());
+        log.info(String.valueOf(userRepository.getReferenceById(1L)));
+        log.info(item.getOwner().toString());
 
         final BadRequestException exception = Assertions.assertThrows(
                 BadRequestException.class,
                 () -> itemService.getAllByOwner(1L, 1, 0));
 
-        Assertions.assertEquals("Size не может принимать значение 0", exception.getMessage());
+        Assertions.assertEquals("Size equals 0", exception.getMessage());
     }
 
     @Test
     void getAllOwnItemsWithPageTest() {
         addItem();
         addBooking();
-        List<Comment> comments = new ArrayList<>();
         List<Booking> bookings = new ArrayList<>();
         List<Item> items = new ArrayList<>();
         items.add(item);
@@ -376,21 +358,13 @@ class ItemServiceTest {
 
         Mockito
                 .when(userRepository.findById(Mockito.anyLong()))
-                .thenReturn(Optional.ofNullable(userOwner));
-
-        Mockito
-                .when(commentRepository.findAllByItem(any()))
-                .thenReturn(comments);
-
-        Mockito
-                .when(bookingRepository.findByItemOrderByStartDesc(any()))
-                .thenReturn(bookings);
+                .thenReturn(Optional.of(userOwner));
 
         Mockito
                 .when(itemRepository.findByOwner(any(), any()))
                 .thenReturn(page);
 
-        List<Item> getItems = ItemMapper.mapToItem(itemService.getAllByOwner(1L, 0, 1));
+        List<ItemDTOWithBookings> getItems = itemService.getAllByOwner(1L, 0, 1);
 
         Assertions.assertEquals(getItems.get(0).getId(), items.get(0).getId());
     }
@@ -406,7 +380,7 @@ class ItemServiceTest {
                 .when(itemRepository.findItemsByNameOrDescription(Mockito.anyString()))
                 .thenReturn(items);
 
-        List<ItemDTO> getItems = (List<ItemDTO>) itemService.getForRent("Fork", null, null);
+        List<ItemDTO> getItems = itemService.getForRent("Fork", null, null);
 
         Assertions.assertEquals(getItems.get(0).getId(), items.get(0).getId());
     }
@@ -417,7 +391,7 @@ class ItemServiceTest {
                 BadRequestException.class,
                 () -> itemService.getForRent("F", 0, 0));
 
-        Assertions.assertEquals("Size не может принимать значение 0", exception.getMessage());
+        Assertions.assertEquals("Size equals 0", exception.getMessage());
 
     }
 
@@ -427,7 +401,7 @@ class ItemServiceTest {
                 BadRequestException.class,
                 () -> itemService.getForRent("F", -1, 0));
 
-        Assertions.assertEquals("From или size не могут принимать отрицательноге значение",
+        Assertions.assertEquals("From or size is less than 0",
                 exception.getMessage());
 
     }
@@ -443,14 +417,14 @@ class ItemServiceTest {
                 .when(itemRepository.findItemsByNameOrDescription(Mockito.anyString(), any()))
                 .thenReturn(page);
 
-        List<ItemDTO> getItems = (List<ItemDTO>) itemService.getForRent("Fork", 0, 1);
+        List<ItemDTO> getItems = itemService.getForRent("Fork", 0, 1);
 
         Assertions.assertEquals(getItems.get(0).getId(), items.get(0).getId());
     }
 
     @Test
     void getItemsForRentNewArrayTest() {
-        List<ItemDTO> getItems = (List<ItemDTO>) itemService.getForRent("", null, null);
+        List<ItemDTO> getItems = itemService.getForRent("", null, null);
 
         Assertions.assertEquals(getItems, new ArrayList<>());
     }
@@ -513,7 +487,7 @@ class ItemServiceTest {
                 NotFoundException.class,
                 () -> itemService.addComment(2L, 2L, dtoWithComment));
 
-        Assertions.assertEquals("Вещь не найдена", exception.getMessage());
+        Assertions.assertEquals("Item not found", exception.getMessage());
     }
 
     @Test
@@ -534,7 +508,7 @@ class ItemServiceTest {
                 NotFoundException.class,
                 () -> itemService.addComment(4L, 1L, dtoWithComment));
 
-        Assertions.assertEquals("Пользователь не найден", exception.getMessage());
+        Assertions.assertEquals("User not found", exception.getMessage());
 
     }
 
@@ -561,7 +535,7 @@ class ItemServiceTest {
                 BadRequestException.class,
                 () -> itemService.addComment(4L, 1L, dtoWithComment));
 
-        Assertions.assertEquals("Невозможно добавить комментарий", exception.getMessage());
+        Assertions.assertEquals("Booking is empty", exception.getMessage());
 
 
     }
@@ -569,34 +543,34 @@ class ItemServiceTest {
     private void addItem() {
         addUser();
         item.setId(1L);
-        item.setName("Fork");
+        item.setName("Sword");
         item.setOwner(userOwner);
         item.setAvailable(true);
-        item.setDescription("Designed for food");
+        item.setDescription("For fight");
     }
 
     private void addUser() {
         userOwner.setId(1L);
-        userOwner.setName("Buffy");
-        userOwner.setEmail("buffy@vampire.com");
+        userOwner.setName("Aelin");
+        userOwner.setEmail("aelin@whitethorn.com");
 
         requester.setId(2L);
-        requester.setName("Leo");
+        requester.setName("Rowan");
         requester.setEmail("leo@angel.com");
     }
 
     private void addRequest() {
         request.setId(1L);
         request.setRequester(requester);
-        request.setDescription("I need a fork to eat");
+        request.setDescription("waiting for fight");
         request.setCreated(LocalDateTime.now());
     }
 
     private void addBooking() {
         User booker = new User();
         booker.setId(3L);
-        booker.setName("Katya");
-        booker.setEmail("katya@katya.com");
+        booker.setName("Dorin");
+        booker.setEmail("dorin@havilliard.com");
         booking.setId(1L);
         booking.setItem(item);
         booking.setStatus(Status.WAITING);
@@ -608,12 +582,12 @@ class ItemServiceTest {
     private void addComment() {
         User booker = new User();
         booker.setId(3L);
-        booker.setName("Katya");
-        booker.setEmail("katya@katya.com");
+        booker.setName("Dorin");
+        booker.setEmail("dorin@havilliard.com");
         comment.setId(1L);
         comment.setAuthor(booker);
         comment.setItem(item);
-        comment.setText("cool fork");
+        comment.setText("amazing sword");
         comment.setCreated(LocalDateTime.now());
     }
 

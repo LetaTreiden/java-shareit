@@ -68,7 +68,7 @@ class ItemDtoWithBookingTest {
         User userForLast = new User();
         userForLast.setId(2L);
         userForLast.setName("Rowan");
-        userForLast.setEmail("Rowan@Whitethorn.com");
+        userForLast.setEmail("rowan@whitethorn.com");
         last.setId(1);
         last.setBookerId(userForLast.getId());
         String date = "2017-10-19T23:50:50";
@@ -80,7 +80,7 @@ class ItemDtoWithBookingTest {
         User userForNext = new User();
         userForNext.setId(3L);
         userForNext.setName("Rowan");
-        userForNext.setEmail("Rowan@Whitethorn.com");
+        userForNext.setEmail("rowan@whitethorn.com");
         next.setId(2);
         next.setBookerId(userForNext.getId());
         String date = "2017-10-19T23:50:50";
