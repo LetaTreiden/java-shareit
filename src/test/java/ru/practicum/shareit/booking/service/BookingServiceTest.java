@@ -36,6 +36,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(MockitoExtension.class)
@@ -1123,14 +1124,10 @@ class BookingServiceTest {
                 .thenReturn(Optional.of(user));
 
         Mockito
-                .when(bookingRepository.findByOwnerAndPast(1L, any()))
+                .when(bookingRepository.findByOwnerAndPast(1L,LocalDateTime.now()))
                 .thenReturn(bookingList);
 
         List<BookingDTOToReturn> bookings = bookingService.getByOwner(1L, "PAST", null, null);
-
-        log.info(bookingService.getByOwner(1L, "PAST", null, null).toString());
-        log.info(bookings.toString());
-        log.info(bookingList.toString());
 
         Assertions.assertEquals(bookingList.get(0).getId(), bookings.get(0).getId());
         Assertions.assertEquals(bookingList.size(), bookings.size());
@@ -1174,7 +1171,7 @@ class BookingServiceTest {
         List<Booking> bookingList = new ArrayList<>();
         bookingList.add(booking);
         booking.setId(2L);
-        String date = "2024-10-19T23:50:50";
+        String date = "2017-10-19T23:50:50";
         LocalDateTime localdatetime = LocalDateTime.parse(date);
         booking.setStart(localdatetime);
         bookingList.add(booking);
@@ -1184,7 +1181,7 @@ class BookingServiceTest {
                 .thenReturn(Optional.of(user));
 
        Mockito
-                .when(bookingRepository.findByUserAndFuture(1L, localdatetime))
+                .when(bookingRepository.findByUserAndFuture(1L, LocalDateTime.now()))
                 .thenReturn(bookingList);
 
 
@@ -1385,12 +1382,6 @@ class BookingServiceTest {
         user.setEmail("aelin@whitethorn.com");
     }
 
-    private void addDorian() {
-        user.setId(3L);
-        user.setName("Dorian");
-        user.setEmail("dorian@havilliard.com");
-    }
-
     private void addRequest() {
         User requester = new User();
         requester.setId(2L);
@@ -1421,8 +1412,6 @@ class BookingServiceTest {
 
     @AfterEach
     private void delete() {
-        bookingRepository.deleteAll();
-        userRepository.deleteAll();
-        itemRepository.deleteAll();
+       itemRepository.deleteAll();
     }
 }
