@@ -9,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.Answer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.test.annotation.DirtiesContext;
@@ -36,6 +37,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(MockitoExtension.class)
@@ -1042,6 +1044,7 @@ class BookingServiceTest {
     }
 
     @Test
+   // @MockitoSettings(strictness = Strictness.LENIENT)
     void getBookingByOwnerCURRENTTest() {
         addUser();
         addItem();
@@ -1059,7 +1062,7 @@ class BookingServiceTest {
                 .thenReturn(Optional.of(user));
 
         Mockito
-                .when(bookingRepository.findByOwnerAndCurrent(1L, LocalDateTime.now()))
+                .when(bookingRepository.findByOwnerAndCurrent(anyLong(), any(LocalDateTime.class)))
                 .thenReturn(bookingList);
 
         List<BookingDTOToReturn> bookings = bookingService.getByOwner(1L,"CURRENT",
@@ -1123,7 +1126,7 @@ class BookingServiceTest {
                 .thenReturn(Optional.of(user));
 
         Mockito
-                .when(bookingRepository.findByOwnerAndPast(1L,LocalDateTime.now()))
+                .when(bookingRepository.findByOwnerAndPast(anyLong(), any(LocalDateTime.class)))
                 .thenReturn(bookingList);
 
         List<BookingDTOToReturn> bookings = bookingService.getByOwner(1L, "PAST", null, null);
@@ -1180,15 +1183,18 @@ class BookingServiceTest {
                 .thenReturn(Optional.of(user));
 
        Mockito
-                .when(bookingRepository.findByUserAndFuture(1L, LocalDateTime.now()))
+                .when(bookingRepository.findByUserAndFuture(anyLong(), any(LocalDateTime.class)))
                 .thenReturn(bookingList);
-
 
         List<BookingDTOToReturn> bookings = bookingService.getByOwner(1L, "FUTURE",
                 null, null);
         Assertions.assertEquals(bookingList.get(0).getId(), bookings.get(0).getId());
         Assertions.assertEquals(bookingList.size(), bookings.size());
 
+    }
+
+    private Answer<?> getList() {
+        return (Answer<?>)bookingRepository.findByUserAndFuture(any(), any());
     }
 
     @Test
