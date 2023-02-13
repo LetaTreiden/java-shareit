@@ -1,54 +1,43 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.user.model;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.Hibernate;
-import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
 @Entity
-@Table(name = "items", schema = "public")
+@Table(name = "users", schema = "public")
 @Getter
 @Setter
 @ToString
 @RequiredArgsConstructor
-public class Item {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @NotBlank
     @Column(nullable = false)
     private String name;
 
+    @Email
     @NotBlank
     @Column(nullable = false)
-    private String description;
-
-    @NotNull
-    @Column
-    private Boolean available;
-
-    @ManyToOne
-    @JoinColumn(name = "owner_id")
-    @ToString.Exclude
-    private User owner;
-
-    @ManyToOne
-    @JoinColumn(name = "request_id")
-    private ItemRequest requestId;
+    private String email;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Item item = (Item) o;
-        return id != 0 && Objects.equals(id, item.id);
+        User user = (User) o;
+        return id != null && Objects.equals(id, user.id);
     }
 
     @Override
