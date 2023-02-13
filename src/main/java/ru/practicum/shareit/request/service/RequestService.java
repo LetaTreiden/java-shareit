@@ -12,5 +12,5 @@ public interface RequestService {
 
     List<RequestDTOWithItems> findAll(Long userId, Integer page, Integer size);
 
-    RequestDTO findById(Long userId, Long requestId);
+    RequestDTOWithItems findById(Long userId, Long requestId);
 }

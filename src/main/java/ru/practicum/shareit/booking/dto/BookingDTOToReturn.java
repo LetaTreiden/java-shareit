@@ -1,13 +1,13 @@
 package ru.practicum.shareit.booking.dto;
 
 import lombok.Data;
+import org.springframework.validation.annotation.Validated;
 import ru.practicum.shareit.booking.model.Status;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 
 @Data
+@Validated
 public class BookingDTOToReturn {
 
     private long id;
@@ -21,4 +21,16 @@ public class BookingDTOToReturn {
     private User booker;
 
     private Status status;
+
+    @Data
+    public static class User {
+        private final long id;
+        private final String name;
+    }
+
+    @Data
+    public static class Item {
+        private final long id;
+        private final String name;
+    }
 }

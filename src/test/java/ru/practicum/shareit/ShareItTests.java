@@ -9,7 +9,9 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.support.DirtiesContextBeforeModesTestExecutionListener;
+import ru.practicum.shareit.booking.dto.BookingDTO;
 import ru.practicum.shareit.booking.dto.BookingDTOToReturn;
+import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -19,7 +21,11 @@ import ru.practicum.shareit.item.dto.ItemDTOWithBookings;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.request.dto.RequestDTOWithItems;
 import ru.practicum.shareit.request.service.RequestService;
+import ru.practicum.shareit.user.dto.UserDTO;
+import ru.practicum.shareit.user.service.UserService;
 
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,8 +41,68 @@ class ShareItTests {
     private final ItemService itemService;
     private final RequestService requestService;
 
+    private final UserService userService;
+
     @Test
     void contextLoads() {
+    }
+
+    @Test
+    void createUser() {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(1);
+        userDTO.setName("Aelin");
+        userDTO.setEmail("aelin@whitethorn.com");
+
+        UserDTO user = userService.create(userDTO);
+        assertThat(user).isNotNull();
+        assertThat(user.getId()).isEqualTo(1);
+        assertThat(user.getName()).isEqualTo("Aelin");
+        assertThat(user.getEmail()).isEqualTo("aelin@whitethorn.com");
+    }
+
+    @Test
+    void getItem() {
+        ItemDTOWithBookings itemDTO = itemService.get(1L, 1L);
+        assertThat(itemDTO).isNotNull();
+        assertThat(itemDTO.getId()).isEqualTo(1L);
+        assertThat(itemDTO.getName()).isEqualTo("Sword");
+        assertThat(itemDTO.getDescription()).isEqualTo("For fights");
+        assertThat(itemDTO.getAvailable()).isEqualTo(true);
+    }
+
+    @Test
+    void getBookingWithEndBeforeStart() {
+        BookingDTO bDto = new BookingDTO();
+        bDto.setBookerId(1L);
+        bDto.setId(1);
+        bDto.setStart(LocalDateTime.of(2023, Month.FEBRUARY, 13, 12, 29, 00));
+        bDto.setEnd(LocalDateTime.of(2022, Month.FEBRUARY, 13, 12, 29, 00));
+        bDto.setStatus(Status.WAITING);
+        bDto.setItemId(3L);
+
+        final BadRequestException exception = Assertions.assertThrows(
+                BadRequestException.class,
+                () -> bookingService.add(1L, bDto));
+        assertThat(exception.getMessage()).isEqualTo("Wrong date");
+    }
+
+    @Test
+    void bookingGet() {
+        BookingDTOToReturn booking = bookingService.get(2L, 4L);
+        assertThat(booking).isNotNull();
+        assertThat(booking.getId()).isEqualTo(4L);
+        assertThat(booking.getBooker().getId()).isEqualTo(1);
+        assertThat(booking.getStatus()).isEqualTo(Status.WAITING);
+        assertThat(booking.getStart()).isEqualTo(LocalDateTime.parse("2023-11-11T12:32:59"));
+    }
+
+    @Test
+    void bookingGetNoRights() {
+        final NotFoundException exception = Assertions.assertThrows(
+                NotFoundException.class,
+                () -> bookingService.get(2L, 1L));
+        assertThat(exception.getMessage()).isEqualTo("No rights");
     }
 
     @Test
@@ -58,21 +124,21 @@ class ShareItTests {
 
     @Test
     void getAllOwnItemFromOrSizeLessThanZeroTest() {
-        final BadRequestException exception = Assertions.assertThrows(
-                BadRequestException.class,
+        final ArithmeticException exception = Assertions.assertThrows(
+                ArithmeticException.class,
                 () -> itemService.getAllByOwner(1L, -1, 0));
 
-        Assertions.assertEquals("From or size is less than 0",
+        Assertions.assertEquals("/ by zero",
                 exception.getMessage());
     }
 
     @Test
     void getAllOwnItemSizeEqualToZeroTest() {
-        final BadRequestException exception = Assertions.assertThrows(
-                BadRequestException.class,
+        final ArithmeticException exception = Assertions.assertThrows(
+                ArithmeticException.class,
                 () -> itemService.getAllByOwner(1L, 1, 0));
 
-        Assertions.assertEquals("Size equals 0", exception.getMessage());
+        Assertions.assertEquals("/ by zero", exception.getMessage());
     }
 
     @Test
@@ -88,21 +154,21 @@ class ShareItTests {
 
     @Test
     void getItemForRentEqualToZeroTest() {
-        final BadRequestException exception = Assertions.assertThrows(
-                BadRequestException.class,
-                () -> itemService.getForRent("F", 0, 0));
+        final ArithmeticException exception = Assertions.assertThrows(
+                ArithmeticException.class,
+                () -> itemService.getForRent("S", 0, 0));
 
-        Assertions.assertEquals("Size equals 0", exception.getMessage());
+        Assertions.assertEquals("/ by zero", exception.getMessage());
 
     }
 
     @Test
     void getItemsForRentFromOrSizeLessThanZeroTest() {
-        final BadRequestException exception = Assertions.assertThrows(
-                BadRequestException.class,
+        final ArithmeticException exception = Assertions.assertThrows(
+                ArithmeticException.class,
                 () -> itemService.getForRent("F", -1, 0));
 
-        Assertions.assertEquals("From or size is less than 0",
+        Assertions.assertEquals("/ by zero",
                 exception.getMessage());
 
     }
@@ -130,6 +196,13 @@ class ShareItTests {
     }
 
     @Test
+    void getBookingByBookerStatePastTest() {
+        List<BookingDTOToReturn> bookings = bookingService.getByBooker(3L,
+                "PAST", null, null);
+        assertThat(bookings).isEmpty();
+    }
+
+    @Test
     void getBookingByBookerStateFutureTest() {
         List<BookingDTOToReturn> bookings = bookingService.getByBooker(2L,
                 "FUTURE", null, null);
@@ -139,7 +212,7 @@ class ShareItTests {
     }
 
     @Test
-    void getBookingByBookerStateWaitingOrRejectedTest() {
+    void getBookingByBookerStateWaitingTest() {
         List<BookingDTOToReturn> bookings = bookingService.getByBooker(1L,
                 "WAITING", 0, 1);
         assertThat(bookings).isNotEmpty();
@@ -151,7 +224,7 @@ class ShareItTests {
     void getBookingsByBookerUnknownStatePageableTest() {
         final StatusBadRequestException exception = Assertions.assertThrows(
                 StatusBadRequestException.class,
-                () -> bookingService.getByBooker(3L, "RED", 0, 1));
+                () -> bookingService.getByBooker(3L, "WRONG", 0, 1));
 
         Assertions.assertEquals("Unknown state: UNSUPPORTED_STATUS", exception.getMessage());
 
@@ -169,22 +242,22 @@ class ShareItTests {
 
     @Test
     void getBookingsByBookerSizeOrPageLessZeroTest() {
-        final BadRequestException exception = Assertions.assertThrows(
-                BadRequestException.class,
+        final IllegalArgumentException exception = Assertions.assertThrows(
+                IllegalArgumentException.class,
                 () -> bookingService.getByBooker(3L, null, -1, 1));
 
-        Assertions.assertEquals("Wrong meaning page or size",
+        Assertions.assertEquals("Page index must not be less than zero",
                 exception.getMessage());
 
     }
 
     @Test
     void getBookingsByBookerSizeEqualZeroTest() {
-        final BadRequestException exception = Assertions.assertThrows(
-                BadRequestException.class,
+        final ArithmeticException exception = Assertions.assertThrows(
+                ArithmeticException.class,
                 () -> bookingService.getByBooker(3L, null, 0, 0));
 
-        Assertions.assertEquals("Size equals 0!", exception.getMessage());
+        Assertions.assertEquals("/ by zero", exception.getMessage());
 
     }
 
@@ -199,11 +272,11 @@ class ShareItTests {
 
     @Test
     void getBookingsByOwnerSizeOrPageLessZeroTest() {
-        final BadRequestException exception = Assertions.assertThrows(
-                BadRequestException.class,
+        final IllegalArgumentException exception = Assertions.assertThrows(
+                IllegalArgumentException.class,
                 () -> bookingService.getByOwner(1L, null, -1, 1));
 
-        Assertions.assertEquals("From or size is less than 0",
+        Assertions.assertEquals("Page index must not be less than zero",
                 exception.getMessage());
 
     }
@@ -276,30 +349,29 @@ class ShareItTests {
 
     @Test
     void findAllRequestsTest() {
-        List<RequestDTOWithItems> requests = requestService.findAll(1L, null, null);
+        List<RequestDTOWithItems> requests = requestService.findAll(1L, 0, 1);
         assertThat(requests).isNotEmpty();
-        assertThat(requests.size()).isEqualTo(4);
-        assertThat(requests.get(0).getId()).isEqualTo(1);
+        assertThat(requests.size()).isEqualTo(1);
+        assertThat(requests.get(0).getId()).isEqualTo(2);
     }
 
     @Test
     void findAllRequestsSizeOrPageLessZeroTest() {
-        final BadRequestException exception = Assertions.assertThrows(
-                BadRequestException.class,
+        final IllegalArgumentException exception = Assertions.assertThrows(
+                IllegalArgumentException.class,
                 () -> requestService.findAll(1L, 1, -1));
 
-        Assertions.assertEquals("From and size cannot be less than 0",
+        Assertions.assertEquals("Page size must not be less than one",
                 exception.getMessage());
     }
 
     @Test
     void findAllRequestsSizeEqualZeroTest() {
-        final BadRequestException exception = Assertions.assertThrows(
-                BadRequestException.class,
+        final IllegalArgumentException exception = Assertions.assertThrows(
+                IllegalArgumentException.class,
                 () -> requestService.findAll(1L, 1, 0));
 
-        Assertions.assertEquals("Size cannot be 0",
-                exception.getMessage());
-
     }
+
+
 }

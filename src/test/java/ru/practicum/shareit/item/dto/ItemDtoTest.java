@@ -12,10 +12,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @JsonTest
 class ItemDtoTest {
+    private final User user = new User();
     @Autowired
     private JacksonTester<ItemDTO> json;
-
-    private final User user = new User();
 
     @Test
     void testItemDto() throws Exception {

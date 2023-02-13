@@ -10,6 +10,8 @@ import ru.practicum.shareit.item.dto.ItemDTOWithBookings;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
@@ -41,8 +43,10 @@ public class ItemController {
 
     @GetMapping
     public List<ItemDTOWithBookings> getAllByOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                   @RequestParam(name = "from", required = false) Integer from,
-                                                   @RequestParam(name = "size", required = false) Integer size) {
+                                                   @RequestParam(name = "from", defaultValue = "0")
+                                                   @PositiveOrZero Integer from,
+                                                   @RequestParam(name = "size", defaultValue = "10")
+                                                   @Positive Integer size) {
         log.info("Получение всех вещей пользователя с id {}", userId);
         return itemService.getAllByOwner(userId, from, size);
     }
@@ -50,8 +54,10 @@ public class ItemController {
     @GetMapping("/search")
     public List<ItemDTO> getAllByText(@RequestHeader("X-Sharer-User-Id") Long userId,
                                       @RequestParam String text,
-                                      @RequestParam(name = "from", required = false) Integer from,
-                                      @RequestParam(name = "size", required = false) Integer size) {
+                                      @RequestParam(name = "from", defaultValue = "0")
+                                      @PositiveOrZero Integer from,
+                                      @RequestParam(name = "size", defaultValue = "10")
+                                      @Positive Integer size) {
         log.info("Получение вещей для аренды содержащие в названии или описании текст {}", text);
         return itemService.getForRent(text, from, size);
     }

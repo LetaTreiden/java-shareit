@@ -19,22 +19,18 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 import static org.mockito.ArgumentMatchers.any;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
+    private final User user = new User();
+    private final UserDTO userDTO = new UserDTO();
     @InjectMocks
     UserServiceImpl mockUserService;
-
     @Mock
     UserRepository userRepository;
-
-    private final User user = new User();
-
-    private final UserDTO userDTO = new UserDTO();
 
     private void addUser() {
         user.setName("Aelin");
@@ -131,7 +127,7 @@ class UserServiceTest {
 
     @Test
     void deleteUserTest() {
-       addUser();
+        addUser();
 
         Mockito
                 .when(userRepository.findById(1L))

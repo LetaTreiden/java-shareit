@@ -27,18 +27,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Slf4j
 class BookingRepositoryTest {
 
-    @Autowired
-    private TestEntityManager em;
-
-    @Autowired
-    private BookingRepository bookingRepository;
-
     private final User user = new User();
     private final Item item = new Item();
     private final ItemRequest request = new ItemRequest();
     private final Booking bookingOne = new Booking();
     private final Booking bookingTwo = new Booking();
     private final List<Booking> bookingsList = new ArrayList<>();
+    @Autowired
+    private TestEntityManager em;
+    @Autowired
+    private BookingRepository bookingRepository;
 
     @Test
     void findByItemOrderByStartDescTest() {

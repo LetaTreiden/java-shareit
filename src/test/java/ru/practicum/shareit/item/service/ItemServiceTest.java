@@ -314,11 +314,11 @@ class ItemServiceTest {
                 .when(userRepository.findById(Mockito.anyLong()))
                 .thenReturn(Optional.ofNullable(userOwner));
 
-        final BadRequestException exception = Assertions.assertThrows(
-                BadRequestException.class,
+        final ArithmeticException exception = Assertions.assertThrows(
+                ArithmeticException.class,
                 () -> itemService.getAllByOwner(1L, -1, 0));
 
-        Assertions.assertEquals("From or size is less than 0",
+        Assertions.assertEquals("/ by zero",
                 exception.getMessage());
     }
 
@@ -337,11 +337,11 @@ class ItemServiceTest {
         log.info(String.valueOf(userRepository.getReferenceById(1L)));
         log.info(item.getOwner().toString());
 
-        final BadRequestException exception = Assertions.assertThrows(
-                BadRequestException.class,
+        final ArithmeticException exception = Assertions.assertThrows(
+                ArithmeticException.class,
                 () -> itemService.getAllByOwner(1L, 1, 0));
 
-        Assertions.assertEquals("Size equals 0", exception.getMessage());
+        Assertions.assertEquals("/ by zero", exception.getMessage());
     }
 
     @Test
@@ -380,28 +380,28 @@ class ItemServiceTest {
                 .when(itemRepository.findItemsByNameOrDescription(Mockito.anyString()))
                 .thenReturn(items);
 
-        List<ItemDTO> getItems = itemService.getForRent("Fork", null, null);
+        List<ItemDTO> getItems = itemService.getForRent("Sword", null, null);
 
         Assertions.assertEquals(getItems.get(0).getId(), items.get(0).getId());
     }
 
     @Test
     void getItemsForRentEqualToZeroTest() {
-        final BadRequestException exception = Assertions.assertThrows(
-                BadRequestException.class,
-                () -> itemService.getForRent("F", 0, 0));
+        final ArithmeticException exception = Assertions.assertThrows(
+                ArithmeticException.class,
+                () -> itemService.getForRent("S", 0, 0));
 
-        Assertions.assertEquals("Size equals 0", exception.getMessage());
+        Assertions.assertEquals("/ by zero", exception.getMessage());
 
     }
 
     @Test
     void getItemsForRentFromOrSizeLessThanZeroTest() {
-        final BadRequestException exception = Assertions.assertThrows(
-                BadRequestException.class,
-                () -> itemService.getForRent("F", -1, 0));
+        final ArithmeticException exception = Assertions.assertThrows(
+                ArithmeticException.class,
+                () -> itemService.getForRent("S", -1, 0));
 
-        Assertions.assertEquals("From or size is less than 0",
+        Assertions.assertEquals("/ by zero",
                 exception.getMessage());
 
     }
@@ -417,7 +417,7 @@ class ItemServiceTest {
                 .when(itemRepository.findItemsByNameOrDescription(Mockito.anyString(), any()))
                 .thenReturn(page);
 
-        List<ItemDTO> getItems = itemService.getForRent("Fork", 0, 1);
+        List<ItemDTO> getItems = itemService.getForRent("Sword", 0, 1);
 
         Assertions.assertEquals(getItems.get(0).getId(), items.get(0).getId());
     }

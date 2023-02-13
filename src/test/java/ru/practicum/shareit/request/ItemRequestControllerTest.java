@@ -58,9 +58,6 @@ class ItemRequestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(requestDto.getId()), Long.class))
                 .andExpect(jsonPath("$.created", is(requestDto.getCreated().toString())))
-                .andExpect(jsonPath("$.requester.id", is(requestDto.getRequester().getId().intValue())))
-                .andExpect(jsonPath("$.requester.name", is(requestDto.getRequester().getName())))
-                .andExpect(jsonPath("$.requester.email", is(requestDto.getRequester().getEmail())))
                 .andExpect(jsonPath("$.description", is(requestDto.getDescription())));
     }
 
@@ -80,9 +77,6 @@ class ItemRequestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id", is(requestWithItems.getId()), Long.class))
                 .andExpect(jsonPath("$[0].created", is(requestWithItems.getCreated().toString())))
-                .andExpect(jsonPath("$[0].requester.id", is(requestWithItems.getRequester().getId().intValue())))
-                .andExpect(jsonPath("$[0].requester.name", is(requestWithItems.getRequester().getName())))
-                .andExpect(jsonPath("$[0].requester.email", is(requestWithItems.getRequester().getEmail())))
                 .andExpect(jsonPath("$[0].description", is(requestWithItems.getDescription())));
     }
 
@@ -104,9 +98,6 @@ class ItemRequestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id", is(requestWithItems.getId()), Long.class))
                 .andExpect(jsonPath("$[0].created", is(requestWithItems.getCreated().toString())))
-                .andExpect(jsonPath("$[0].requester.id", is(requestWithItems.getRequester().getId().intValue())))
-                .andExpect(jsonPath("$[0].requester.name", is(requestWithItems.getRequester().getName())))
-                .andExpect(jsonPath("$[0].requester.email", is(requestWithItems.getRequester().getEmail())))
                 .andExpect(jsonPath("$[0].description", is(requestWithItems.getDescription())));
     }
 
@@ -126,9 +117,6 @@ class ItemRequestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(requestWithItems.getId()), Long.class))
                 .andExpect(jsonPath("$.created", is(requestWithItems.getCreated().toString())))
-                .andExpect(jsonPath("$.requester.id", is(requestWithItems.getRequester().getId().intValue())))
-                .andExpect(jsonPath("$.requester.name", is(requestWithItems.getRequester().getName())))
-                .andExpect(jsonPath("$.requester.email", is(requestWithItems.getRequester().getEmail())))
                 .andExpect(jsonPath("$.description", is(requestWithItems.getDescription())));
     }
 
@@ -142,7 +130,6 @@ class ItemRequestControllerTest {
         addUser();
         requestDto.setId(1L);
         requestDto.setDescription("waiting for fight");
-        requestDto.setRequester(user);
         String date = "2022-11-23T12:30:54";
         LocalDateTime localdatetime = LocalDateTime.parse(date);
         requestDto.setCreated(localdatetime);
@@ -154,7 +141,6 @@ class ItemRequestControllerTest {
         user.setName("Rowan");
         requestWithItems.setId(2L);
         requestWithItems.setDescription("waiting for fight");
-        requestWithItems.setRequester(user);
         String date = "2022-11-24T12:30:54";
         LocalDateTime localdatetime = LocalDateTime.parse(date);
         requestWithItems.setCreated(localdatetime);

@@ -6,7 +6,7 @@ import ru.practicum.shareit.Update;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotEmpty;
 
 @Data
 public class UserDTO {
@@ -17,6 +17,6 @@ public class UserDTO {
     private String name;
 
     @Email(groups = {Update.class, Create.class})
-    @NotNull(groups = {Create.class})
+    @NotEmpty(groups = {Create.class})
     private String email;
 }

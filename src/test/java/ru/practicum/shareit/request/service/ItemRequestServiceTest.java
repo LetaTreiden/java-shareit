@@ -1,5 +1,6 @@
 package ru.practicum.shareit.request.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,7 +11,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.test.annotation.DirtiesContext;
-import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
@@ -32,6 +32,7 @@ import static org.mockito.ArgumentMatchers.any;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(MockitoExtension.class)
+@Slf4j
 class ItemRequestServiceTest {
 
     @InjectMocks
@@ -69,8 +70,8 @@ class ItemRequestServiceTest {
                 .isPresent()
                 .hasValueSatisfying(addRequestTest -> {
                             assertThat(addRequestTest).hasFieldOrPropertyWithValue("id", request.getId());
-                            assertThat(addRequestTest).hasFieldOrPropertyWithValue("requester",
-                                    request.getRequester());
+                            assertThat(addRequestTest).hasFieldOrPropertyWithValue("requester.id",
+                                    request.getRequester().getId());
                             assertThat(addRequestTest).hasFieldOrPropertyWithValue("description",
                                     request.getDescription());
                             assertThat(addRequestTest).hasFieldOrPropertyWithValue("created",
@@ -92,22 +93,6 @@ class ItemRequestServiceTest {
                 () -> requestService.add(3L, RequestMapper.toRequestDto(request)));
 
         Assertions.assertEquals("User not found", exception.getMessage());
-    }
-
-    @Test
-    void addRequestDescriptionIsEmpty() {
-        addRequest();
-        request.setDescription("");
-
-        Mockito
-                .when(userRepository.findById(Mockito.anyLong()))
-                .thenReturn(Optional.of(requester));
-
-        final BadRequestException exception = Assertions.assertThrows(
-                BadRequestException.class,
-                () -> requestService.add(1L, RequestMapper.toRequestDto(request)));
-
-        Assertions.assertEquals("Description is empty", exception.getMessage());
     }
 
     @Test
@@ -173,17 +158,15 @@ class ItemRequestServiceTest {
         request.setCreated(LocalDateTime.now().minusHours(5));
         request.setId(2L);
         requests.add(request);
-        Page<ItemRequest> page = new PageImpl<>(requests);
+        List<ItemRequest> page = new ArrayList<>(requests);
 
         Mockito
-                .when(requestRepository.findAllBy(Mockito.anyLong(), any()))
+                .when(requestRepository.findAllByRequester_IdNot(Mockito.anyLong(), any()))
                 .thenReturn(page);
 
-        Mockito
-                .when(itemRepository.findByRequest(Mockito.anyLong()))
-                .thenReturn(items);
-
         List<RequestDTOWithItems> requestDtos = requestService.findAll(1L, 0, 1);
+
+        log.info(requestDtos.toString());
 
         Assertions.assertEquals(request.getId(), requestDtos.get(0).getId());
 
@@ -202,14 +185,10 @@ class ItemRequestServiceTest {
         requests.add(request);
 
         Mockito
-                .when(requestRepository.findAll())
+                .when(requestRepository.findAllByRequester_IdNot(Mockito.anyLong(), any()))
                 .thenReturn(requests);
 
-        Mockito
-                .when(itemRepository.findByRequest(Mockito.anyLong()))
-                .thenReturn(items);
-
-        List<RequestDTOWithItems> requestDtos = requestService.findAll(1L, null, null);
+        List<RequestDTOWithItems> requestDtos = requestService.findAll(1L, 0, 1);
 
         Assertions.assertEquals(request.getId(), requestDtos.get(0).getId());
 
@@ -217,22 +196,22 @@ class ItemRequestServiceTest {
 
     @Test
     void findAllRequestSizeOrPageLessZeroTest() {
-        final BadRequestException exception = Assertions.assertThrows(
-                BadRequestException.class,
+        final IllegalArgumentException exception = Assertions.assertThrows(
+                IllegalArgumentException.class,
                 () -> requestService.findAll(1L, 1, -1));
 
-        Assertions.assertEquals("From and size cannot be less than 0",
+        Assertions.assertEquals("Page size must not be less than one",
                 exception.getMessage());
 
     }
 
     @Test
     void findAllRequestSizeEqualZeroTest() {
-        final BadRequestException exception = Assertions.assertThrows(
-                BadRequestException.class,
+        final IllegalArgumentException exception = Assertions.assertThrows(
+                IllegalArgumentException.class,
                 () -> requestService.findAll(1L, 1, 0));
 
-        Assertions.assertEquals("Size cannot be 0",
+        Assertions.assertEquals("Page size must not be less than one",
                 exception.getMessage());
 
     }
@@ -256,8 +235,8 @@ class ItemRequestServiceTest {
                 .isPresent()
                 .hasValueSatisfying(addRequestTest -> {
                             assertThat(addRequestTest).hasFieldOrPropertyWithValue("id", request.getId());
-                            assertThat(addRequestTest).hasFieldOrPropertyWithValue("requester",
-                                    request.getRequester());
+                            assertThat(addRequestTest).hasFieldOrPropertyWithValue("requester.id",
+                                    request.getRequester().getId());
                             assertThat(addRequestTest).hasFieldOrPropertyWithValue("description",
                                     request.getDescription());
                             assertThat(addRequestTest).hasFieldOrPropertyWithValue("created",

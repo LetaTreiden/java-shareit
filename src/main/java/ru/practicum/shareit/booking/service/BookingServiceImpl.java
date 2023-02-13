@@ -23,7 +23,6 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -59,7 +58,6 @@ public class BookingServiceImpl implements BookingService {
             throw new BadRequestException("Wrong date");
         }
         Booking booking = bRepository.save(BookingMapper.toBooking(bookingDto, item, user));
-//        log.info(booking.toString());
         return BookingMapper.toBookingDtoFrom(booking);
     }
 
@@ -112,12 +110,6 @@ public class BookingServiceImpl implements BookingService {
         }
         User user = booker.get();
         if (page != null && size != null) {
-            if (page < 0 || size < 0) {
-                throw new BadRequestException("Wrong meaning page or size");
-            }
-            if (size == 0) {
-                throw new BadRequestException("Size equals 0!");
-            }
             pageable = PageRequest.of(page / size, size);
             return findBookingByBookerByPage(user, status, pageable);
         } else {
@@ -160,28 +152,26 @@ public class BookingServiceImpl implements BookingService {
 
     private List<BookingDTOToReturn> findBookingByBookerByPage(User booker, String status, Pageable pageable) {
         Page<Booking> bookingsPage;
-        if (status == null || status.equals("")) {
-            status = "ALL";
-        }
-        switch (status) {
-            case "ALL":
+        State state = stateValidation(status);
+        switch (state) {
+            case ALL:
                 bookingsPage = bRepository.findByBookerOrderByStartDesc(booker, pageable);
                 break;
-            case "CURRENT":
+            case CURRENT:
                 bookingsPage = bRepository.findByBookerAndStartBeforeAndEndAfterOrderByStartDesc(booker,
                         LocalDateTime.now(), LocalDateTime.now(), pageable);
                 break;
-            case "PAST":
+            case PAST:
                 bookingsPage = bRepository.findByBookerAndStartBeforeAndEndBeforeOrderByStartDesc(booker,
                         LocalDateTime.now(), LocalDateTime.now(), pageable);
                 break;
-            case "FUTURE":
+            case FUTURE:
                 bookingsPage = bRepository.findByBookerAndStartAfterOrderByStartDesc(booker, LocalDateTime.now(), pageable);
                 break;
-            case "WAITING":
+            case WAITING:
                 bookingsPage = bRepository.findByBookerAndStatusOrderByStartDesc(booker, Status.WAITING, pageable);
                 break;
-            case "REJECTED":
+            case REJECTED:
                 bookingsPage = bRepository.findByBookerAndStatusOrderByStartDesc(booker, Status.REJECTED, pageable);
                 break;
             default:
@@ -197,12 +187,6 @@ public class BookingServiceImpl implements BookingService {
         User owner = uRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
         Pageable pageable;
         if (page != null && size != null) {
-            if (page < 0 || size < 0) {
-                throw new BadRequestException("From or size is less than 0");
-            }
-            if (size == 0) {
-                throw new BadRequestException("Size equals 0");
-            }
             pageable = PageRequest.of(page / size, size);
 
             return findBookingByOwnerByPage(userId, status, pageable);

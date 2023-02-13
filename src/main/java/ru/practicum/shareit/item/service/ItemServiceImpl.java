@@ -18,9 +18,9 @@ import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.CommentRepository;
 import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.item.dto.CommentDTO;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.dto.ItemDTOWithBookings;
-import ru.practicum.shareit.item.dto.CommentDTO;
 import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
@@ -106,7 +106,6 @@ public class ItemServiceImpl implements ItemService {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
         List<Item> items = new ArrayList<>();
         if (page != null && size != null) {
-            sizeAndPage(size, page);
             Pageable pageable = PageRequest.of(page / size, size);
             Page<Item> itemsPage = itemRepository.findByOwner(user, pageable);
             for (Item item : itemsPage) {
@@ -174,21 +173,11 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDTO> getForRent(String substring, Integer page, Integer size) {
         if (!Objects.equals(substring, "")) {
             if (page != null && size != null) {
-                sizeAndPage(size, page);
                 Pageable pageable = PageRequest.of(page / size, size);
                 return ItemMapper.mapToItemDto(itemRepository.findItemsByNameOrDescription(substring, pageable));
             }
             return ItemMapper.mapToItemDto(itemRepository.findItemsByNameOrDescription(substring));
         }
         return new ArrayList<>();
-    }
-
-    private void sizeAndPage(Integer size, Integer page) {
-        if (page < 0 || size < 0) {
-            throw new BadRequestException("From or size is less than 0");
-        }
-        if (size == 0) {
-            throw new BadRequestException("Size equals 0");
-        }
     }
 }

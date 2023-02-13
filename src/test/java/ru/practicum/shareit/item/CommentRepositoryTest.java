@@ -17,16 +17,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class CommentRepositoryTest {
-    @Autowired
-    private TestEntityManager em;
-
-    @Autowired
-    private CommentRepository commentRepository;
-
     private final Comment comment = new Comment();
     private final User user = new User();
-
     private final Item item = new Item();
+    @Autowired
+    private TestEntityManager em;
+    @Autowired
+    private CommentRepository commentRepository;
 
     @Test
     public void findByItemJpaTest() {

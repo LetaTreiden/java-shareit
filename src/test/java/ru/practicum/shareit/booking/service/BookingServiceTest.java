@@ -1,7 +1,6 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,7 +8,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.stubbing.Answer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.test.annotation.DirtiesContext;
@@ -22,9 +20,11 @@ import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.StatusBadRequestException;
 import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemServiceImpl;
 import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserServiceImpl;
@@ -89,8 +89,10 @@ class BookingServiceTest {
                 .isPresent()
                 .hasValueSatisfying(addBookingTest -> {
                             assertThat(addBookingTest).hasFieldOrPropertyWithValue("id", booking.getId());
-                            assertThat(addBookingTest).hasFieldOrPropertyWithValue("item", booking.getItem());
-                            assertThat(addBookingTest).hasFieldOrPropertyWithValue("booker", booking.getBooker());
+                            assertThat(addBookingTest).hasFieldOrPropertyWithValue("item",
+                                    ItemMapper.toItemToBookingDTO(booking.getItem()));
+                            assertThat(addBookingTest).hasFieldOrPropertyWithValue("booker",
+                                    UserMapper.toUserToBookingDTO(booking.getBooker()));
                             assertThat(addBookingTest).hasFieldOrPropertyWithValue("status", booking.getStatus());
                             assertThat(addBookingTest).hasFieldOrPropertyWithValue("start", booking.getStart());
                             assertThat(addBookingTest).hasFieldOrPropertyWithValue("end", booking.getEnd());
@@ -229,6 +231,30 @@ class BookingServiceTest {
     }
 
     @Test
+    void addBookingEndIsBeforeStartTest() {
+        addBooking();
+        addUser();
+        addItem();
+        booking.setStart(LocalDateTime.parse("2017-10-19T23:50:50"));
+        booking.setEnd(LocalDateTime.parse("2016-10-19T23:50:50"));
+
+        Mockito
+                .when(itemRepository.findById(Mockito.anyLong()))
+                .thenReturn(Optional.of(item));
+
+        Mockito
+                .when(userRepository.findById(Mockito.anyLong()))
+                .thenReturn(Optional.of(user));
+
+        final BadRequestException exception = Assertions.assertThrows(
+                BadRequestException.class,
+                () -> bookingService.add(2L, BookingMapper.toBookingDto(booking)));
+
+        Assertions.assertEquals("Wrong date",
+                exception.getMessage());
+    }
+
+    @Test
     void updateStatusBookingApprovedTest() {
         addUser();
         addItem();
@@ -305,11 +331,6 @@ class BookingServiceTest {
         addBooking();
         booking.setStatus(Status.APPROVED);
 
-      /*  Mockito
-                .when(bookingRepository.findById(Mockito.anyLong()))
-                .thenReturn(Optional.of(booking));
-        */
-
         Mockito
                 .when(bookingRepository.getReferenceById(Mockito.anyLong()))
                 .thenReturn(booking);
@@ -339,8 +360,10 @@ class BookingServiceTest {
                 .isPresent()
                 .hasValueSatisfying(addBookingTest -> {
                             assertThat(addBookingTest).hasFieldOrPropertyWithValue("id", booking.getId());
-                            assertThat(addBookingTest).hasFieldOrPropertyWithValue("item", booking.getItem());
-                            assertThat(addBookingTest).hasFieldOrPropertyWithValue("booker", booking.getBooker());
+                            assertThat(addBookingTest).hasFieldOrPropertyWithValue("item",
+                                    ItemMapper.toItemToBookingDTO(booking.getItem()));
+                            assertThat(addBookingTest).hasFieldOrPropertyWithValue("booker",
+                                    UserMapper.toUserToBookingDTO(booking.getBooker()));
                             assertThat(addBookingTest).hasFieldOrPropertyWithValue("status", booking.getStatus());
                             assertThat(addBookingTest).hasFieldOrPropertyWithValue("start", booking.getStart());
                             assertThat(addBookingTest).hasFieldOrPropertyWithValue("end", booking.getEnd());
@@ -490,7 +513,7 @@ class BookingServiceTest {
                 .when(bookingRepository.findByBookerOrderByStartDesc(any(), any()))
                 .thenReturn(page);
 
-        List<BookingDTOToReturn> bookings = bookingService.getByBooker(3L, null, 0, 1);
+        List<BookingDTOToReturn> bookings = bookingService.getByBooker(3L, "ALL", 0, 1);
         List<BookingDTOToReturn> bookings1 = List.copyOf(bookings);
 
         Assertions.assertEquals(bookingList.get(0).getId(), bookings1.get(0).getId());
@@ -852,11 +875,11 @@ class BookingServiceTest {
                 .when(userRepository.findById(Mockito.anyLong()))
                 .thenReturn(Optional.of(user));
 
-        final BadRequestException exception = Assertions.assertThrows(
-                BadRequestException.class,
+        final IllegalArgumentException exception = Assertions.assertThrows(
+                IllegalArgumentException.class,
                 () -> bookingService.getByBooker(3L, null, -1, 1));
 
-        Assertions.assertEquals("Wrong meaning page or size",
+        Assertions.assertEquals("Page index must not be less than zero",
                 exception.getMessage());
 
     }
@@ -870,11 +893,11 @@ class BookingServiceTest {
                 .when(userRepository.findById(Mockito.anyLong()))
                 .thenReturn(Optional.of(user));
 
-        final BadRequestException exception = Assertions.assertThrows(
-                BadRequestException.class,
+        final ArithmeticException exception = Assertions.assertThrows(
+                ArithmeticException.class,
                 () -> bookingService.getByBooker(3L, null, 0, 0));
 
-        Assertions.assertEquals("Size equals 0!", exception.getMessage());
+        Assertions.assertEquals("/ by zero", exception.getMessage());
 
     }
 
@@ -900,11 +923,11 @@ class BookingServiceTest {
                 .when(userRepository.findById(Mockito.anyLong()))
                 .thenReturn(Optional.of(user));
 
-        final BadRequestException exception = Assertions.assertThrows(
-                BadRequestException.class,
+        final IllegalArgumentException exception = Assertions.assertThrows(
+                IllegalArgumentException.class,
                 () -> bookingService.getByOwner(1L, null, -1, 1));
 
-        Assertions.assertEquals("From or size is less than 0",
+        Assertions.assertEquals("Page index must not be less than zero",
                 exception.getMessage());
 
     }
@@ -918,11 +941,11 @@ class BookingServiceTest {
                 .when(userRepository.findById(Mockito.anyLong()))
                 .thenReturn(Optional.of(user));
 
-        final BadRequestException exception = Assertions.assertThrows(
-                BadRequestException.class,
+        final ArithmeticException exception = Assertions.assertThrows(
+                ArithmeticException.class,
                 () -> bookingService.getByOwner(1L, null, 0, 0));
 
-        Assertions.assertEquals("Size equals 0", exception.getMessage());
+        Assertions.assertEquals("/ by zero", exception.getMessage());
 
     }
 
@@ -1044,7 +1067,7 @@ class BookingServiceTest {
     }
 
     @Test
-   // @MockitoSettings(strictness = Strictness.LENIENT)
+        // @MockitoSettings(strictness = Strictness.LENIENT)
     void getBookingByOwnerCURRENTTest() {
         addUser();
         addItem();
@@ -1065,7 +1088,7 @@ class BookingServiceTest {
                 .when(bookingRepository.findByOwnerAndCurrent(anyLong(), any(LocalDateTime.class)))
                 .thenReturn(bookingList);
 
-        List<BookingDTOToReturn> bookings = bookingService.getByOwner(1L,"CURRENT",
+        List<BookingDTOToReturn> bookings = bookingService.getByOwner(1L, "CURRENT",
                 null, null);
 
         log.info(String.valueOf(bookingList.size()));
@@ -1182,7 +1205,7 @@ class BookingServiceTest {
                 .when(userRepository.findById(Mockito.anyLong()))
                 .thenReturn(Optional.of(user));
 
-       Mockito
+        Mockito
                 .when(bookingRepository.findByUserAndFuture(anyLong(), any(LocalDateTime.class)))
                 .thenReturn(bookingList);
 
@@ -1191,10 +1214,6 @@ class BookingServiceTest {
         Assertions.assertEquals(bookingList.get(0).getId(), bookings.get(0).getId());
         Assertions.assertEquals(bookingList.size(), bookings.size());
 
-    }
-
-    private Answer<?> getList() {
-        return (Answer<?>)bookingRepository.findByUserAndFuture(any(), any());
     }
 
     @Test
@@ -1413,10 +1432,5 @@ class BookingServiceTest {
         localdatetime = LocalDateTime.parse(date);
         booking.setEnd(localdatetime);
         booking.setBooker(booker);
-    }
-
-    @AfterEach
-    private void delete() {
-       itemRepository.deleteAll();
     }
 }

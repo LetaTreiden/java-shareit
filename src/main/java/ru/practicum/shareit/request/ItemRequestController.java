@@ -3,17 +3,21 @@ package ru.practicum.shareit.request;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.request.dto.RequestDTO;
 import ru.practicum.shareit.request.dto.RequestDTOWithItems;
 import ru.practicum.shareit.request.service.RequestService;
 
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
 @RequestMapping(path = "/requests")
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Slf4j
+@Validated
 public class ItemRequestController {
     private final RequestService requestService;
 
@@ -32,15 +36,17 @@ public class ItemRequestController {
 
     @GetMapping("/all")
     public List<RequestDTOWithItems> getAllRequest(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                          @RequestParam(name = "from", required = false) Integer from,
-                                          @RequestParam(name = "size", required = false) Integer size) {
+                                                   @RequestParam(defaultValue = "0")
+                                                   @PositiveOrZero Integer from,
+                                                   @RequestParam(name = "size", defaultValue = "1")
+                                                   @Positive Integer size) {
         log.info("Просмотр всех запросов на добавление вещи");
-        return requestService.findAll(userId,from, size);
+        return requestService.findAll(userId, from, size);
     }
 
     @GetMapping("/{requestId}")
     public RequestDTO getRequest(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long requestId) {
         log.info("Просмотр запроса с id {}", requestId);
-        return  requestService.findById(userId, requestId);
+        return requestService.findById(userId, requestId);
     }
 }

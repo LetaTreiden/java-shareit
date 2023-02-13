@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.mapper;
 
 import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.booking.BookingMapper;
+import ru.practicum.shareit.booking.dto.BookingDTOToReturn;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.dto.ItemDTOWithBookings;
@@ -73,15 +74,10 @@ public class ItemMapper {
         return dtos;
     }
 
-    /* public static BookingDTOToReturn.Item toItemToBookingDTO(Item item) {
-        BookingDTOToReturn.Item item1 = new BookingDTOToReturn.Item();
-        item1.setId(item.getId());
-        item1.setDescription(item.getDescription());
-        item1.setName(item.getName());
-        return item1;
+    public static BookingDTOToReturn.Item toItemToBookingDTO(Item item) {
+        return new BookingDTOToReturn.Item(item.getId(), item.getName());
     }
 
-     */
 
     public static ItemDTOWithBookings toDtoWithBookings(Item item, List<Booking> bookings,
                                                         List<Comment> comments) {
@@ -114,16 +110,13 @@ public class ItemMapper {
         return dtos;
     }
 
-  /*  public static Item toItem(BookingDTOToReturn.Item itemForBooking) {
+    public static Item toItem(BookingDTOToReturn.Item itemForBooking) {
         Item item = new Item();
         item.setId(itemForBooking.getId());
         item.setName(itemForBooking.getName());
-        item.setDescription(itemForBooking.getDescription());
-       // item.setAvailable(itemForBooking.getAvailable());
         return item;
     }
 
-   */
 }
 
 

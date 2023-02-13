@@ -20,29 +20,25 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import static org.hamcrest.Matchers.is;
-
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @WebMvcTest(controllers = UserController.class)
 class UserControllerTest {
 
+    private final UserDTO userDto = new UserDTO();
     @Autowired
     ObjectMapper mapper;
-
     @MockBean
     UserServiceImpl userService;
-
     @Autowired
     private MockMvc mvc;
-
-    private final UserDTO userDto = new UserDTO();
 
     @Test
     void createUserControllerTest() throws Exception {

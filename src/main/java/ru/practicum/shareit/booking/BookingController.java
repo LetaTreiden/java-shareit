@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDTO;
 import ru.practicum.shareit.booking.dto.BookingDTOToReturn;
@@ -16,6 +17,7 @@ import java.util.List;
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Slf4j
+@Validated
 public class BookingController {
     private final BookingService bookingService;
 
@@ -44,21 +46,21 @@ public class BookingController {
     @GetMapping
     public List<BookingDTOToReturn> findByBooker(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                  @RequestParam(required = false, defaultValue = "ALL") String state,
-                                                 @PositiveOrZero @RequestParam(name = "from", required = false)
-                                                     Integer from,
-                                                 @PositiveOrZero @RequestParam(name = "size", required = false)
-                                                     Integer size) {
+                                                 @PositiveOrZero @RequestParam(name = "from", defaultValue = "0")
+                                                 Integer from,
+                                                 @PositiveOrZero @RequestParam(name = "size", defaultValue = "10")
+                                                 Integer size) {
         log.info("Получение списка бронирований пользовалеля с id {}", userId);
         return bookingService.getByBooker(userId, state, from, size);
     }
 
     @GetMapping("/owner")
     public List<BookingDTOToReturn> findByOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                @RequestParam(required = false, defaultValue = "ALL") String state,
-                                                @PositiveOrZero @RequestParam(name = "from", required = false)
-                                                    Integer from,
-                                                @PositiveOrZero @RequestParam(name = "size", required = false)
-                                                    Integer size) {
+                                                @RequestParam(defaultValue = "ALL") String state,
+                                                @PositiveOrZero @RequestParam(name = "from", defaultValue = "0")
+                                                Integer from,
+                                                @PositiveOrZero @RequestParam(name = "size", defaultValue = "10")
+                                                Integer size) {
         log.info("Получение списка бронирований для всех вещей пользователя с id {}", userId);
         return bookingService.getByOwner(userId, state, from, size);
     }

@@ -1,8 +1,10 @@
 package ru.practicum.shareit.user;
 
 import lombok.experimental.UtilityClass;
+import ru.practicum.shareit.booking.dto.BookingDTOToReturn;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.dto.ItemDTOWithBookings;
+import ru.practicum.shareit.request.dto.RequestDTO;
 import ru.practicum.shareit.user.dto.UserDTO;
 import ru.practicum.shareit.user.model.User;
 
@@ -43,12 +45,6 @@ public class UserMapper {
         return dtos;
     }
 
-   /* public static BookingDTOToReturn.User toUserToBookingDTO(User user) {
-        return new BookingDTOToReturn.User(user.getId(), user.getName(), user.getEmail());
-    }
-
-    */
-
     public static ItemDTOWithBookings.User toUserToItemWithBookingsDto(User user) {
         return new ItemDTOWithBookings.User(user.getId(), user.getName(), user.getEmail());
     }
@@ -63,5 +59,27 @@ public class UserMapper {
             dtos.add(toUser(user));
         }
         return dtos;
+    }
+
+    public static User toUser(RequestDTO.User userRequest) {
+        User user = new User();
+        user.setId(userRequest.getId());
+        user.setName(userRequest.getName());
+        return user;
+    }
+
+    public static RequestDTO.User toUserToRequest(User user) {
+        return new RequestDTO.User(user.getId(), user.getName());
+    }
+
+    public static BookingDTOToReturn.User toUserToBookingDTO(User user) {
+        return new BookingDTOToReturn.User(user.getId(), user.getName());
+    }
+
+    public static User toUser(BookingDTOToReturn.User userFromDto) {
+        User user = new User();
+        user.setId(userFromDto.getId());
+        user.setName(userFromDto.getName());
+        return user;
     }
 }

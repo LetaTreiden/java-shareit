@@ -21,16 +21,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class ItemRequestRepositoryTest {
 
-    @Autowired
-    private TestEntityManager em;
-
-    @Autowired
-    private RequestRepository rRepository;
-
     private final ItemRequest requestOne = new ItemRequest();
     private final ItemRequest requestTwo = new ItemRequest();
-
     List<ItemRequest> requestsPersist = new ArrayList<>();
+    @Autowired
+    private TestEntityManager em;
+    @Autowired
+    private RequestRepository rRepository;
 
     @Test
     void findByRequesterOrderByCreatedDesc() {

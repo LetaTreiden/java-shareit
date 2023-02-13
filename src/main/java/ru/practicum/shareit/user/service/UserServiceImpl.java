@@ -22,7 +22,6 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public UserDTO create(UserDTO userDto) {
-
         User user = repository.save(UserMapper.toUser(userDto));
         return UserMapper.toUserDto(user);
     }

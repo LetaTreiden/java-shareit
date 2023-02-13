@@ -20,15 +20,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Slf4j
 class ItemRepositoryTest {
 
-    @Autowired
-    private TestEntityManager em;
-
-    @Autowired
-    private ItemRepository itemRepository;
-
     private final Item item = new Item();
     private final User user = new User();
     private final ItemRequest request = new ItemRequest();
+    @Autowired
+    private TestEntityManager em;
+    @Autowired
+    private ItemRepository itemRepository;
 
     @Test
     void findItemByRequestJpaTest() {
