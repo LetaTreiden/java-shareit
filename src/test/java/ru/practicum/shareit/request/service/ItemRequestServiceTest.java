@@ -8,8 +8,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.ItemRepository;
