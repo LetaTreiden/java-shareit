@@ -40,8 +40,4 @@ public class CommentMapper {
         }
         return dtos;
     }
-
-    public static List<Comment> toCommentShortList(Collection<Comment> comments) {
-        return new ArrayList<>(comments);
-    }
 }

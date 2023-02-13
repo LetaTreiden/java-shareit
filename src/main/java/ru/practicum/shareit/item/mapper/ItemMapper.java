@@ -102,21 +102,6 @@ public class ItemMapper {
         return iDTO;
     }
 
-    public static List<Item> mapToItem(Iterable<ItemDTOWithBookings> items) {
-        List<Item> dtos = new ArrayList<>();
-        for (ItemDTOWithBookings item : items) {
-            dtos.add(toItem(item));
-        }
-        return dtos;
-    }
-
-    public static Item toItem(BookingDTOToReturn.Item itemForBooking) {
-        Item item = new Item();
-        item.setId(itemForBooking.getId());
-        item.setName(itemForBooking.getName());
-        return item;
-    }
-
 }
 
 

@@ -77,12 +77,4 @@ public class ErrorHandler {
         );
     }
 
-    @ExceptionHandler
-    public ResponseEntity<Map<String, String>> handleConflictError(final ConflictException e) {
-        log.error("Conflict!{}", e.getMessage());
-        return new ResponseEntity<>(
-                Map.of("Запрос не может быть выполнен из-за конфликтного обращения к ресурсу", e.getMessage()),
-                HttpStatus.CONFLICT
-        );
-    }
 }
