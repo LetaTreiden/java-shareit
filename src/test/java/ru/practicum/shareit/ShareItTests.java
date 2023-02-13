@@ -373,5 +373,15 @@ class ShareItTests {
 
     }
 
+    @Test
+    void findRequestById() {
+       RequestDTOWithItems request = requestService.findById(1L,1L);
+       assertThat(request).isNotNull();
+       assertThat(request.getId()).isEqualTo(1);
+       assertThat(request.getRequester().getId()).isEqualTo(1);
+       assertThat(request.getDescription()).isEqualTo("waiting for fight");
+       assertThat(request.getCreated()).isEqualTo("2023-02-11T19:00:01");
+    }
+
 
 }

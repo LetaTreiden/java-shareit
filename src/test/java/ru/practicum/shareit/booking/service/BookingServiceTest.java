@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.InstanceOfAssertFactories.ARRAY;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 
@@ -98,6 +99,30 @@ class BookingServiceTest {
                             assertThat(addBookingTest).hasFieldOrPropertyWithValue("end", booking.getEnd());
                         }
                 );
+    }
+
+    @Test
+    void addBookingStartEqualsEnd() {
+        addBooking();
+        addUser();
+        addItem();
+        booking.setEnd(LocalDateTime.parse("2017-10-19T23:50:50"));
+        booking.setStart((LocalDateTime.parse("2017-10-19T23:50:50")));
+
+        Mockito
+                .when(itemRepository.findById(Mockito.anyLong()))
+                .thenReturn(Optional.of(item));
+
+        Mockito
+                .when(userRepository.findById(Mockito.anyLong()))
+                .thenReturn(Optional.of(user));
+
+        final BadRequestException exception = Assertions.assertThrows(
+                BadRequestException.class,
+                () -> bookingService.add(2L, BookingMapper.toBookingDto(booking)));
+
+        Assertions.assertEquals("Wrong date",
+                exception.getMessage());
     }
 
     @Test
