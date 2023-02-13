@@ -75,11 +75,4 @@ public class UserMapper {
     public static BookingDTOToReturn.User toUserToBookingDTO(User user) {
         return new BookingDTOToReturn.User(user.getId(), user.getName());
     }
-
-    public static User toUser(BookingDTOToReturn.User userFromDto) {
-        User user = new User();
-        user.setId(userFromDto.getId());
-        user.setName(userFromDto.getName());
-        return user;
-    }
 }

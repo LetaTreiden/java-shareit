@@ -55,17 +55,6 @@ public class ItemMapper {
         return item;
     }
 
-    public static Item toItem(ItemDTOWithBookings itemDtoWithBooking) {
-        Item item = new Item();
-        item.setId(itemDtoWithBooking.getId());
-        item.setName(itemDtoWithBooking.getName());
-        item.setDescription(itemDtoWithBooking.getDescription());
-        item.setAvailable(itemDtoWithBooking.getAvailable());
-        item.setOwner(UserMapper.toUser(itemDtoWithBooking.getOwner()));
-        return item;
-
-    }
-
     public static List<ItemDTO> mapToItemDto(Iterable<Item> items) {
         List<ItemDTO> dtos = new ArrayList<>();
         for (Item item : items) {
