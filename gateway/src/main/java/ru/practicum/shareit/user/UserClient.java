@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -11,6 +12,7 @@ import ru.practicum.shareit.client.BaseClient;
 import ru.practicum.shareit.user.dto.UserDtoGateway;
 
 @Service
+@Slf4j
 public class UserClient extends BaseClient {
 
     private static final String API_PREFIX = "/users";
@@ -25,7 +27,8 @@ public class UserClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> add(UserDtoGateway user) {
+    public ResponseEntity<Object> create(UserDtoGateway user) {
+        log.info(user.toString());
         return post("", user);
     }
 

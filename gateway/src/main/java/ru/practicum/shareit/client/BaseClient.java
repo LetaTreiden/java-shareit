@@ -1,5 +1,6 @@
 package ru.practicum.shareit.client;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.lang.Nullable;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -8,6 +9,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 public class BaseClient {
     protected final RestTemplate rest;
 
@@ -28,6 +30,7 @@ public class BaseClient {
     }
 
     protected <T> ResponseEntity<Object> post(String path, T body) {
+        log.info(body.toString());
         return post(path, null, null, body);
     }
 
@@ -70,10 +73,6 @@ public class BaseClient {
         return delete(path, null, null);
     }
 
-    protected ResponseEntity<Object> delete(String path, long userId) {
-        return delete(path, userId, null);
-    }
-
     protected ResponseEntity<Object> delete(String path, Long userId, @Nullable Map<String, Object> parameters) {
         return makeAndSendRequest(HttpMethod.DELETE, path, userId, parameters, null);
     }
@@ -87,6 +86,10 @@ public class BaseClient {
             if (parameters != null) {
                 shareitServerResponse = rest.exchange(path, method, requestEntity, Object.class, parameters);
             } else {
+                log.info(path);
+                log.info(method.toString());
+                log.info(requestEntity.toString());
+                log.info(Object.class.toString());
                 shareitServerResponse = rest.exchange(path, method, requestEntity, Object.class);
             }
         } catch (HttpStatusCodeException e) {

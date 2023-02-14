@@ -22,7 +22,7 @@ public class UserControllerGateway {
     @PostMapping
     public ResponseEntity<Object> create(@Valid @RequestBody UserDtoGateway user) {
         log.info("Creating user {}", user);
-        return userClient.add(user);
+        return userClient.create(user);
     }
 
     @PatchMapping("/{userId}")

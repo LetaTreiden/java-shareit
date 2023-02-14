@@ -18,5 +18,4 @@ public class UserDtoGateway {
     @Email
     @NotBlank
     private String email;
-
 }
