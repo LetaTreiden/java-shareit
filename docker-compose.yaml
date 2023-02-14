@@ -5,7 +5,7 @@ services:
     image: dock_image
     container_name: gateway
     ports:
-      - "8080:8080"
+      - "8090:8080"
     depends_on:
     - server
     environment:
@@ -16,7 +16,7 @@ services:
     image: dock_image_server
     container_name: server
     ports:
-      - "9090:9090"
+      - "8080:8080"
     depends_on:
     - db
     environment:
