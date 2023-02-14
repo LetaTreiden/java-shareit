@@ -20,33 +20,33 @@ public class UserControllerGateway {
     private final UserClient userClient;
 
     @PostMapping
-    public ResponseEntity<Object> add(@Valid @RequestBody UserDtoGateway user) {
+    public ResponseEntity<Object> create(@Valid @RequestBody UserDtoGateway user) {
         log.info("Creating user {}", user);
-        return userClient.addUser(user);
+        return userClient.add(user);
     }
 
     @PatchMapping("/{userId}")
     public ResponseEntity<Object> update(@Valid @PathVariable Long userId, @RequestBody UserDtoGateway user) {
         log.info("Updating user {}, userId={}", user, userId);
-        return userClient.updateUser(userId, user);
+        return userClient.update(userId, user);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> delete(@PathVariable Long id) {
         log.info("Delete user {}", id);
-        return userClient.deleteUser(id);
+        return userClient.delete(id);
     }
 
     @GetMapping
     public ResponseEntity<Object> getAll() {
         log.info("Get all users");
-        return userClient.getUsers();
+        return userClient.getAll();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getById(@PathVariable Long id) {
         log.info("Get user {}", id);
-        return userClient.getUser(id);
+        return userClient.getById(id);
     }
 
 }

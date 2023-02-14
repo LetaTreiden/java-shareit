@@ -28,19 +28,19 @@ public class ItemClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> addItem(long userId, ItemDtoGateway itemDto) {
+    public ResponseEntity<Object> add(long userId, ItemDtoGateway itemDto) {
         return post("", userId, itemDto);
     }
 
-    public ResponseEntity<Object> changeItem(long userId, Long itemId, ItemDtoGateway itemDto) {
+    public ResponseEntity<Object> update(long userId, Long itemId, ItemDtoGateway itemDto) {
         return patch("/" + itemId, userId, itemDto);
     }
 
-    public ResponseEntity<Object> getItem(long userId, Long itemId) {
+    public ResponseEntity<Object> getById(long userId, Long itemId) {
         return get("/" + itemId, userId);
     }
 
-    public ResponseEntity<Object> getAllOwnItems(long userId, Integer from, Integer size) {
+    public ResponseEntity<Object> getAllByOwner(long userId, Integer from, Integer size) {
         Map<String, Object> parameters = Map.of(
                 "from", from,
                 "size", size

@@ -27,7 +27,7 @@ public class BookingControllerGateway {
                                                @RequestParam(required = false, defaultValue = "ALL") String state,
                                                @PositiveOrZero @RequestParam(name = "from", defaultValue = "0")
                                                    Integer from,
-                                               @PositiveOrZero @RequestParam(name = "size", defaultValue = "10")
+                                               @Positive @RequestParam(name = "size", defaultValue = "10")
                                                    Integer size) {
         StateGateway stateGateway = StateGateway.from(state);
         log.info("Get booking with state {}, userId={}, from={}, size={}", state, userId, from, size);
@@ -45,7 +45,7 @@ public class BookingControllerGateway {
                                               @RequestParam(defaultValue = "ALL") String state,
                                               @PositiveOrZero @RequestParam(name = "from", defaultValue = "0")
                                                   Integer from,
-                                              @PositiveOrZero @RequestParam(name = "size", defaultValue = "10")
+                                              @Positive @RequestParam(name = "size", defaultValue = "10")
                                                   Integer size) {
         StateGateway stateGateway = StateGateway.from(state);
         log.info("Get booking for owner with state {}, userId={}, from={}, size={}", state, userId, from, size);
