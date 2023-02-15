@@ -2,8 +2,6 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.Data;
 
-import javax.validation.constraints.FutureOrPresent;
-import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @Data
