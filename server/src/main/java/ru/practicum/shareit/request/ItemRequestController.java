@@ -9,8 +9,6 @@ import ru.practicum.shareit.request.dto.RequestDTO;
 import ru.practicum.shareit.request.dto.RequestDTOWithItems;
 import ru.practicum.shareit.request.service.RequestService;
 
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
@@ -36,10 +34,8 @@ public class ItemRequestController {
 
     @GetMapping("/all")
     public List<RequestDTOWithItems> getAllRequest(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                   @RequestParam(defaultValue = "0")
-                                                   @PositiveOrZero Integer from,
-                                                   @RequestParam(name = "size", defaultValue = "1")
-                                                   @Positive Integer size) {
+                                                   @RequestParam(defaultValue = "0") Integer from,
+                                                   @RequestParam(name = "size", defaultValue = "1") Integer size) {
         log.info("Просмотр всех запросов на добавление вещи");
         return requestService.findAll(userId, from, size);
     }

@@ -12,6 +12,7 @@ import ru.practicum.shareit.item.dto.ItemDtoGateway;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
+import java.util.List;
 
 @Controller
 @RequestMapping(path = "/items")
@@ -43,9 +44,9 @@ public class ItemControllerGateway {
 
     @GetMapping
     public ResponseEntity<Object> getAllByOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                 @PositiveOrZero @RequestParam(name = "from", required = false,
+                                                 @PositiveOrZero @RequestParam(name = "from",
                                                          defaultValue = "0") Integer from,
-                                                 @Positive @RequestParam(name = "size", required = false,
+                                                 @Positive @RequestParam(name = "size",
                                                          defaultValue = "10") Integer size) {
         log.info("Get items userId={}, from={}, size={}", userId, from, size);
         return itemClient.getAllByOwner(userId, from, size);
@@ -54,11 +55,14 @@ public class ItemControllerGateway {
     @GetMapping("/search")
     public ResponseEntity<Object> getItemsForRent(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                   @RequestParam String text,
-                                                  @PositiveOrZero @RequestParam(name = "from", required = false,
-                                                          defaultValue = "0") Integer from,
-                                                  @Positive @RequestParam(name = "size", required = false,
-                                                          defaultValue = "10") Integer size) {
+                                                  @PositiveOrZero @RequestParam(name = "from", defaultValue = "0")
+                                                      Integer from,
+                                                  @Positive @RequestParam(name = "size", defaultValue = "10")
+                                                      Integer size) {
         log.info("Get items with text={}, userId={}, from={}, size={}", text, userId, from, size);
+        if (text.isBlank()) {
+            return (ResponseEntity<Object>) List.of(null);
+        }
         return itemClient.getItemsForRent(userId, text, from, size);
     }
 

@@ -10,9 +10,6 @@ import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.dto.ItemDTOWithBookings;
 import ru.practicum.shareit.item.service.ItemService;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
@@ -25,7 +22,7 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping
-    public ItemDTO add(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody ItemDTO itemDto) {
+    public ItemDTO add(@RequestHeader("X-Sharer-User-Id") Long userId, @RequestBody ItemDTO itemDto) {
         log.info("Добавления новой вещи пользователем с id {}", userId);
         return itemService.add(userId, itemDto);
     }
@@ -46,9 +43,8 @@ public class ItemController {
     @GetMapping
     public List<ItemDTOWithBookings> getAllByOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                    @RequestParam(name = "from", defaultValue = "0")
-                                                   @PositiveOrZero Integer from,
-                                                   @RequestParam(name = "size", defaultValue = "10")
-                                                   @Positive Integer size) {
+                                                   Integer from,
+                                                   @RequestParam(name = "size", defaultValue = "10") Integer size) {
         log.info("Получение всех вещей пользователя с id {}", userId);
         return itemService.getAllByOwner(userId, from, size);
     }
@@ -56,17 +52,15 @@ public class ItemController {
     @GetMapping("/search")
     public List<ItemDTO> getAllByText(@RequestHeader("X-Sharer-User-Id") Long userId,
                                       @RequestParam String text,
-                                      @RequestParam(name = "from", defaultValue = "0")
-                                      @PositiveOrZero Integer from,
-                                      @RequestParam(name = "size", defaultValue = "10")
-                                      @Positive Integer size) {
+                                      @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                      @RequestParam(name = "size", defaultValue = "10") Integer size) {
         log.info("Получение вещей для аренды содержащие в названии или описании текст {}", text);
         return itemService.getForRent(text, from, size);
     }
 
     @PostMapping("{itemId}/comment")
     public CommentDTO addComment(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId,
-                                 @Valid @RequestBody CommentDTO itemDtoWithComment) {
+                                 @RequestBody CommentDTO itemDtoWithComment) {
         log.info("Добавление комментария для вещи с id {}", itemId);
         return itemService.addComment(userId, itemId, itemDtoWithComment);
     }

@@ -8,7 +8,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import javax.validation.ConstraintViolationException;
 import java.util.Map;
 
 @RestControllerAdvice
@@ -18,15 +17,6 @@ public class ErrorHandler {
     @ExceptionHandler({HttpMessageConversionException.class, BadRequestException.class})
     public ResponseEntity<Map<String, String>> handleValid(final RuntimeException e) {
         log.error("Validation error{}", e.getMessage());
-        return new ResponseEntity<>(
-                Map.of("Ошибка в валидации", e.getMessage()),
-                HttpStatus.BAD_REQUEST
-        );
-    }
-
-    @ExceptionHandler
-    public ResponseEntity<Map<String, String>> handleConstraintViolation(final ConstraintViolationException e) {
-        log.error("Not valid argument{}", e.getMessage());
         return new ResponseEntity<>(
                 Map.of("Ошибка в валидации", e.getMessage()),
                 HttpStatus.BAD_REQUEST
