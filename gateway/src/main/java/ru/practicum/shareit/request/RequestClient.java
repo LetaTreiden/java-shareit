@@ -26,15 +26,15 @@ public class RequestClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> create(long userId, RequestDtoGateway requestDtoGateway) {
+    public ResponseEntity<Object> addRequest(long userId, RequestDtoGateway requestDtoGateway) {
         return post("", userId, requestDtoGateway);
     }
 
-    public ResponseEntity<Object> getAllByOwner(long userId) {
+    public ResponseEntity<Object> getAllOwnRequest(long userId) {
         return get("", userId);
     }
 
-    public ResponseEntity<Object> getAll(long userId, Integer from, Integer size) {
+    public ResponseEntity<Object> getAllRequest(long userId, Integer from, Integer size) {
         Map<String, Object> parameters = Map.of(
                 "from", from,
                 "size", size
@@ -42,7 +42,7 @@ public class RequestClient extends BaseClient {
         return get("/all?from={from}&size={size}", userId, parameters);
     }
 
-    public ResponseEntity<Object> getById(long userId, Long requestId) {
+    public ResponseEntity<Object> getRequest(long userId, Long requestId) {
         return get("/" + requestId, userId);
     }
 

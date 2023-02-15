@@ -29,13 +29,4 @@ public class ErrorHandlerGateway {
                 HttpStatus.BAD_REQUEST
         );
     }
-
-    @ExceptionHandler
-    public ResponseEntity<Map<String, String>> handleAllOther(final Throwable e) {
-        log.warn("Исключение", e);
-        return new ResponseEntity<>(
-                Map.of("Проверьте корректность запроса", e.getMessage()),
-                HttpStatus.INTERNAL_SERVER_ERROR
-        );
-    }
 }

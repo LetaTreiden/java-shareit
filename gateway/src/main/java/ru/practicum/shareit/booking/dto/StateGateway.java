@@ -3,11 +3,17 @@ package ru.practicum.shareit.booking.dto;
 import ru.practicum.shareit.exception.UnknownStateException;
 
 public enum StateGateway {
+    // Все
     ALL,
+    // Текущие
     CURRENT,
-    PAST,
+    // Будущие
     FUTURE,
+    // Завершенные
+    PAST,
+    // Отклоненные
     REJECTED,
+    // Ожидающие подтверждения
     WAITING;
 
     public static StateGateway from(String stringState) {

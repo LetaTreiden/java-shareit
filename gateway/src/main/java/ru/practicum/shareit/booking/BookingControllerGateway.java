@@ -23,14 +23,15 @@ public class BookingControllerGateway {
     private final BookingClient bookingClient;
 
     @GetMapping
-    public ResponseEntity<Object> findByBooker(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                               @RequestParam(required = false, defaultValue = "ALL") String state,
-                                               @PositiveOrZero @RequestParam(name = "from", defaultValue = "0")
-                                                   Integer from,
-                                               @Positive @RequestParam(name = "size", defaultValue = "10")
-                                                   Integer size) {
-        StateGateway stateGateway = StateGateway.from(state);
-        log.info("Get booking with state {}, userId={}, from={}, size={}", state, userId, from, size);
+    public ResponseEntity<Object> findBookingByBooker(@RequestHeader("X-Sharer-User-Id") long userId,
+                                                      @RequestParam(name = "state", defaultValue = "ALL")
+                                                      String stateParam,
+                                                      @PositiveOrZero @RequestParam(name = "from", defaultValue = "0")
+                                                      Integer from,
+                                                      @Positive @RequestParam(name = "size", defaultValue = "10")
+                                                      Integer size) {
+        StateGateway stateGateway = StateGateway.from(stateParam);
+        log.info("Get booking with state {}, userId={}, from={}, size={}", stateParam, userId, from, size);
         return bookingClient.getBookings(userId, stateGateway, from, size);
     }
 
@@ -41,36 +42,37 @@ public class BookingControllerGateway {
     }
 
     @GetMapping("/owner")
-    public ResponseEntity<Object> findByOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                              @RequestParam(defaultValue = "ALL") String state,
-                                              @PositiveOrZero @RequestParam(name = "from", defaultValue = "0")
-                                                  Integer from,
-                                              @Positive @RequestParam(name = "size", defaultValue = "10")
-                                                  Integer size) {
-        StateGateway stateGateway = StateGateway.from(state);
-        log.info("Get booking for owner with state {}, userId={}, from={}, size={}", state, userId, from, size);
-        return bookingClient.getByOwner(userId, stateGateway, from, size);
+    public ResponseEntity<Object> findBookingByOwner(@RequestHeader("X-Sharer-User-Id") long userId,
+                                                     @RequestParam(name = "state", defaultValue = "ALL")
+                                                     String stateParam,
+                                                     @PositiveOrZero @RequestParam(name = "from", defaultValue = "0")
+                                                     Integer from,
+                                                     @Positive @RequestParam(name = "size", defaultValue = "10")
+                                                     Integer size) {
+        StateGateway stateGateway = StateGateway.from(stateParam);
+        log.info("Get booking for owner with state {}, userId={}, from={}, size={}", stateParam, userId, from, size);
+        return bookingClient.getBookingsByOwner(userId, stateGateway, from, size);
     }
 
     @PostMapping
-    public ResponseEntity<Object> add(@RequestHeader("X-Sharer-User-Id") long userId,
-                                      @RequestBody @Valid BookingDtoGateway bookingDto) {
+    public ResponseEntity<Object> addBooking(@RequestHeader("X-Sharer-User-Id") long userId,
+                                             @RequestBody @Valid BookingDtoGateway bookingDto) {
         log.info("Creating booking {}, userId={}", bookingDto, userId);
-        return bookingClient.bookingItem(userId, bookingDto);
+        return bookingClient.bookItem(userId, bookingDto);
     }
 
     @PatchMapping("/{bookingId}")
-    public ResponseEntity<Object> update(@RequestHeader("X-Sharer-User-Id") long userId,
-                                         @PathVariable Long bookingId,
-                                         @RequestParam Boolean approved) {
+    public ResponseEntity<Object> updateStatusBooking(@RequestHeader("X-Sharer-User-Id") long userId,
+                                                      @PathVariable Long bookingId,
+                                                      @RequestParam Boolean approved) {
         log.info("Update status bookingId {} for userId={}", bookingId, userId);
-        return bookingClient.bookingStatus(userId, bookingId, approved);
+        return bookingClient.bookStatus(userId, bookingId, approved);
     }
 
     @GetMapping("/{bookingId}")
-    public ResponseEntity<Object> get(@RequestHeader("X-Sharer-User-Id") long userId,
-                                      @PathVariable Long bookingId) {
+    public ResponseEntity<Object> getBooking(@RequestHeader("X-Sharer-User-Id") long userId,
+                                             @PathVariable Long bookingId) {
         log.info("Get booking {}, userId={}", bookingId, userId);
-        return bookingClient.get(userId, bookingId);
+        return bookingClient.getBooking(userId, bookingId);
     }
 }

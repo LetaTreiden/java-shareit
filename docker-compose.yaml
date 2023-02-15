@@ -2,23 +2,23 @@ version: '3.8'
 services:
   gateway:
     build: gateway
-    image: gateway
+    image: dock_image
     container_name: gateway
     ports:
       - "8080:8080"
     depends_on:
-      - server
+    - server
     environment:
-      - SHAREIT_SERVER_URL=http://server:8080
+      - SHAREIT_SERVER_URL=http://server:9090
 
   server:
     build: server
-    image: server
+    image: dock_image_server
     container_name: server
     ports:
       - "9090:9090"
     depends_on:
-      - db
+    - db
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/shareit
       - spring.datasource.username=root
@@ -31,5 +31,5 @@ services:
       - "6541:5432"
     environment:
       - POSTGRES_DB=shareit
-      - POSTGRES_USER=postgres
+      - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
