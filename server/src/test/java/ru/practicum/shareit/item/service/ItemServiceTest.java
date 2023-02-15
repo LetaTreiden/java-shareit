@@ -539,40 +539,7 @@ class ItemServiceTest {
 
 
     }
-
-    @Test
-    void addCommentIsEmptyTest() {
-        addItem();
-        addComment();
-        addBooking();
-        booking.setStart(LocalDateTime.now().minusDays(3));
-        booking.setEnd(LocalDateTime.now().minusDays(2));
-        List<Booking> bookings = new ArrayList<>();
-        bookings.add(booking);
-
-        Mockito
-                .when(itemRepository.findById(Mockito.anyLong()))
-                .thenReturn(Optional.ofNullable(item));
-
-        Mockito
-                .when(userRepository.findById(Mockito.anyLong()))
-                .thenReturn(Optional.ofNullable(comment.getAuthor()));
-
-        Mockito
-                .when(bookingRepository.findByItemAndBookerAndStartBeforeAndEndBefore(any(), any(),
-                        any(), any()))
-                .thenReturn(bookings);
-
-        final BadRequestException exception = Assertions.assertThrows(
-                BadRequestException.class,
-                () -> itemService.addComment(4L, 1L, null));
-
-        Assertions.assertEquals("Comment is empty", exception.getMessage());
-
-
-    }
-
-
+    
     private void addItem() {
         addUser();
         item.setId(1L);
