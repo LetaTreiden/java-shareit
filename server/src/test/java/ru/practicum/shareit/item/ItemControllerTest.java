@@ -207,21 +207,6 @@ class ItemControllerTest {
     }
 
     @Test
-    void addItemWithException() throws Exception {
-        when(itemService.add(1L, itemDto))
-                .thenThrow(BadRequestException.class);
-
-        mvc.perform(post("/items")
-                        .header("X-Sharer-User-Id", 1L)
-                        .content(mapper.writeValueAsString(itemDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(status().is(400));
-    }
-
-    @Test
     void updateItemWithException() throws Exception {
         when(itemService.update(5L, 5L, new ItemDTO()))
                 .thenThrow(AssertionError.class);

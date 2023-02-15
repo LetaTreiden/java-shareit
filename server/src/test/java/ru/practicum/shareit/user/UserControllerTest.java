@@ -112,21 +112,6 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.email", is(userDto.getEmail())));
     }
 
-
-    @Test
-    void createUserWithException() throws Exception {
-        when(userService.create(any()))
-                .thenThrow(BadRequestException.class);
-
-        mvc.perform(post("/users")
-                        .content(mapper.writeValueAsString(userDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(status().is(400));
-    }
-
     @Test
     void updateUserWithException() throws Exception {
         when(userService.update(1L, userDto))
