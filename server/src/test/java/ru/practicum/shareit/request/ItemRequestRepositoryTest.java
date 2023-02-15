@@ -21,52 +21,55 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class ItemRequestRepositoryTest {
 
-    private final ItemRequest requestOne = new ItemRequest();
-    private final ItemRequest requestTwo = new ItemRequest();
-    List<ItemRequest> requestsPersist = new ArrayList<>();
     @Autowired
     private TestEntityManager em;
+
     @Autowired
-    private RequestRepository rRepository;
+    private ItemRequestRepository requestRepository;
+
+    private final ItemRequest requestOne = new ItemRequest();
+    private final ItemRequest requestTwo = new ItemRequest();
+
+    List<ItemRequest> requestsPersist = new ArrayList<>();
 
     @Test
-    void findByRequesterOrderByCreatedDesc() {
+    void findByRequestorOrderByCreatedDesc() {
         addRequestOne();
         em.persist(requestOne);
         addRequestTwo();
         em.persist(requestTwo);
         requestsPersist.add(requestTwo);
         requestsPersist.add(requestOne);
-        List<ItemRequest> requests = rRepository.findByRequesterOrderByCreatedDesc(requestOne.getRequester());
+        List<ItemRequest> requests = requestRepository.findByRequestorOrderByCreatedDesc(requestOne.getRequestor());
         assertThat(requestsPersist.get(0).getId()).isEqualTo(requests.get(0).getId());
     }
 
     @Test
     void findAllBy() {
         Pageable pageable = PageRequest.of(0, 3);
-        Page<ItemRequest> requestsPage = rRepository.findAllBy(2L, pageable);
+        Page<ItemRequest> requestsPage = requestRepository.findAllBy(2L, pageable);
         List<ItemRequest> requests = requestsPage.getContent();
         assertThat(requests.size()).isEqualTo(3);
         assertThat(requests.get(0).getId()).isEqualTo(1);
     }
 
     private void addRequestOne() {
-        User requester = new User();
-        requester.setId(2L);
-        requester.setName("Rowan");
-        requester.setEmail("rowan@whitethorn.com");
-        requestOne.setRequester(requester);
-        requestOne.setDescription("waiting for fight");
+        User requestor = new User();
+        requestor.setId(2);
+        requestor.setName("Kat");
+        requestor.setEmail("Kat@kat.com");
+        requestOne.setRequestor(requestor);
+        requestOne.setDescription("I need a fork to eat");
         requestOne.setCreated(LocalDateTime.now());
     }
 
     private void addRequestTwo() {
-        User requester = new User();
-        requester.setId(2L);
-        requester.setName("Rowan");
-        requester.setEmail("rowan@whitethorn.com");
-        requestTwo.setRequester(requester);
-        requestTwo.setDescription("waiting for fight");
+        User requestor = new User();
+        requestor.setId(2);
+        requestor.setName("Kat");
+        requestor.setEmail("Kat@kat.com");
+        requestTwo.setRequestor(requestor);
+        requestTwo.setDescription("I need a fork to eat");
         requestTwo.setCreated(LocalDateTime.now());
     }
 

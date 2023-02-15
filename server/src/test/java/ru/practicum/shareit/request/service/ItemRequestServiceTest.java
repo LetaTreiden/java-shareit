@@ -1,6 +1,5 @@
 package ru.practicum.shareit.request.service;
 
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,14 +7,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.test.annotation.DirtiesContext;
+import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.request.RequestMapper;
-import ru.practicum.shareit.request.RequestRepository;
-import ru.practicum.shareit.request.dto.RequestDTO;
-import ru.practicum.shareit.request.dto.RequestDTOWithItems;
+import ru.practicum.shareit.request.ItemRequestMapper;
+import ru.practicum.shareit.request.ItemRequestRepository;
+import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.request.dto.RequestDto;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
@@ -30,11 +32,10 @@ import static org.mockito.ArgumentMatchers.any;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(MockitoExtension.class)
-@Slf4j
 class ItemRequestServiceTest {
 
     @InjectMocks
-    RequestServiceImpl requestService;
+    ItemRequestServiceImpl requestService;
 
     @Mock
     ItemRepository itemRepository;
@@ -43,10 +44,10 @@ class ItemRequestServiceTest {
     UserRepository userRepository;
 
     @Mock
-    RequestRepository requestRepository;
+    ItemRequestRepository requestRepository;
 
     ItemRequest request = new ItemRequest();
-    User requester = new User();
+    User requestor = new User();
     Item item = new Item();
 
     @Test
@@ -55,21 +56,21 @@ class ItemRequestServiceTest {
 
         Mockito
                 .when(userRepository.findById(Mockito.anyLong()))
-                .thenReturn(Optional.of(requester));
+                .thenReturn(Optional.of(requestor));
 
         Mockito
                 .when(requestRepository.save(any()))
                 .thenReturn(request);
 
-        Optional<RequestDTO> requestDto = Optional.ofNullable(requestService.add(1L,
-                RequestMapper.toRequestDto(request)));
+        Optional<ItemRequestDto> requestDto = Optional.ofNullable(requestService.addRequest(1L,
+                ItemRequestMapper.toRequestDto(request)));
 
         assertThat(requestDto)
                 .isPresent()
                 .hasValueSatisfying(addRequestTest -> {
                             assertThat(addRequestTest).hasFieldOrPropertyWithValue("id", request.getId());
-                            assertThat(addRequestTest).hasFieldOrPropertyWithValue("requester.id",
-                                    request.getRequester().getId());
+                            assertThat(addRequestTest).hasFieldOrPropertyWithValue("requestor",
+                                    request.getRequestor());
                             assertThat(addRequestTest).hasFieldOrPropertyWithValue("description",
                                     request.getDescription());
                             assertThat(addRequestTest).hasFieldOrPropertyWithValue("created",
@@ -88,9 +89,25 @@ class ItemRequestServiceTest {
 
         final NotFoundException exception = Assertions.assertThrows(
                 NotFoundException.class,
-                () -> requestService.add(3L, RequestMapper.toRequestDto(request)));
+                () -> requestService.addRequest(3L, ItemRequestMapper.toRequestDto(request)));
 
-        Assertions.assertEquals("User not found", exception.getMessage());
+        Assertions.assertEquals("Пользователь не найден", exception.getMessage());
+    }
+
+    @Test
+    void addRequestDescriptionIsEmpty() {
+        addRequest();
+        request.setDescription("");
+
+        Mockito
+                .when(userRepository.findById(Mockito.anyLong()))
+                .thenReturn(Optional.of(requestor));
+
+        final BadRequestException exception = Assertions.assertThrows(
+                BadRequestException.class,
+                () -> requestService.addRequest(1L, ItemRequestMapper.toRequestDto(request)));
+
+        Assertions.assertEquals("Отсутствует описание для поиска вещи", exception.getMessage());
     }
 
     @Test
@@ -99,13 +116,13 @@ class ItemRequestServiceTest {
 
         Mockito
                 .when(userRepository.findById(Mockito.anyLong()))
-                .thenReturn(Optional.of(requester));
+                .thenReturn(Optional.of(requestor));
 
         Mockito
-                .when(requestRepository.findByRequesterOrderByCreatedDesc(any()))
+                .when(requestRepository.findByRequestorOrderByCreatedDesc(any()))
                 .thenReturn(List.of(request));
 
-        List<RequestDTOWithItems> requestDtos = requestService.findAllByOwner(1L);
+        List<RequestDto> requestDtos = requestService.findAllOwnRequest(1L);
 
         Assertions.assertEquals(request.getId(), requestDtos.get(0).getId());
     }
@@ -117,17 +134,17 @@ class ItemRequestServiceTest {
 
         Mockito
                 .when(userRepository.findById(Mockito.anyLong()))
-                .thenReturn(Optional.of(requester));
+                .thenReturn(Optional.of(requestor));
 
         Mockito
-                .when(requestRepository.findByRequesterOrderByCreatedDesc(any()))
+                .when(requestRepository.findByRequestorOrderByCreatedDesc(any()))
                 .thenReturn(List.of(request));
 
         Mockito
-                .when(itemRepository.findByRequest(Mockito.anyLong()))
+                .when(itemRepository.findItemByRequest(Mockito.anyLong()))
                 .thenReturn(List.of(item));
 
-        List<RequestDTOWithItems> requestDtos = requestService.findAllByOwner(1L);
+        List<RequestDto> requestDtos = requestService.findAllOwnRequest(1L);
 
         Assertions.assertEquals(request.getId(), requestDtos.get(0).getId());
     }
@@ -140,9 +157,9 @@ class ItemRequestServiceTest {
 
         final NotFoundException exception = Assertions.assertThrows(
                 NotFoundException.class,
-                () -> requestService.findAllByOwner(5L));
+                () -> requestService.findAllOwnRequest(5L));
 
-        Assertions.assertEquals("User not found", exception.getMessage());
+        Assertions.assertEquals("Пользователь не найден", exception.getMessage());
     }
 
     @Test
@@ -156,15 +173,17 @@ class ItemRequestServiceTest {
         request.setCreated(LocalDateTime.now().minusHours(5));
         request.setId(2L);
         requests.add(request);
-        List<ItemRequest> page = new ArrayList<>(requests);
+        Page<ItemRequest> page = new PageImpl<>(requests);
 
         Mockito
-                .when(requestRepository.findAllByRequester_IdNot(Mockito.anyLong(), any()))
+                .when(requestRepository.findAllBy(Mockito.anyLong(), any()))
                 .thenReturn(page);
 
-        List<RequestDTOWithItems> requestDtos = requestService.findAll(1L, 0, 1);
+        Mockito
+                .when(itemRepository.findByRequestId(Mockito.anyLong()))
+                .thenReturn(items);
 
-        log.info(requestDtos.toString());
+        List<RequestDto> requestDtos = requestService.findAllRequest(1L, 0, 1);
 
         Assertions.assertEquals(request.getId(), requestDtos.get(0).getId());
 
@@ -181,36 +200,19 @@ class ItemRequestServiceTest {
         request.setCreated(LocalDateTime.now().minusHours(5));
         request.setId(2L);
         requests.add(request);
+        Page<ItemRequest> page = new PageImpl<>(requests);
 
         Mockito
-                .when(requestRepository.findAllByRequester_IdNot(Mockito.anyLong(), any()))
+                .when(requestRepository.findAll())
                 .thenReturn(requests);
 
-        List<RequestDTOWithItems> requestDtos = requestService.findAll(1L, 0, 1);
+        Mockito
+                .when(itemRepository.findByRequestId(Mockito.anyLong()))
+                .thenReturn(items);
+
+        List<RequestDto> requestDtos = requestService.findAllRequest(1L, null, null);
 
         Assertions.assertEquals(request.getId(), requestDtos.get(0).getId());
-
-    }
-
-    @Test
-    void findAllRequestSizeOrPageLessZeroTest() {
-        final IllegalArgumentException exception = Assertions.assertThrows(
-                IllegalArgumentException.class,
-                () -> requestService.findAll(1L, 1, -1));
-
-        Assertions.assertEquals("Page size must not be less than one",
-                exception.getMessage());
-
-    }
-
-    @Test
-    void findAllRequestSizeEqualZeroTest() {
-        final IllegalArgumentException exception = Assertions.assertThrows(
-                IllegalArgumentException.class,
-                () -> requestService.findAll(1L, 1, 0));
-
-        Assertions.assertEquals("Page size must not be less than one",
-                exception.getMessage());
 
     }
 
@@ -221,20 +223,20 @@ class ItemRequestServiceTest {
 
         Mockito
                 .when(userRepository.findById(Mockito.anyLong()))
-                .thenReturn(Optional.ofNullable(requester));
+                .thenReturn(Optional.ofNullable(requestor));
 
         Mockito
                 .when(requestRepository.findById(Mockito.anyLong()))
                 .thenReturn(Optional.ofNullable(request));
 
-        Optional<RequestDTO> requestDto = Optional.ofNullable(requestService.findById(1L, 1L));
+        Optional<RequestDto> requestDto = Optional.ofNullable(requestService.findRequest(1L, 1L));
 
         assertThat(requestDto)
                 .isPresent()
                 .hasValueSatisfying(addRequestTest -> {
                             assertThat(addRequestTest).hasFieldOrPropertyWithValue("id", request.getId());
-                            assertThat(addRequestTest).hasFieldOrPropertyWithValue("requester.id",
-                                    request.getRequester().getId());
+                            assertThat(addRequestTest).hasFieldOrPropertyWithValue("requestor",
+                                    request.getRequestor());
                             assertThat(addRequestTest).hasFieldOrPropertyWithValue("description",
                                     request.getDescription());
                             assertThat(addRequestTest).hasFieldOrPropertyWithValue("created",
@@ -245,16 +247,16 @@ class ItemRequestServiceTest {
     }
 
     @Test
-    void findRequestNotFoundUserTest() {
+    void findRequestNotFounUserTest() {
         Mockito
                 .when(userRepository.findById(Mockito.anyLong()))
                 .thenReturn(Optional.empty());
 
         final NotFoundException exception = Assertions.assertThrows(
                 NotFoundException.class,
-                () -> requestService.findById(3L, 1L));
+                () -> requestService.findRequest(3L, 1L));
 
-        Assertions.assertEquals("User not found", exception.getMessage());
+        Assertions.assertEquals("Пользователь не найден", exception.getMessage());
 
     }
 
@@ -264,7 +266,7 @@ class ItemRequestServiceTest {
 
         Mockito
                 .when(userRepository.findById(Mockito.anyLong()))
-                .thenReturn(Optional.ofNullable(requester));
+                .thenReturn(Optional.ofNullable(requestor));
 
         Mockito
                 .when(requestRepository.findById(Mockito.anyLong()))
@@ -272,36 +274,36 @@ class ItemRequestServiceTest {
 
         final NotFoundException exception = Assertions.assertThrows(
                 NotFoundException.class,
-                () -> requestService.findById(3L, 1L));
+                () -> requestService.findRequest(3L, 1L));
 
-        Assertions.assertEquals("Request not found", exception.getMessage());
+        Assertions.assertEquals("Запрос не найден", exception.getMessage());
 
     }
 
     private void addUser() {
-        requester.setId(1L);
-        requester.setName("Aelin");
-        requester.setEmail("aelin@whitethorn.com");
+        requestor.setId(1L);
+        requestor.setName("Leo");
+        requestor.setEmail("leo@angel.com");
     }
 
     private void addRequest() {
         addUser();
         request.setId(1L);
-        request.setRequester(requester);
-        request.setDescription("waiting for fight");
+        request.setRequestor(requestor);
+        request.setDescription("I need a fork");
         request.setCreated(LocalDateTime.now());
     }
 
     private void addItem() {
         User owner = new User();
         owner.setId(2L);
-        owner.setName("Aelin");
-        owner.setEmail("aelin@whitethorn.com");
+        owner.setName("Buffy");
+        owner.setEmail("buffy@vampire.com");
         item.setId(1L);
-        item.setName("Sword");
+        item.setName("Fork");
         item.setOwner(owner);
         item.setAvailable(true);
-        item.setDescription("For fights");
-        item.setRequestId(request);
+        item.setDescription("Designed for food");
+        item.setRequest(request);
     }
 }

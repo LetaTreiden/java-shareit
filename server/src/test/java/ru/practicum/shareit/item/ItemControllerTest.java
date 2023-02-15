@@ -10,14 +10,13 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import ru.practicum.shareit.booking.dto.BookingDTOForItem;
-import ru.practicum.shareit.item.dto.CommentDTO;
-import ru.practicum.shareit.item.dto.ItemDTO;
-import ru.practicum.shareit.item.dto.ItemDTOWithBookings;
+import ru.practicum.shareit.booking.dto.BookingDtoForItem;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoWithBooking;
+import ru.practicum.shareit.item.dto.ItemDtoWithComment;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemServiceImpl;
-import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
 import java.nio.charset.StandardCharsets;
@@ -30,31 +29,33 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @WebMvcTest(controllers = ItemController.class)
 class ItemControllerTest {
 
-    private final ItemDTO itemDto = new ItemDTO();
+    @Autowired
+    ObjectMapper mapper;
+
+    @MockBean
+    ItemServiceImpl itemService;
+
+    @Autowired
+    private MockMvc mvc;
+
+    private final ItemDto itemDto = new ItemDto();
     private final Item item = new Item();
     private final User user = new User();
     private final Comment comment = new Comment();
-    private final ItemDTOWithBookings itemDtoWithBooking = new ItemDTOWithBookings();
-    private final BookingDTOForItem booking = new BookingDTOForItem();
-    @Autowired
-    ObjectMapper mapper;
-    @MockBean
-    ItemServiceImpl itemService;
-    @Autowired
-    private MockMvc mvc;
+    private final ItemDtoWithBooking itemDtoWithBooking = new ItemDtoWithBooking();
+    private final BookingDtoForItem booking = new BookingDtoForItem();
 
     @Test
     void addItemControllerTest() throws Exception {
         addItemDto();
 
-        when(itemService.add(Mockito.anyLong(), any()))
+        when(itemService.addItem(Mockito.anyLong(), any()))
                 .thenReturn(itemDto);
 
         mvc.perform(post("/items")
@@ -77,7 +78,7 @@ class ItemControllerTest {
     void changeItemControllerTest() throws Exception {
         addItemDto();
 
-        when(itemService.update(Mockito.anyLong(), Mockito.anyLong(), any()))
+        when(itemService.changeItem(Mockito.anyLong(), Mockito.anyLong(), any()))
                 .thenReturn(itemDto);
 
         mvc.perform(patch("/items/1/")
@@ -100,7 +101,7 @@ class ItemControllerTest {
     void getItemControllerTest() throws Exception {
         addItemDtoWithBooking();
 
-        when(itemService.get(Mockito.anyLong(), Mockito.anyLong()))
+        when(itemService.getItem(Mockito.anyLong(), Mockito.anyLong()))
                 .thenReturn(itemDtoWithBooking);
 
         mvc.perform(get("/items/1/")
@@ -113,13 +114,13 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.owner.name", is(itemDtoWithBooking.getOwner().getName())))
                 .andExpect(jsonPath("$.owner.email", is(itemDtoWithBooking.getOwner().getEmail())))
                 .andExpect(jsonPath("$.lastBooking.id", is((int) itemDtoWithBooking.getLastBooking().getId())))
-                .andExpect(jsonPath("$.lastBooking.bookerId", is(itemDtoWithBooking.getLastBooking()
-                        .getBookerId().intValue())))
+                .andExpect(jsonPath("$.lastBooking.bookerId", is((int) itemDtoWithBooking.getLastBooking()
+                        .getBookerId())))
                 .andExpect(jsonPath("$.lastBooking.dateTime", is(itemDtoWithBooking.getLastBooking()
                         .getDateTime().toString())))
                 .andExpect(jsonPath("$.nextBooking.id", is((int) itemDtoWithBooking.getNextBooking().getId())))
-                .andExpect(jsonPath("$.nextBooking.bookerId", is(itemDtoWithBooking.getNextBooking()
-                        .getBookerId().intValue())))
+                .andExpect(jsonPath("$.nextBooking.bookerId", is((int) itemDtoWithBooking.getNextBooking()
+                        .getBookerId())))
                 .andExpect(jsonPath("$.nextBooking.dateTime", is(itemDtoWithBooking.getNextBooking()
                         .getDateTime().toString())))
                 .andExpect(jsonPath("$.description", is(itemDtoWithBooking.getDescription())))
@@ -129,10 +130,10 @@ class ItemControllerTest {
     @Test
     void getAllOwnItemsControllerTest() throws Exception {
         addItemDtoWithBooking();
-        List<ItemDTOWithBookings> items = new ArrayList<>();
+        List<ItemDtoWithBooking> items = new ArrayList<>();
         items.add(itemDtoWithBooking);
 
-        when(itemService.getAllByOwner(Mockito.anyLong(), any(), any()))
+        when(itemService.getAllOwnItems(Mockito.anyLong(), any(), any()))
                 .thenReturn(items);
 
         mvc.perform(get("/items")
@@ -148,13 +149,13 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$[0].owner.email", is(itemDtoWithBooking.getOwner().getEmail())))
                 .andExpect(jsonPath("$[0].lastBooking.id", is((int) itemDtoWithBooking.getLastBooking()
                         .getId())))
-                .andExpect(jsonPath("$[0].lastBooking.bookerId", is(itemDtoWithBooking.getLastBooking()
-                        .getBookerId().intValue())))
+                .andExpect(jsonPath("$[0].lastBooking.bookerId", is((int) itemDtoWithBooking.getLastBooking()
+                        .getBookerId())))
                 .andExpect(jsonPath("$[0].lastBooking.dateTime", is(itemDtoWithBooking.getLastBooking()
                         .getDateTime().toString())))
                 .andExpect(jsonPath("$[0].nextBooking.id", is((int) itemDtoWithBooking.getNextBooking().getId())))
-                .andExpect(jsonPath("$[0].nextBooking.bookerId", is(itemDtoWithBooking.getNextBooking()
-                        .getBookerId().intValue())))
+                .andExpect(jsonPath("$[0].nextBooking.bookerId", is((int) itemDtoWithBooking.getNextBooking()
+                        .getBookerId())))
                 .andExpect(jsonPath("$[0].nextBooking.dateTime", is(itemDtoWithBooking.getNextBooking()
                         .getDateTime().toString())))
                 .andExpect(jsonPath("$[0].available", is(itemDtoWithBooking.getAvailable())));
@@ -164,10 +165,8 @@ class ItemControllerTest {
     @Test
     void getItemsForRentControllerTest() throws Exception {
         addItemDto();
-        List<ItemDTO> items = new ArrayList<>();
-        items.add(itemDto);
-        when(itemService.getForRent(Mockito.anyString(), any(), any()))
-                .thenReturn(items);
+        when(itemService.getItemsForRent(Mockito.anyString(), any(), any()))
+                .thenReturn(List.of(itemDto));
 
         mvc.perform(get("/items/search?text=F")
                         .header("X-Sharer-User-Id", 1L)
@@ -186,8 +185,8 @@ class ItemControllerTest {
     void addCommentControllerTest() throws Exception {
         addItemDto();
         addComment();
-        CommentDTO item = addItemDtoWithComment();
-        when(itemService.addComment(Mockito.anyLong(), Mockito.anyLong(), any(CommentDTO.class)))
+        ItemDtoWithComment item = addItemDtoWithComment();
+        when(itemService.addComment(Mockito.anyLong(), Mockito.anyLong(), any(ItemDtoWithComment.class)))
                 .thenReturn(item);
 
         mvc.perform(post("/items/1/comment")
@@ -207,7 +206,7 @@ class ItemControllerTest {
 
     @Test
     void updateItemWithException() throws Exception {
-        when(itemService.update(5L, 5L, new ItemDTO()))
+        when(itemService.changeItem(5L, 5L, new ItemDto()))
                 .thenThrow(AssertionError.class);
 
         mvc.perform(patch("/items/10/")
@@ -222,69 +221,69 @@ class ItemControllerTest {
     private void addItemDto() {
         addUser();
         itemDto.setId(1L);
-        itemDto.setName("Sword");
-        itemDto.setOwner(UserMapper.toUserToItemDto(user));
+        itemDto.setName("Fork");
+        itemDto.setOwner(user);
         itemDto.setAvailable(true);
-        itemDto.setDescription("For fights");
+        itemDto.setDescription("Designed for food");
     }
 
     private void addItemDtoWithBooking() {
         addBooking();
         addUser();
         itemDtoWithBooking.setId(2L);
-        itemDtoWithBooking.setName("Sword");
+        itemDtoWithBooking.setName("Fork");
         itemDtoWithBooking.setLastBooking(booking);
         booking.setId(2L);
         booking.setBookerId(4L);
-        String date = "2017-10-19T23:50:50";
+        String date = "2022-11-23T12:30:54";
         LocalDateTime localdatetime = LocalDateTime.parse(date);
         booking.setDateTime(localdatetime);
         booking.setBookerId(4L);
         itemDtoWithBooking.setNextBooking(booking);
-        itemDtoWithBooking.setOwner(UserMapper.toUserToItemWithBookingsDto(user));
+        itemDtoWithBooking.setOwner(user);
         itemDtoWithBooking.setAvailable(true);
-        itemDtoWithBooking.setDescription("For fights");
+        itemDtoWithBooking.setDescription("Designed for food");
     }
 
     private void addUser() {
         user.setId(1L);
-        user.setName("Aelin");
-        user.setEmail("aelin@whitethorn.com");
+        user.setName("Buffy");
+        user.setEmail("buffy@vampire.com");
     }
 
     private void addBooking() {
         User booker = new User();
         booker.setId(3L);
-        booker.setName("Dorian");
-        booker.setEmail("dorian@havilliard.com");
+        booker.setName("Katya");
+        booker.setEmail("katya@katya.com");
         booking.setId(1L);
         booking.setBookerId(3L);
-        String date = "2017-10-19T23:50:50";
+        String date = "2022-11-22T12:30:54";
         LocalDateTime localdatetime = LocalDateTime.parse(date);
         booking.setDateTime(localdatetime);
         User booker2 = new User();
         booker2.setId(4L);
-        booker2.setName("Manon");
-        booker2.setEmail("manon@blackbeak.com");
+        booker2.setName("Kat");
+        booker2.setEmail("kat@kat.com");
 
     }
 
     private void addComment() {
         User booker = new User();
         booker.setId(3L);
-        booker.setName("Dorian");
-        booker.setEmail("dorian@havilliard.com");
+        booker.setName("Katya");
+        booker.setEmail("katya@katya.com");
         comment.setId(1L);
         comment.setAuthor(booker);
         comment.setItem(item);
-        comment.setText("amazing sword");
-        String date = "2017-10-19T23:50:50";
+        comment.setText("cool fork");
+        String date = "2022-11-23T18:08:54";
         LocalDateTime localdatetime = LocalDateTime.parse(date);
         comment.setCreated(localdatetime);
     }
 
-    private CommentDTO addItemDtoWithComment() {
-        CommentDTO dtoWithComment = new CommentDTO();
+    private ItemDtoWithComment addItemDtoWithComment() {
+        ItemDtoWithComment dtoWithComment = new ItemDtoWithComment();
         dtoWithComment.setId(itemDto.getId());
         dtoWithComment.setText(comment.getText());
         dtoWithComment.setItemName(itemDto.getName());

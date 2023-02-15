@@ -14,26 +14,27 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ItemDtoWithCommentTest {
 
     @Autowired
-    private JacksonTester<CommentDTO> json;
+    private JacksonTester<ItemDtoWithComment> json;
 
     @Test
     void testItemDtoWithComment() throws Exception {
-        String date = "2017-10-19T23:50:50";
+        String date = "2022-11-23T18:08:54";
         LocalDateTime localdatetime = LocalDateTime.parse(date);
-        CommentDTO itemDto = new CommentDTO();
+        ItemDtoWithComment itemDto = new ItemDtoWithComment();
         itemDto.setId(1L);
-        itemDto.setItemName("Sword");
-        itemDto.setText("Waiting for fight");
+        itemDto.setItemName("Fork");
+        itemDto.setText("I need a fork");
         itemDto.setCreated(localdatetime);
-        itemDto.setAuthorName("Rowan");
+        itemDto.setAuthorName("Leo");
 
-        JsonContent<CommentDTO> result = json.write(itemDto);
+        JsonContent<ItemDtoWithComment> result = json.write(itemDto);
 
         assertThat(result).extractingJsonPathNumberValue("$.id").isEqualTo(1);
-        assertThat(result).extractingJsonPathStringValue("$.itemName").isEqualTo("Sword");
-        assertThat(result).extractingJsonPathStringValue("$.text").isEqualTo("Waiting for fight");
-        assertThat(result).extractingJsonPathStringValue("$.authorName").isEqualTo("Rowan");
-        assertThat(result).extractingJsonPathValue("$.created").isEqualTo("2017-10-19T23:50:50");
+        assertThat(result).extractingJsonPathStringValue("$.itemName").isEqualTo("Fork");
+        assertThat(result).extractingJsonPathStringValue("$.text").isEqualTo("I need a fork");
+        assertThat(result).extractingJsonPathStringValue("$.authorName").isEqualTo("Leo");
+        assertThat(result).extractingJsonPathValue("$.created")
+                .isEqualTo("2022-11-23T18:08:54");
 
     }
 }

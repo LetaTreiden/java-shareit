@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item;
 
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -17,24 +16,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-@Slf4j
 class ItemRepositoryTest {
+
+    @Autowired
+    private TestEntityManager em;
+
+    @Autowired
+    private ItemRepository itemRepository;
 
     private final Item item = new Item();
     private final User user = new User();
     private final ItemRequest request = new ItemRequest();
-    @Autowired
-    private TestEntityManager em;
-    @Autowired
-    private ItemRepository itemRepository;
 
     @Test
     void findItemByRequestJpaTest() {
         addItem();
         addRequest();
-        item.setRequestId(request);
+        item.setRequest(request);
         Item itemPersist = em.persist(item);
-        List<Item> items = itemRepository.findByRequest(request.getId());
+        List<Item> items = itemRepository.findItemByRequest(request.getId());
         assertThat(itemPersist).isEqualTo(items.get(1));
         assertThat(itemPersist.getId()).isEqualTo(items.get(1).getId());
     }
@@ -52,45 +52,45 @@ class ItemRepositoryTest {
     void findItemsByNameOrDescriptionJpaTest() {
         addItem();
         Item itemPersist = em.persist(item);
-        List<Item> items = itemRepository.findItemsByNameOrDescription("S");
-        log.info(items.toString());
-        assertThat(itemPersist).isEqualTo(items.get(4));
-        assertThat(itemPersist.getId()).isEqualTo(items.get(4).getId());
+        List<Item> items = itemRepository.findItemsByNameOrDescription("F");
+        assertThat(itemPersist).isEqualTo(items.get(3));
+        assertThat(itemPersist.getId()).isEqualTo(items.get(3).getId());
     }
 
     @Test
     void findByRequestIdJpaTest() {
         addItem();
         addRequest();
-        item.setRequestId(request);
+        item.setRequest(request);
         Item itemPersist = em.persist(item);
-        List<Item> items = itemRepository.findByRequest(request.getId());
+        List<Item> items = itemRepository.findItemByRequest(request.getId());
         assertThat(itemPersist).isEqualTo(items.get(1));
         assertThat(itemPersist.getId()).isEqualTo(items.get(1).getId());
     }
 
     private void addItem() {
         addUser();
-        item.setName("Sword");
+        item.setName("Fork");
         item.setOwner(user);
         item.setAvailable(true);
-        item.setDescription("For fights");
+        item.setDescription("Designed for food");
     }
 
     private void addUser() {
         user.setId(1L);
-        user.setName("Aelin");
-        user.setEmail("aelin@whitethorn.com");
+        user.setName("Buffy");
+        user.setEmail("buffy@vampire.com");
     }
 
     private void addRequest() {
-        User requester = new User();
-        requester.setId(3L);
-        requester.setName("Dorin");
-        requester.setEmail("dorin@havilliard.com");
+        User requestor = new User();
+        requestor.setId(3L);
+        requestor.setName("Kat");
+        requestor.setEmail("Kat@kat.com");
         request.setId(1L);
-        request.setRequester(requester);
-        request.setDescription("waiting for fight");
+        request.setRequestor(requestor);
+        request.setDescription("I need a fork to eat");
         request.setCreated(LocalDateTime.now());
     }
+
 }

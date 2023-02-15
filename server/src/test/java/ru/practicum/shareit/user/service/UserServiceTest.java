@@ -11,7 +11,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.UserRepository;
-import ru.practicum.shareit.user.dto.UserDTO;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.ArrayList;
@@ -19,40 +19,31 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 import static org.mockito.ArgumentMatchers.any;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
-    private final User user = new User();
-    private final UserDTO userDTO = new UserDTO();
     @InjectMocks
     UserServiceImpl mockUserService;
+
     @Mock
     UserRepository userRepository;
 
-    private void addUser() {
-        user.setName("Aelin");
-        user.setId(1L);
-        user.setEmail("aelin@whitethorn.com");
-    }
-
-    private void addUserDTO() {
-        user.setName("Aelin");
-        user.setId(1L);
-        user.setEmail("aelin@whitethorn.com");
-    }
-
     @Test
     void addUserTest() {
-        addUser();
+        User user = new User();
+        user.setId(1L);
+        user.setName("Buffy");
+        user.setEmail("buffy@vampire.com");
 
         Mockito
                 .when(userRepository.save(any()))
                 .thenReturn(user);
 
-        Optional<UserDTO> userDto = Optional.ofNullable(mockUserService.create(UserMapper.toUserDto(user)));
+        Optional<UserDto> userDto = Optional.ofNullable(mockUserService.addUser(UserMapper.toUserDto(user)));
         assertThat(userDto)
                 .isPresent()
                 .hasValueSatisfying(addUserTest -> {
@@ -65,44 +56,55 @@ class UserServiceTest {
 
     @Test
     void updateUserExceptionTest() {
-        addUserDTO();
+        UserDto user = new UserDto();
+        user.setName("Buffy");
+        user.setEmail("buffy@vampire.com");
 
         Mockito
                 .when(userRepository.findById(2L))
-                .thenThrow(new NotFoundException("User not found"));
+                .thenThrow(new NotFoundException("Пользователь не найден"));
 
 
         final NotFoundException exception = Assertions.assertThrows(
                 NotFoundException.class,
-                () -> mockUserService.update(2L, userDTO));
+                () -> mockUserService.updateUser(2L, user));
 
-        Assertions.assertEquals("User not found", exception.getMessage());
+        Assertions.assertEquals("Пользователь не найден", exception.getMessage());
 
 
     }
 
     @Test
     void updateUserEmptyTest() {
-        addUserDTO();
+        UserDto user = new UserDto();
+        user.setName("Buffy");
+        user.setEmail("buffy@vampire.com");
         Mockito
                 .when(userRepository.findById(0L))
                 .thenReturn(Optional.empty());
         final NotFoundException exception = Assertions.assertThrows(
                 NotFoundException.class,
-                () -> mockUserService.update(0L, userDTO));
+                () -> mockUserService.updateUser(0L, user));
 
-        Assertions.assertEquals("User not found", exception.getMessage());
+        Assertions.assertEquals("Пользователь не найден", exception.getMessage());
     }
 
     @Test
     void updateUserTest() {
-        addUser();
+        User user = new User();
+        user.setId(1L);
+        user.setName("Buffy");
+        user.setEmail("buffy@vampire.com");
+
+        Mockito
+                .when(userRepository.save(any()))
+                .thenReturn(user);
 
         Mockito
                 .when(userRepository.findById(1L))
                 .thenReturn(Optional.of(user));
 
-        Optional<UserDTO> userDto = Optional.ofNullable(mockUserService.update(1L, (UserMapper.toUserDto(user))));
+        Optional<UserDto> userDto = Optional.ofNullable(mockUserService.updateUser(1L, (UserMapper.toUserDto(user))));
         assertThat(userDto)
                 .isPresent()
                 .hasValueSatisfying(addUserTest -> {
@@ -120,19 +122,22 @@ class UserServiceTest {
                 .thenReturn(Optional.empty());
         final NotFoundException exception = Assertions.assertThrows(
                 NotFoundException.class,
-                () -> mockUserService.delete(1L));
+                () -> mockUserService.deleteUser(1L));
 
-        Assertions.assertEquals("User not found", exception.getMessage());
+        Assertions.assertEquals("Пользователь не найден", exception.getMessage());
     }
 
     @Test
     void deleteUserTest() {
-        addUser();
+        User user = new User();
+        user.setId(1L);
+        user.setName("Buffy");
+        user.setEmail("buffy@vampire.com");
 
         Mockito
                 .when(userRepository.findById(1L))
                 .thenReturn(Optional.of(user));
-        mockUserService.delete(1L);
+        mockUserService.deleteUser(1L);
         Mockito.verify(userRepository).deleteById(1L);
 
     }
@@ -142,7 +147,7 @@ class UserServiceTest {
         Mockito
                 .when(userRepository.findAll())
                 .thenReturn(new ArrayList<>());
-        List<UserDTO> userDtoList = mockUserService.getAll();
+        List<UserDto> userDtoList = (List<UserDto>) mockUserService.getAllUsers();
         Assertions.assertEquals(userDtoList, new ArrayList<>());
 
 
@@ -150,12 +155,15 @@ class UserServiceTest {
 
     @Test
     void getAllUsersTest() {
-        addUser();
+        User user = new User();
+        user.setId(1L);
+        user.setName("Buffy");
+        user.setEmail("buffy@vampire.com");
 
         User user1 = new User();
         user1.setId(2L);
-        user1.setName("Rowan");
-        user1.setEmail("rowan@whitethorn.com");
+        user1.setName("Leo");
+        user1.setEmail("leo@angel.com");
 
         List<User> users = new ArrayList<>();
         users.add(user1);
@@ -165,7 +173,7 @@ class UserServiceTest {
                 .when(userRepository.findAll())
                 .thenReturn(users);
 
-        List<User> getUsers = UserMapper.mapToUser(mockUserService.getAll());
+        List<User> getUsers = UserMapper.mapToUser(mockUserService.getAllUsers());
         Assertions.assertEquals(getUsers, users);
     }
 
@@ -176,20 +184,23 @@ class UserServiceTest {
                 .thenReturn(Optional.empty());
         final NotFoundException exception = Assertions.assertThrows(
                 NotFoundException.class,
-                () -> mockUserService.get(1L));
+                () -> mockUserService.getUser(1L));
 
-        Assertions.assertEquals("User not found", exception.getMessage());
+        Assertions.assertEquals("Пользователь не найден", exception.getMessage());
     }
 
     @Test
     void getUserTest() {
-        addUser();
+        User user = new User();
+        user.setId(1L);
+        user.setName("Buffy");
+        user.setEmail("buffy@vampire.com");
 
         Mockito
                 .when(userRepository.findById(1L))
                 .thenReturn(Optional.of(user));
 
-        Optional<UserDTO> userDto = Optional.ofNullable(mockUserService.get(1L));
+        Optional<UserDto> userDto = Optional.ofNullable(mockUserService.getUser(1L));
         assertThat(userDto)
                 .isPresent()
                 .hasValueSatisfying(addUserTest -> {

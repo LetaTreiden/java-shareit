@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item.service;
 
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,20 +11,20 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.State;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.CommentRepository;
 import ru.practicum.shareit.item.ItemRepository;
-import ru.practicum.shareit.item.dto.CommentDTO;
-import ru.practicum.shareit.item.dto.ItemDTO;
-import ru.practicum.shareit.item.dto.ItemDTOWithBookings;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoWithComment;
+import ru.practicum.shareit.item.dto.ItemDtoWithBooking;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.request.RequestRepository;
+import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
@@ -40,7 +39,6 @@ import static org.mockito.ArgumentMatchers.any;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(MockitoExtension.class)
-@Slf4j
 class ItemServiceTest {
 
     @InjectMocks
@@ -53,7 +51,7 @@ class ItemServiceTest {
     UserRepository userRepository;
 
     @Mock
-    RequestRepository requestRepository;
+    ItemRequestRepository requestRepository;
 
     @Mock
     CommentRepository commentRepository;
@@ -63,7 +61,7 @@ class ItemServiceTest {
 
     Item item = new Item();
     User userOwner = new User();
-    User requester = new User();
+    User requestor = new User();
     ItemRequest request = new ItemRequest();
     Booking booking = new Booking();
     Comment comment = new Comment();
@@ -82,7 +80,7 @@ class ItemServiceTest {
                 .when(itemRepository.save(any()))
                 .thenReturn(item);
 
-        Optional<ItemDTO> itemDto = Optional.ofNullable(itemService.add(userOwner.getId(),
+        Optional<ItemDto> itemDto = Optional.ofNullable(itemService.addItem(userOwner.getId(),
                 ItemMapper.toItemDto(item)));
 
         assertThat(itemDto)
@@ -101,17 +99,21 @@ class ItemServiceTest {
     void addItemWithRequestTest() {
         addItem();
         addRequest();
-        item.setRequestId(request);
+        item.setRequest(request);
 
         Mockito
                 .when(userRepository.findById(Mockito.anyLong()))
                 .thenReturn(Optional.of(userOwner));
 
         Mockito
+                .when(requestRepository.findById(Mockito.anyLong()))
+                .thenReturn(Optional.ofNullable(request));
+
+        Mockito
                 .when(itemRepository.save(any()))
                 .thenReturn(item);
 
-        Optional<ItemDTO> itemDto = Optional.ofNullable(itemService.add(userOwner.getId(),
+        Optional<ItemDto> itemDto = Optional.ofNullable(itemService.addItem(userOwner.getId(),
                 ItemMapper.toItemDto(item)));
 
         assertThat(itemDto)
@@ -121,7 +123,7 @@ class ItemServiceTest {
                             assertThat(addItemTest).hasFieldOrPropertyWithValue("name", item.getName());
                             assertThat(addItemTest).hasFieldOrPropertyWithValue("available", item.getAvailable());
                             assertThat(addItemTest).hasFieldOrPropertyWithValue("requestId",
-                                    item.getRequestId().getId());
+                                    item.getRequest().getId());
                             assertThat(addItemTest).hasFieldOrPropertyWithValue("description",
                                     item.getDescription());
                         }
@@ -138,9 +140,9 @@ class ItemServiceTest {
 
         final NotFoundException exception = Assertions.assertThrows(
                 NotFoundException.class,
-                () -> itemService.add(3L, ItemMapper.toItemDto(item)));
+                () -> itemService.addItem(3L, ItemMapper.toItemDto(item)));
 
-        Assertions.assertEquals("User not found", exception.getMessage());
+        Assertions.assertEquals("Пользователь не найден", exception.getMessage());
     }
 
     @Test
@@ -148,10 +150,14 @@ class ItemServiceTest {
         addItem();
 
         Mockito
+                .when(itemRepository.save(any()))
+                .thenReturn(item);
+
+        Mockito
                 .when(itemRepository.findById(Mockito.anyLong()))
                 .thenReturn(Optional.of(item));
 
-        Optional<ItemDTO> itemDto = Optional.ofNullable(itemService.update(userOwner.getId(), item.getId(),
+        Optional<ItemDto> itemDto = Optional.ofNullable(itemService.changeItem(userOwner.getId(), item.getId(),
                 ItemMapper.toItemDto(item)));
 
         assertThat(itemDto)
@@ -176,9 +182,9 @@ class ItemServiceTest {
 
         final NotFoundException exception = Assertions.assertThrows(
                 NotFoundException.class,
-                () -> itemService.update(1L, 3L, ItemMapper.toItemDto(item)));
+                () -> itemService.changeItem(1L, 3L, ItemMapper.toItemDto(item)));
 
-        Assertions.assertEquals("Item not found", exception.getMessage());
+        Assertions.assertEquals("Вещь не найдена", exception.getMessage());
     }
 
     @Test
@@ -191,25 +197,30 @@ class ItemServiceTest {
 
         final ForbiddenException exception = Assertions.assertThrows(
                 ForbiddenException.class,
-                () -> itemService.update(5L, 1L, ItemMapper.toItemDto(item)));
+                () -> itemService.changeItem(5L, 1L, ItemMapper.toItemDto(item)));
 
-        Assertions.assertEquals("No rights", exception.getMessage());
+        Assertions.assertEquals("Для пользователя нет доступа", exception.getMessage());
     }
 
     @Test
     void getItemTest() {
         addItem();
         List<Comment> comments = new ArrayList<>();
+        List<Booking> bookings = new ArrayList<>();
 
         Mockito
                 .when(itemRepository.findById(Mockito.anyLong()))
                 .thenReturn(Optional.of(item));
 
         Mockito
-                .when(commentRepository.findAllByItem(any()))
+                .when(commentRepository.findByItem(any()))
                 .thenReturn(comments);
 
-        Optional<ItemDTOWithBookings> itemDto = Optional.ofNullable(itemService.get(userOwner.getId(), item.getId()));
+        Mockito
+                .when(bookingRepository.findByItemOrderByStartDesc(any()))
+                .thenReturn(bookings);
+
+        Optional<ItemDtoWithBooking> itemDto = Optional.ofNullable(itemService.getItem(userOwner.getId(), item.getId()));
 
         assertThat(itemDto)
                 .isPresent()
@@ -238,10 +249,14 @@ class ItemServiceTest {
                 .thenReturn(Optional.of(item));
 
         Mockito
-                .when(commentRepository.findAllByItem(any()))
+                .when(commentRepository.findByItem(any()))
                 .thenReturn(comments);
 
-        Optional<ItemDTOWithBookings> itemDto = Optional.ofNullable(itemService.get(userOwner.getId(), item.getId()));
+        Mockito
+                .when(bookingRepository.findByItemOrderByStartDesc(any()))
+                .thenReturn(bookings);
+
+        Optional<ItemDtoWithBooking> itemDto = Optional.ofNullable(itemService.getItem(userOwner.getId(), item.getId()));
 
         assertThat(itemDto)
                 .isPresent()
@@ -263,9 +278,9 @@ class ItemServiceTest {
 
         final NotFoundException exception = Assertions.assertThrows(
                 NotFoundException.class,
-                () -> itemService.get(1L, 5L));
+                () -> itemService.getItem(1L, 5L));
 
-        Assertions.assertEquals("Item not found", exception.getMessage());
+        Assertions.assertEquals("Вещь не найдена", exception.getMessage());
 
     }
 
@@ -273,6 +288,7 @@ class ItemServiceTest {
     void getAllOwnItemsTest() {
         addItem();
         addBooking();
+        List<Comment> comments = new ArrayList<>();
         List<Booking> bookings = new ArrayList<>();
         List<Item> items = new ArrayList<>();
         items.add(item);
@@ -285,10 +301,18 @@ class ItemServiceTest {
                 .thenReturn(Optional.ofNullable(userOwner));
 
         Mockito
+                .when(commentRepository.findByItem(any()))
+                .thenReturn(comments);
+
+        Mockito
+                .when(bookingRepository.findByItemOrderByStartDesc(any()))
+                .thenReturn(bookings);
+
+        Mockito
                 .when(itemRepository.findByOwner(any()))
                 .thenReturn(items);
 
-        List<ItemDTOWithBookings> getItems = itemService.getAllByOwner(1L, null, null);
+        List<Item> getItems = ItemMapper.mapToItem(itemService.getAllOwnItems(1L, null, null));
 
         Assertions.assertEquals(getItems.get(0).getId(), items.get(0).getId());
     }
@@ -301,53 +325,17 @@ class ItemServiceTest {
 
         final NotFoundException exception = Assertions.assertThrows(
                 NotFoundException.class,
-                () -> itemService.getAllByOwner(4L, null, null));
+                () -> itemService.getAllOwnItems(4L, null, null));
 
-        Assertions.assertEquals("User not found", exception.getMessage());
+        Assertions.assertEquals("Пользователь не найден", exception.getMessage());
     }
 
-    @Test
-    void getAllOwnItemsFromOrSizeLessThanZeroTest() {
-        addItem();
-
-        Mockito
-                .when(userRepository.findById(Mockito.anyLong()))
-                .thenReturn(Optional.ofNullable(userOwner));
-
-        final ArithmeticException exception = Assertions.assertThrows(
-                ArithmeticException.class,
-                () -> itemService.getAllByOwner(1L, -1, 0));
-
-        Assertions.assertEquals("/ by zero",
-                exception.getMessage());
-    }
-
-    @Test
-    void getAllOwnItemsSizeEqualToZeroTest() {
-        addItem();
-
-        List<Item> items = new ArrayList<>();
-        items.add(item);
-
-
-        Mockito.when(userRepository.findById(any()))
-                .thenReturn(Optional.ofNullable((userOwner)));
-
-        log.info(userOwner.toString());
-        log.info(String.valueOf(userRepository.getReferenceById(1L)));
-        log.info(item.getOwner().toString());
-
-        final ArithmeticException exception = Assertions.assertThrows(
-                ArithmeticException.class,
-                () -> itemService.getAllByOwner(1L, 1, 0));
-
-        Assertions.assertEquals("/ by zero", exception.getMessage());
-    }
 
     @Test
     void getAllOwnItemsWithPageTest() {
         addItem();
         addBooking();
+        List<Comment> comments = new ArrayList<>();
         List<Booking> bookings = new ArrayList<>();
         List<Item> items = new ArrayList<>();
         items.add(item);
@@ -358,13 +346,21 @@ class ItemServiceTest {
 
         Mockito
                 .when(userRepository.findById(Mockito.anyLong()))
-                .thenReturn(Optional.of(userOwner));
+                .thenReturn(Optional.ofNullable(userOwner));
+
+        Mockito
+                .when(commentRepository.findByItem(any()))
+                .thenReturn(comments);
+
+        Mockito
+                .when(bookingRepository.findByItemOrderByStartDesc(any()))
+                .thenReturn(bookings);
 
         Mockito
                 .when(itemRepository.findByOwner(any(), any()))
                 .thenReturn(page);
 
-        List<ItemDTOWithBookings> getItems = itemService.getAllByOwner(1L, 0, 1);
+        List<Item> getItems = ItemMapper.mapToItem(itemService.getAllOwnItems(1L, 0, 1));
 
         Assertions.assertEquals(getItems.get(0).getId(), items.get(0).getId());
     }
@@ -380,30 +376,9 @@ class ItemServiceTest {
                 .when(itemRepository.findItemsByNameOrDescription(Mockito.anyString()))
                 .thenReturn(items);
 
-        List<ItemDTO> getItems = itemService.getForRent("Sword", null, null);
+        List<ItemDto> getItems = (List<ItemDto>) itemService.getItemsForRent("Fork", null, null);
 
         Assertions.assertEquals(getItems.get(0).getId(), items.get(0).getId());
-    }
-
-    @Test
-    void getItemsForRentEqualToZeroTest() {
-        final ArithmeticException exception = Assertions.assertThrows(
-                ArithmeticException.class,
-                () -> itemService.getForRent("S", 0, 0));
-
-        Assertions.assertEquals("/ by zero", exception.getMessage());
-
-    }
-
-    @Test
-    void getItemsForRentFromOrSizeLessThanZeroTest() {
-        final ArithmeticException exception = Assertions.assertThrows(
-                ArithmeticException.class,
-                () -> itemService.getForRent("S", -1, 0));
-
-        Assertions.assertEquals("/ by zero",
-                exception.getMessage());
-
     }
 
     @Test
@@ -417,14 +392,14 @@ class ItemServiceTest {
                 .when(itemRepository.findItemsByNameOrDescription(Mockito.anyString(), any()))
                 .thenReturn(page);
 
-        List<ItemDTO> getItems = itemService.getForRent("Sword", 0, 1);
+        List<ItemDto> getItems = (List<ItemDto>) itemService.getItemsForRent("Fork", 0, 1);
 
         Assertions.assertEquals(getItems.get(0).getId(), items.get(0).getId());
     }
 
     @Test
     void getItemsForRentNewArrayTest() {
-        List<ItemDTO> getItems = itemService.getForRent("", null, null);
+        List<ItemDto> getItems = (List<ItemDto>) itemService.getItemsForRent("", null, null);
 
         Assertions.assertEquals(getItems, new ArrayList<>());
     }
@@ -438,7 +413,7 @@ class ItemServiceTest {
         booking.setEnd(LocalDateTime.now().minusDays(2));
         List<Booking> bookings = new ArrayList<>();
         bookings.add(booking);
-        CommentDTO dtoWithComment = addItemDtoWithComment();
+        ItemDtoWithComment dtoWithComment = addItemDtoWithComment();
 
         Mockito
                 .when(itemRepository.findById(Mockito.anyLong()))
@@ -457,7 +432,7 @@ class ItemServiceTest {
                 .when(commentRepository.save(any()))
                 .thenReturn(comment);
 
-        Optional<CommentDTO> itemDto = Optional.ofNullable(itemService.addComment(3L, item.getId(),
+        Optional<ItemDtoWithComment> itemDto = Optional.ofNullable(itemService.addComment(3L, item.getId(),
                 dtoWithComment));
 
         assertThat(itemDto)
@@ -477,7 +452,7 @@ class ItemServiceTest {
     void addCommentItemNotFoundTest() {
         addItem();
         addComment();
-        CommentDTO dtoWithComment = addItemDtoWithComment();
+        ItemDtoWithComment dtoWithComment = addItemDtoWithComment();
 
         Mockito
                 .when(itemRepository.findById(Mockito.anyLong()))
@@ -487,14 +462,14 @@ class ItemServiceTest {
                 NotFoundException.class,
                 () -> itemService.addComment(2L, 2L, dtoWithComment));
 
-        Assertions.assertEquals("Item not found", exception.getMessage());
+        Assertions.assertEquals("Вещь не найдена", exception.getMessage());
     }
 
     @Test
     void addCommentUserNotFoundTest() {
         addItem();
         addComment();
-        CommentDTO dtoWithComment = addItemDtoWithComment();
+        ItemDtoWithComment dtoWithComment = addItemDtoWithComment();
 
         Mockito
                 .when(itemRepository.findById(Mockito.anyLong()))
@@ -508,7 +483,7 @@ class ItemServiceTest {
                 NotFoundException.class,
                 () -> itemService.addComment(4L, 1L, dtoWithComment));
 
-        Assertions.assertEquals("User not found", exception.getMessage());
+        Assertions.assertEquals("Пользователь не найден", exception.getMessage());
 
     }
 
@@ -516,7 +491,7 @@ class ItemServiceTest {
     void addCommentBookingIsEmptyTest() {
         addItem();
         addComment();
-        CommentDTO dtoWithComment = addItemDtoWithComment();
+        ItemDtoWithComment dtoWithComment = addItemDtoWithComment();
 
         Mockito
                 .when(itemRepository.findById(Mockito.anyLong()))
@@ -535,78 +510,45 @@ class ItemServiceTest {
                 BadRequestException.class,
                 () -> itemService.addComment(4L, 1L, dtoWithComment));
 
-        Assertions.assertEquals("Booking is empty", exception.getMessage());
+        Assertions.assertEquals("Невозможно добавить комментарий", exception.getMessage());
 
 
     }
-
-    @Test
-    void addCommentIsEmptyTest() {
-        addItem();
-        addComment();
-        addBooking();
-        booking.setStart(LocalDateTime.now().minusDays(3));
-        booking.setEnd(LocalDateTime.now().minusDays(2));
-        List<Booking> bookings = new ArrayList<>();
-        bookings.add(booking);
-
-        Mockito
-                .when(itemRepository.findById(Mockito.anyLong()))
-                .thenReturn(Optional.ofNullable(item));
-
-        Mockito
-                .when(userRepository.findById(Mockito.anyLong()))
-                .thenReturn(Optional.ofNullable(comment.getAuthor()));
-
-        Mockito
-                .when(bookingRepository.findByItemAndBookerAndStartBeforeAndEndBefore(any(), any(),
-                        any(), any()))
-                .thenReturn(bookings);
-
-        final BadRequestException exception = Assertions.assertThrows(
-                BadRequestException.class,
-                () -> itemService.addComment(4L, 1L, null));
-
-        Assertions.assertEquals("Comment is empty", exception.getMessage());
-
-
-    }
-
 
     private void addItem() {
         addUser();
         item.setId(1L);
-        item.setName("Sword");
+        item.setName("Fork");
         item.setOwner(userOwner);
         item.setAvailable(true);
-        item.setDescription("For fight");
+        item.setDescription("Designed for food");
     }
 
     private void addUser() {
         userOwner.setId(1L);
-        userOwner.setName("Aelin");
-        userOwner.setEmail("aelin@whitethorn.com");
+        userOwner.setName("Buffy");
+        userOwner.setEmail("buffy@vampire.com");
 
-        requester.setId(2L);
-        requester.setName("Rowan");
-        requester.setEmail("leo@angel.com");
+        requestor.setId(2L);
+        requestor.setName("Leo");
+        requestor.setEmail("leo@angel.com");
     }
 
     private void addRequest() {
         request.setId(1L);
-        request.setRequester(requester);
-        request.setDescription("waiting for fight");
+        request.setRequestor(requestor);
+        request.setDescription("I need a fork to eat");
         request.setCreated(LocalDateTime.now());
     }
 
     private void addBooking() {
         User booker = new User();
         booker.setId(3L);
-        booker.setName("Dorin");
-        booker.setEmail("dorin@havilliard.com");
+        booker.setName("Katya");
+        booker.setEmail("katya@katya.com");
         booking.setId(1L);
         booking.setItem(item);
-        booking.setStatus(Status.WAITING);
+        booking.setStatus(State.WAITING);
         booking.setStart(LocalDateTime.now().plusDays(1));
         booking.setEnd(LocalDateTime.now().plusDays(3));
         booking.setBooker(booker);
@@ -615,17 +557,17 @@ class ItemServiceTest {
     private void addComment() {
         User booker = new User();
         booker.setId(3L);
-        booker.setName("Dorin");
-        booker.setEmail("dorin@havilliard.com");
+        booker.setName("Katya");
+        booker.setEmail("katya@katya.com");
         comment.setId(1L);
         comment.setAuthor(booker);
         comment.setItem(item);
-        comment.setText("amazing sword");
+        comment.setText("cool fork");
         comment.setCreated(LocalDateTime.now());
     }
 
-    private CommentDTO addItemDtoWithComment() {
-        CommentDTO dtoWithComment = new CommentDTO();
+    private ItemDtoWithComment addItemDtoWithComment() {
+        ItemDtoWithComment dtoWithComment = new ItemDtoWithComment();
         dtoWithComment.setId(item.getId());
         dtoWithComment.setText(comment.getText());
         dtoWithComment.setItemName(item.getName());

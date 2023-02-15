@@ -11,20 +11,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 @JsonTest
 class UserDtoTest {
     @Autowired
-    private JacksonTester<UserDTO> json;
+    private JacksonTester<UserDto> json;
 
     @Test
     void testUserDto() throws Exception {
-        UserDTO userDto = new UserDTO();
+        UserDto userDto = new UserDto();
         userDto.setId(1L);
-        userDto.setName("Aelin");
-        userDto.setEmail("aelin@whitethorn.com");
+        userDto.setName("Leo");
+        userDto.setEmail("leo@angel.com");
 
-        JsonContent<UserDTO> result = json.write(userDto);
+        JsonContent<UserDto> result = json.write(userDto);
 
         assertThat(result).extractingJsonPathNumberValue("$.id").isEqualTo(1);
-        assertThat(result).extractingJsonPathStringValue("$.name").isEqualTo("Aelin");
-        assertThat(result).extractingJsonPathStringValue("$.email").isEqualTo("aelin@whitethorn.com");
+        assertThat(result).extractingJsonPathStringValue("$.name").isEqualTo("Leo");
+        assertThat(result).extractingJsonPathStringValue("$.email").isEqualTo("leo@angel.com");
     }
 
 }

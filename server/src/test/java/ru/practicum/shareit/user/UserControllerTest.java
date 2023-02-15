@@ -12,38 +12,42 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.user.dto.UserDTO;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserServiceImpl;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import static org.hamcrest.Matchers.is;
+
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @WebMvcTest(controllers = UserController.class)
 class UserControllerTest {
 
-    private final UserDTO userDto = new UserDTO();
     @Autowired
     ObjectMapper mapper;
+
     @MockBean
     UserServiceImpl userService;
+
     @Autowired
     private MockMvc mvc;
+
+    private final UserDto userDto = new UserDto();
 
     @Test
     void createUserControllerTest() throws Exception {
         addUser();
 
-        when(userService.create(any()))
+        when(userService.addUser(any()))
                 .thenReturn(userDto);
 
         mvc.perform(post("/users")
@@ -61,7 +65,7 @@ class UserControllerTest {
     void updateUserControllerTest() throws Exception {
         addUser();
 
-        when(userService.update(1L, userDto))
+        when(userService.updateUser(1L, userDto))
                 .thenReturn(userDto);
 
         mvc.perform(patch("/users/1/")
@@ -86,7 +90,7 @@ class UserControllerTest {
     @Test
     void getUsersControllerTest() throws Exception {
         addUser();
-        when(userService.getAll())
+        when(userService.getAllUsers())
                 .thenReturn(List.of(userDto));
 
         mvc.perform(get("/users"))
@@ -101,7 +105,7 @@ class UserControllerTest {
     @Test
     void getUserControllerTest() throws Exception {
         addUser();
-        when(userService.get(Mockito.anyLong()))
+        when(userService.getUser(Mockito.anyLong()))
                 .thenReturn(userDto);
 
         mvc.perform(get("/users/1/"))
@@ -113,7 +117,7 @@ class UserControllerTest {
 
     @Test
     void updateUserWithException() throws Exception {
-        when(userService.update(1L, userDto))
+        when(userService.updateUser(1L, userDto))
                 .thenThrow(NotFoundException.class);
 
         mvc.perform(patch("/users/1/")
@@ -134,7 +138,8 @@ class UserControllerTest {
 
     private void addUser() {
         userDto.setId(1L);
-        userDto.setName("Aelin");
-        userDto.setEmail("aelin@whitethorn.com");
+        userDto.setName("Leo");
+        userDto.setEmail("leo@angel.com");
     }
+
 }

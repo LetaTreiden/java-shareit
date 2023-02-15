@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.user.dto.UserDTO;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.util.Collection;
@@ -17,32 +17,32 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public UserDTO create(@RequestBody UserDTO user) {
+    public UserDto createUser(@RequestBody UserDto user) {
         log.info("Добавление нового пользователя");
-        return userService.create(user);
+        return userService.addUser(user);
     }
 
     @PatchMapping("/{userId}")
-    public UserDTO update(@PathVariable Long userId, @RequestBody UserDTO user) {
+    public UserDto update(@PathVariable Long userId, @RequestBody UserDto user) {
         log.info("Обновление данных о пользователе с id {}", userId);
-        return userService.update(userId, user);
+        return userService.updateUser(userId, user);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public void deleteUser(@PathVariable Long id) {
         log.info("Удаление пользователя с id {}", id);
-        userService.delete(id);
+        userService.deleteUser(id);
     }
 
     @GetMapping
-    public Collection<UserDTO> getAll() {
+    public Collection<UserDto> getUsers() {
         log.info("Получение списка всех пользователей");
-        return userService.getAll();
+        return userService.getAllUsers();
     }
 
     @GetMapping("/{id}")
-    public UserDTO get(@PathVariable Long id) {
+    public UserDto getUser(@PathVariable Long id) {
         log.info("Получение пользователя с id {}", id);
-        return userService.get(id);
+        return userService.getUser(id);
     }
 }

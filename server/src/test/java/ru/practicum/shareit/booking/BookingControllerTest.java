@@ -9,18 +9,15 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.shareit.booking.dto.BookingDTOToReturn;
-import ru.practicum.shareit.booking.model.Status;
+import ru.practicum.shareit.booking.dto.BookingDtoTwo;
 import ru.practicum.shareit.booking.service.BookingServiceImpl;
-import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
@@ -33,22 +30,25 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = BookingController.class)
 class BookingControllerTest {
 
-    private final BookingDTOToReturn bookingDto = new BookingDTOToReturn();
-    private final Item item = new Item();
-    private final User user = new User();
     @Autowired
     ObjectMapper mapper;
+
     @MockBean
     BookingServiceImpl bookingService;
+
     @Autowired
     private MockMvc mvc;
+
+    private final BookingDtoTwo bookingDto = new BookingDtoTwo();
+    private final Item item = new Item();
+    private final User user = new User();
 
     @Test
     void addBookingControllerTest() throws Exception {
         addItem();
         addBookingDto();
 
-        when(bookingService.add(Mockito.anyLong(), any()))
+        when(bookingService.addBooking(Mockito.anyLong(), any()))
                 .thenReturn(bookingDto);
 
         mvc.perform(post("/bookings")
@@ -60,11 +60,13 @@ class BookingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(bookingDto.getId()), Long.class))
                 .andExpect(jsonPath("$.start", is(bookingDto.getStart().toString())))
-                .andExpect(jsonPath("$.booker.id", is((int)bookingDto.getBooker().getId())))
+                .andExpect(jsonPath("$.booker.id", is((int) bookingDto.getBooker().getId())))
                 .andExpect(jsonPath("$.booker.name", is(bookingDto.getBooker().getName())))
+                .andExpect(jsonPath("$.booker.email", is(bookingDto.getBooker().getEmail())))
                 .andExpect(jsonPath("$.end", is(bookingDto.getEnd().toString())))
                 .andExpect(jsonPath("$.item.id", is((int) bookingDto.getItem().getId())))
                 .andExpect(jsonPath("$.item.name", is(bookingDto.getItem().getName())))
+                .andExpect(jsonPath("$.item.description", is(bookingDto.getItem().getDescription())))
                 .andExpect(jsonPath("$.status", is(bookingDto.getStatus().toString())));
 
     }
@@ -74,7 +76,7 @@ class BookingControllerTest {
         addItem();
         addBookingDto();
 
-        when(bookingService.update(Mockito.any(), Mockito.anyLong(), Mockito.anyBoolean()))
+        when(bookingService.updateStatusBooking(Mockito.any(), Mockito.anyLong(), Mockito.anyBoolean()))
                 .thenReturn(bookingDto);
 
         mvc.perform(patch("/bookings/2")
@@ -87,11 +89,13 @@ class BookingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(bookingDto.getId()), Long.class))
                 .andExpect(jsonPath("$.start", is(bookingDto.getStart().toString())))
-                .andExpect(jsonPath("$.booker.id", is((int)bookingDto.getBooker().getId())))
+                .andExpect(jsonPath("$.booker.id", is((int) bookingDto.getBooker().getId())))
                 .andExpect(jsonPath("$.booker.name", is(bookingDto.getBooker().getName())))
+                .andExpect(jsonPath("$.booker.email", is(bookingDto.getBooker().getEmail())))
                 .andExpect(jsonPath("$.end", is(bookingDto.getEnd().toString())))
                 .andExpect(jsonPath("$.item.id", is((int) bookingDto.getItem().getId())))
                 .andExpect(jsonPath("$.item.name", is(bookingDto.getItem().getName())))
+                .andExpect(jsonPath("$.item.description", is(bookingDto.getItem().getDescription())))
                 .andExpect(jsonPath("$.status", is(bookingDto.getStatus().toString())));
     }
 
@@ -100,7 +104,7 @@ class BookingControllerTest {
         addItem();
         addBookingDto();
 
-        when(bookingService.get(Mockito.anyLong(), Mockito.anyLong()))
+        when(bookingService.getBooking(Mockito.anyLong(), Mockito.anyLong()))
                 .thenReturn(bookingDto);
 
         mvc.perform(get("/bookings/2")
@@ -112,11 +116,13 @@ class BookingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(bookingDto.getId()), Long.class))
                 .andExpect(jsonPath("$.start", is(bookingDto.getStart().toString())))
-                .andExpect(jsonPath("$.booker.id", is((int)bookingDto.getBooker().getId())))
+                .andExpect(jsonPath("$.booker.id", is((int) bookingDto.getBooker().getId())))
                 .andExpect(jsonPath("$.booker.name", is(bookingDto.getBooker().getName())))
+                .andExpect(jsonPath("$.booker.email", is(bookingDto.getBooker().getEmail())))
                 .andExpect(jsonPath("$.end", is(bookingDto.getEnd().toString())))
                 .andExpect(jsonPath("$.item.id", is((int) bookingDto.getItem().getId())))
                 .andExpect(jsonPath("$.item.name", is(bookingDto.getItem().getName())))
+                .andExpect(jsonPath("$.item.description", is(bookingDto.getItem().getDescription())))
                 .andExpect(jsonPath("$.status", is(bookingDto.getStatus().toString())));
     }
 
@@ -124,10 +130,10 @@ class BookingControllerTest {
     void findBookingByBookerControllerTest() throws Exception {
         addItem();
         addBookingDto();
-        List<BookingDTOToReturn> bookings = new ArrayList<>();
+        Collection<BookingDtoTwo> bookings = new ArrayList<>();
         bookings.add(bookingDto);
 
-        when(bookingService.getByBooker(Mockito.anyLong(), Mockito.anyString(), any(), any()))
+        when(bookingService.getBookingByBooker(Mockito.anyLong(), Mockito.anyString(), any(), any()))
                 .thenReturn(bookings);
 
         mvc.perform(get("/bookings")
@@ -140,11 +146,13 @@ class BookingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id", is(bookingDto.getId()), Long.class))
                 .andExpect(jsonPath("$[0].start", is(bookingDto.getStart().toString())))
-                .andExpect(jsonPath("$[0].booker.id", is((int)bookingDto.getBooker().getId())))
+                .andExpect(jsonPath("$[0].booker.id", is((int) bookingDto.getBooker().getId())))
                 .andExpect(jsonPath("$[0].booker.name", is(bookingDto.getBooker().getName())))
+                .andExpect(jsonPath("$[0].booker.email", is(bookingDto.getBooker().getEmail())))
                 .andExpect(jsonPath("$[0].end", is(bookingDto.getEnd().toString())))
                 .andExpect(jsonPath("$[0].item.id", is((int) bookingDto.getItem().getId())))
                 .andExpect(jsonPath("$[0].item.name", is(bookingDto.getItem().getName())))
+                .andExpect(jsonPath("$[0].item.description", is(bookingDto.getItem().getDescription())))
                 .andExpect(jsonPath("$[0].status", is(bookingDto.getStatus().toString())));
     }
 
@@ -152,10 +160,10 @@ class BookingControllerTest {
     void findBookingByOwnerControllerTest() throws Exception {
         addItem();
         addBookingDto();
-        List<BookingDTOToReturn> bookings = new ArrayList<>();
+        Collection<BookingDtoTwo> bookings = new ArrayList<>();
         bookings.add(bookingDto);
 
-        when(bookingService.getByOwner(Mockito.anyLong(), Mockito.anyString(), any(), any()))
+        when(bookingService.getBookingByOwner(Mockito.anyLong(), Mockito.anyString(), any(), any()))
                 .thenReturn(bookings);
 
         mvc.perform(get("/bookings/owner")
@@ -168,38 +176,40 @@ class BookingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id", is(bookingDto.getId()), Long.class))
                 .andExpect(jsonPath("$[0].start", is(bookingDto.getStart().toString())))
-                .andExpect(jsonPath("$[0].booker.id", is((int)bookingDto.getBooker().getId())))
+                .andExpect(jsonPath("$[0].booker.id", is((int) bookingDto.getBooker().getId())))
                 .andExpect(jsonPath("$[0].booker.name", is(bookingDto.getBooker().getName())))
+                .andExpect(jsonPath("$[0].booker.email", is(bookingDto.getBooker().getEmail())))
                 .andExpect(jsonPath("$[0].end", is(bookingDto.getEnd().toString())))
                 .andExpect(jsonPath("$[0].item.id", is((int) bookingDto.getItem().getId())))
                 .andExpect(jsonPath("$[0].item.name", is(bookingDto.getItem().getName())))
+                .andExpect(jsonPath("$[0].item.description", is(bookingDto.getItem().getDescription())))
                 .andExpect(jsonPath("$[0].status", is(bookingDto.getStatus().toString())));
     }
 
     private void addItem() {
         addUser();
         item.setId(1L);
-        item.setName("Sword");
+        item.setName("Fork");
         item.setOwner(user);
         item.setAvailable(true);
-        item.setDescription("For fight");
+        item.setDescription("Designed for food");
     }
 
     private void addUser() {
         user.setId(1L);
-        user.setName("Aelin");
-        user.setEmail("aelin@whitethorn.com");
+        user.setName("Buffy");
+        user.setEmail("buffy@vampire.com");
     }
 
     private void addBookingDto() {
         User booker = new User();
         booker.setId(4L);
-        booker.setName("Rowan");
-        booker.setEmail("rowan@whitethorn.com");
+        booker.setName("Katya");
+        booker.setEmail("katya@katya.com");
         bookingDto.setId(2L);
-        bookingDto.setItem(ItemMapper.toItemToBookingDTO(item));
-        bookingDto.setStatus(Status.WAITING);
-        bookingDto.setBooker(UserMapper.toUserToBookingDTO(booker));
+        bookingDto.setItem(item);
+        bookingDto.setStatus(State.WAITING);
+        bookingDto.setBooker(booker);
         String date = "2023-11-24T18:08:54";
         LocalDateTime localdatetime = LocalDateTime.parse(date);
         bookingDto.setStart(localdatetime);

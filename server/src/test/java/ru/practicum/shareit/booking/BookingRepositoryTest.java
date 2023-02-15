@@ -1,7 +1,5 @@
 package ru.practicum.shareit.booking;
 
-import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -11,7 +9,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
@@ -24,19 +21,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-@Slf4j
 class BookingRepositoryTest {
+
+    @Autowired
+    private TestEntityManager em;
+
+    @Autowired
+    private BookingRepository bookingRepository;
 
     private final User user = new User();
     private final Item item = new Item();
     private final ItemRequest request = new ItemRequest();
     private final Booking bookingOne = new Booking();
     private final Booking bookingTwo = new Booking();
-    private final List<Booking> bookingsList = new ArrayList<>();
-    @Autowired
-    private TestEntityManager em;
-    @Autowired
-    private BookingRepository bookingRepository;
+    private final List<Booking> bookingsPersist = new ArrayList<>();
 
     @Test
     void findByItemOrderByStartDescTest() {
@@ -45,12 +43,12 @@ class BookingRepositoryTest {
         addUser();
         addBookingTwo();
         Booking booking = em.persist(bookingOne);
-        bookingsList.add(booking);
+        bookingsPersist.add(booking);
         booking = em.persist(bookingTwo);
-        bookingsList.add(booking);
+        bookingsPersist.add(booking);
 
         List<Booking> bookings = bookingRepository.findByItemOrderByStartDesc(item);
-        assertThat(bookingsList.get(0).getId()).isEqualTo(bookings.get(0).getId());
+        assertThat(bookingsPersist.get(0).getId()).isEqualTo(bookings.get(0).getId());
     }
 
     @Test
@@ -59,11 +57,11 @@ class BookingRepositoryTest {
         addBookingOne();
         addUser();
         Booking booking = em.persist(bookingOne);
-        bookingsList.add(booking);
+        bookingsPersist.add(booking);
 
         List<Booking> bookings = bookingRepository.findByBookerAndStatusOrderByStartDesc(bookingOne.getBooker(),
-                Status.WAITING);
-        assertThat(bookingsList.get(0).getId()).isEqualTo(bookings.get(0).getId());
+                State.WAITING);
+        assertThat(bookingsPersist.get(0).getId()).isEqualTo(bookings.get(0).getId());
     }
 
     @Test
@@ -72,14 +70,14 @@ class BookingRepositoryTest {
         addBookingOne();
         addUser();
         Booking booking = em.persist(bookingOne);
-        bookingsList.add(booking);
+        bookingsPersist.add(booking);
         Pageable pageable = PageRequest.of(0, 1);
 
         Page<Booking> bookingsPage = bookingRepository.findByBookerAndStatusOrderByStartDesc(bookingOne.getBooker(),
-                Status.WAITING, pageable);
+                State.WAITING, pageable);
         List<Booking> bookings = bookingsPage.getContent();
-        assertThat(bookingsList.size()).isEqualTo(bookings.size());
-        assertThat(bookingsList.get(0).getId()).isEqualTo(bookings.get(0).getId());
+        assertThat(bookingsPersist.size()).isEqualTo(bookings.size());
+        assertThat(bookingsPersist.get(0).getId()).isEqualTo(bookings.get(0).getId());
     }
 
     @Test
@@ -88,10 +86,10 @@ class BookingRepositoryTest {
         addBookingOne();
         addUser();
         Booking booking = em.persist(bookingOne);
-        bookingsList.add(booking);
+        bookingsPersist.add(booking);
 
         List<Booking> bookings = bookingRepository.findByBookerOrderByStartDesc(bookingOne.getBooker());
-        assertThat(bookingsList.get(0).getId()).isEqualTo(bookings.get(0).getId());
+        assertThat(bookingsPersist.get(0).getId()).isEqualTo(bookings.get(0).getId());
     }
 
     @Test
@@ -100,14 +98,14 @@ class BookingRepositoryTest {
         addBookingOne();
         addUser();
         Booking booking = em.persist(bookingOne);
-        bookingsList.add(booking);
+        bookingsPersist.add(booking);
         Pageable pageable = PageRequest.of(0, 1);
 
         Page<Booking> bookingsPage = bookingRepository.findByBookerOrderByStartDesc(bookingOne.getBooker(),
                 pageable);
         List<Booking> bookings = bookingsPage.getContent();
-        assertThat(bookingsList.size()).isEqualTo(bookings.size());
-        assertThat(bookingsList.get(0).getId()).isEqualTo(bookings.get(0).getId());
+        assertThat(bookingsPersist.size()).isEqualTo(bookings.size());
+        assertThat(bookingsPersist.get(0).getId()).isEqualTo(bookings.get(0).getId());
     }
 
     @Test
@@ -116,11 +114,11 @@ class BookingRepositoryTest {
         addBookingOne();
         addUser();
         Booking booking = em.persist(bookingOne);
-        bookingsList.add(booking);
+        bookingsPersist.add(booking);
 
         List<Booking> bookings = bookingRepository.findByBookerAndStartAfterOrderByStartDesc(bookingOne.getBooker(),
                 LocalDateTime.now());
-        assertThat(bookingsList.get(0).getId()).isEqualTo(bookings.get(0).getId());
+        assertThat(bookingsPersist.get(0).getId()).isEqualTo(bookings.get(0).getId());
     }
 
     @Test
@@ -129,14 +127,14 @@ class BookingRepositoryTest {
         addBookingOne();
         addUser();
         Booking booking = em.persist(bookingOne);
-        bookingsList.add(booking);
+        bookingsPersist.add(booking);
         Pageable pageable = PageRequest.of(0, 1);
 
         Page<Booking> bookingsPage = bookingRepository.findByBookerAndStartAfterOrderByStartDesc(bookingOne.getBooker(),
                 LocalDateTime.now(), pageable);
         List<Booking> bookings = bookingsPage.getContent();
-        assertThat(bookingsList.size()).isEqualTo(bookings.size());
-        assertThat(bookingsList.get(0).getId()).isEqualTo(bookings.get(0).getId());
+        assertThat(bookingsPersist.size()).isEqualTo(bookings.size());
+        assertThat(bookingsPersist.get(0).getId()).isEqualTo(bookings.get(0).getId());
     }
 
     @Test
@@ -148,12 +146,12 @@ class BookingRepositoryTest {
         bookingOne.setStart(localdatetime);
         addUser();
         Booking booking = em.persist(bookingOne);
-        bookingsList.add(booking);
+        bookingsPersist.add(booking);
 
         List<Booking> bookings = bookingRepository.findByBookerAndStartBeforeAndEndAfterOrderByStartDesc(
                 bookingOne.getBooker(), LocalDateTime.now(), LocalDateTime.now());
-        assertThat(bookingsList.size()).isEqualTo(bookings.size());
-        assertThat(bookingsList.get(0).getId()).isEqualTo(bookings.get(0).getId());
+        assertThat(bookingsPersist.size()).isEqualTo(bookings.size());
+        assertThat(bookingsPersist.get(0).getId()).isEqualTo(bookings.get(0).getId());
     }
 
     @Test
@@ -165,7 +163,7 @@ class BookingRepositoryTest {
         bookingOne.setStart(localdatetime);
         addUser();
         Booking booking = em.persist(bookingOne);
-        bookingsList.add(booking);
+        bookingsPersist.add(booking);
 
         Pageable pageable = PageRequest.of(0, 1);
 
@@ -173,8 +171,8 @@ class BookingRepositoryTest {
                 bookingOne.getBooker(), LocalDateTime.now(), LocalDateTime.now(), pageable);
 
         List<Booking> bookings = bookingsPage.getContent();
-        assertThat(bookingsList.size()).isEqualTo(bookings.size());
-        assertThat(bookingsList.get(0).getId()).isEqualTo(bookings.get(0).getId());
+        assertThat(bookingsPersist.size()).isEqualTo(bookings.size());
+        assertThat(bookingsPersist.get(0).getId()).isEqualTo(bookings.get(0).getId());
     }
 
     @Test
@@ -189,12 +187,12 @@ class BookingRepositoryTest {
         bookingOne.setEnd(localdatetime);
         addUser();
         Booking booking = em.persist(bookingOne);
-        bookingsList.add(booking);
+        bookingsPersist.add(booking);
 
         List<Booking> bookings = bookingRepository.findByBookerAndStartBeforeAndEndBeforeOrderByStartDesc(
                 bookingOne.getBooker(), LocalDateTime.now(), LocalDateTime.now());
-        assertThat(bookingsList.size()).isEqualTo(bookings.size());
-        assertThat(bookingsList.get(0).getId()).isEqualTo(bookings.get(0).getId());
+        assertThat(bookingsPersist.size()).isEqualTo(bookings.size());
+        assertThat(bookingsPersist.get(0).getId()).isEqualTo(bookings.get(0).getId());
     }
 
     @Test
@@ -209,7 +207,7 @@ class BookingRepositoryTest {
         bookingOne.setEnd(localdatetime);
         addUser();
         Booking booking = em.persist(bookingOne);
-        bookingsList.add(booking);
+        bookingsPersist.add(booking);
 
         Pageable pageable = PageRequest.of(0, 1);
 
@@ -217,8 +215,8 @@ class BookingRepositoryTest {
                 bookingOne.getBooker(), LocalDateTime.now(), LocalDateTime.now(), pageable);
 
         List<Booking> bookings = bookingsPage.getContent();
-        assertThat(bookingsList.size()).isEqualTo(bookings.size());
-        assertThat(bookingsList.get(0).getId()).isEqualTo(bookings.get(0).getId());
+        assertThat(bookingsPersist.size()).isEqualTo(bookings.size());
+        assertThat(bookingsPersist.get(0).getId()).isEqualTo(bookings.get(0).getId());
     }
 
     @Test
@@ -233,12 +231,12 @@ class BookingRepositoryTest {
         bookingOne.setEnd(localdatetime);
         addUser();
         Booking booking = em.persist(bookingOne);
-        bookingsList.add(booking);
+        bookingsPersist.add(booking);
 
         List<Booking> bookings = bookingRepository.findByItemAndBookerAndStartBeforeAndEndBefore(item,
                 bookingOne.getBooker(), LocalDateTime.now(), LocalDateTime.now());
-        assertThat(bookingsList.size()).isEqualTo(bookings.size());
-        assertThat(bookingsList.get(0).getId()).isEqualTo(bookings.get(0).getId());
+        assertThat(bookingsPersist.size()).isEqualTo(bookings.size());
+        assertThat(bookingsPersist.get(0).getId()).isEqualTo(bookings.get(0).getId());
     }
 
     @Test
@@ -261,13 +259,13 @@ class BookingRepositoryTest {
         localdatetime = LocalDateTime.parse(date);
         bookingTwo.setEnd(localdatetime);
         Booking booking = em.persist(bookingOne);
-        bookingsList.add(booking);
+        bookingsPersist.add(booking);
         booking = em.persist(bookingTwo);
-        bookingsList.add(booking);
+        bookingsPersist.add(booking);
 
-        List<Booking> bookings = bookingRepository.findByOwnerAndPast(1L, LocalDateTime.now());
-        assertThat(bookingsList.size()).isEqualTo(bookings.size());
-        assertThat(bookingsList.get(1).getId()).isEqualTo(bookings.get(0).getId());
+        List<Booking> bookings = bookingRepository.findByBookingForOwnerWithPast(1L, LocalDateTime.now());
+        assertThat(bookingsPersist.size()).isEqualTo(bookings.size());
+        assertThat(bookingsPersist.get(1).getId()).isEqualTo(bookings.get(0).getId());
     }
 
     @Test
@@ -291,13 +289,13 @@ class BookingRepositoryTest {
         localdatetime = LocalDateTime.parse(date);
         bookingTwo.setEnd(localdatetime);
         Booking booking = em.persist(bookingOne);
-        bookingsList.add(booking);
+        bookingsPersist.add(booking);
         booking = em.persist(bookingTwo);
-        bookingsList.add(booking);
+        bookingsPersist.add(booking);
 
-        List<Booking> bookings = bookingRepository.findByOwnerAndPast(1L, LocalDateTime.now(), pageable);
-        assertThat(bookingsList.size()).isEqualTo(bookings.size());
-        assertThat(bookingsList.get(1).getId()).isEqualTo(bookings.get(0).getId());
+        List<Booking> bookings = bookingRepository.findByBookingForOwnerWithPast(1L, LocalDateTime.now(), pageable);
+        assertThat(bookingsPersist.size()).isEqualTo(bookings.size());
+        assertThat(bookingsPersist.get(1).getId()).isEqualTo(bookings.get(0).getId());
     }
 
     @Test
@@ -308,13 +306,13 @@ class BookingRepositoryTest {
         addBookingOne();
         addBookingTwo();
         Booking booking = em.persist(bookingOne);
-        bookingsList.add(booking);
+        bookingsPersist.add(booking);
         booking = em.persist(bookingTwo);
-        bookingsList.add(0, booking);
+        bookingsPersist.add(booking);
 
-        List<Booking> bookings = bookingRepository.findByUserAndFuture(1L, LocalDateTime.now());
-        assertThat(bookingsList.size()).isEqualTo(bookings.size());
-        assertThat(bookingsList.get(0).getId()).isEqualTo(bookings.get(0).getId());
+        List<Booking> bookings = bookingRepository.findByBookingForOwnerWithFuture(1L, LocalDateTime.now());
+        assertThat(bookingsPersist.size()).isEqualTo(bookings.size());
+        assertThat(bookingsPersist.get(0).getId()).isEqualTo(bookings.get(0).getId());
     }
 
     @Test
@@ -326,13 +324,13 @@ class BookingRepositoryTest {
         addBookingOne();
         addBookingTwo();
         Booking booking = em.persist(bookingOne);
-        bookingsList.add(booking);
+        bookingsPersist.add(booking);
         booking = em.persist(bookingTwo);
-        bookingsList.add(booking);
+        bookingsPersist.add(booking);
 
-        List<Booking> bookings = bookingRepository.findByUserAndFuture(1L, LocalDateTime.now(), pageable);
-        assertThat(bookingsList.size()).isEqualTo(bookings.size());
-        assertThat(bookingsList.get(0).getId()).isEqualTo(bookings.get(0).getId());
+        List<Booking> bookings = bookingRepository.findByBookingForOwnerWithFuture(1L, LocalDateTime.now(), pageable);
+        assertThat(bookingsPersist.size()).isEqualTo(bookings.size());
+        assertThat(bookingsPersist.get(0).getId()).isEqualTo(bookings.get(0).getId());
     }
 
     @Test
@@ -343,14 +341,12 @@ class BookingRepositoryTest {
         addBookingOne();
         addBookingTwo();
         Booking booking = em.persist(bookingOne);
-        bookingsList.add(booking);
+        bookingsPersist.add(booking);
         booking = em.persist(bookingTwo);
-        bookingsList.add(0, booking);
+        bookingsPersist.add(booking);
 
-        List<Booking> bookings = bookingRepository.findByOwnerAll(1L);
-        log.info(bookings.toString());
-        log.info(bookingsList.toString());
-        assertThat(bookingsList.get(0)).isEqualTo(bookings.get(0));
+        List<Booking> bookings = bookingRepository.findByBookingForOwnerWithAll(1L);
+        assertThat(bookingsPersist.get(0).getId()).isEqualTo(bookings.get(0).getId());
     }
 
     @Test
@@ -362,13 +358,13 @@ class BookingRepositoryTest {
         addBookingOne();
         addBookingTwo();
         Booking booking = em.persist(bookingOne);
-        bookingsList.add(booking);
+        bookingsPersist.add(booking);
         booking = em.persist(bookingTwo);
-        bookingsList.add(booking);
+        bookingsPersist.add(booking);
 
-        List<Booking> bookings = bookingRepository.findByOwnerAll(1L, pageable);
-        assertThat(bookingsList.size()).isEqualTo(bookings.size());
-        assertThat(bookingsList.get(0).getId()).isEqualTo(bookings.get(0).getId());
+        List<Booking> bookings = bookingRepository.findByBookingForOwnerWithAll(1L, pageable);
+        assertThat(bookingsPersist.size()).isEqualTo(bookings.size());
+        assertThat(bookingsPersist.get(0).getId()).isEqualTo(bookings.get(0).getId());
     }
 
     @Test
@@ -379,12 +375,12 @@ class BookingRepositoryTest {
         addBookingOne();
         addBookingTwo();
         Booking booking = em.persist(bookingOne);
-        bookingsList.add(booking);
+        bookingsPersist.add(booking);
         booking = em.persist(bookingTwo);
-        bookingsList.add(0, booking);
+        bookingsPersist.add(booking);
 
-        List<Booking> bookings = bookingRepository.findByOwnerAndByStatus(1L, Status.WAITING);
-        assertThat(bookingsList.get(0).getId()).isEqualTo(bookings.get(0).getId());
+        List<Booking> bookings = bookingRepository.findByBookingForOwnerWithWaitingOrRejected(1L, "WAITING");
+        assertThat(bookingsPersist.get(0).getId()).isEqualTo(bookings.get(0).getId());
     }
 
     @Test
@@ -396,57 +392,57 @@ class BookingRepositoryTest {
         addBookingOne();
         addBookingTwo();
         Booking booking = em.persist(bookingOne);
-        bookingsList.add(booking);
+        bookingsPersist.add(booking);
         booking = em.persist(bookingTwo);
-        bookingsList.add(booking);
+        bookingsPersist.add(booking);
 
-        List<Booking> bookings = bookingRepository.findByOwnerAndByStatus(1L, "WAITING",
+        List<Booking> bookings = bookingRepository.findByBookingForOwnerWithWaitingOrRejected(1L, "WAITING",
                 pageable);
-        assertThat(bookingsList.size()).isEqualTo(bookings.size());
-        assertThat(bookingsList.get(0).getId()).isEqualTo(bookings.get(0).getId());
+        assertThat(bookingsPersist.size()).isEqualTo(bookings.size());
+        assertThat(bookingsPersist.get(0).getId()).isEqualTo(bookings.get(0).getId());
     }
 
     private void addItem() {
         addRequest();
         item.setId(1);
-        item.setName("Sword");
+        item.setName("Fork");
         item.setOwner(user);
         item.setAvailable(true);
-        item.setDescription("For fights");
-        item.setRequestId(request);
+        item.setDescription("Designed for food");
+        item.setRequest(request);
     }
 
     private void addItemWithoutId() {
         addRequest();
-        item.setName("Sword");
+        item.setName("Fork");
         item.setOwner(user);
         item.setAvailable(true);
-        item.setDescription("For fights");
-        item.setRequestId(request);
+        item.setDescription("Designed for food");
+        item.setRequest(request);
     }
 
     private void addUser() {
-        user.setId(1L);
-        user.setName("Aelin");
-        user.setEmail("aelin@whitethorn.com");
+        user.setId(1);
+        user.setName("Buffy");
+        user.setEmail("buffy@vampire.com");
     }
 
     private void addRequest() {
-        User requester = new User();
-        requester.setId(2L);
-        requester.setName("Rowan");
-        requester.setEmail("rowan@whitethorn.com");
+        User requestor = new User();
+        requestor.setId(2);
+        requestor.setName("Kat");
+        requestor.setEmail("Kat@kat.com");
         request.setId(1L);
-        request.setRequester(requester);
-        request.setDescription("waiting for fight");
+        request.setRequestor(requestor);
+        request.setDescription("I need a fork to eat");
         request.setCreated(LocalDateTime.now());
     }
 
     private void addBookingOne() {
         User user1 = new User();
-        user1.setId(2L);
-        user1.setName("Rowan");
-        user1.setEmail("rowan@whitethorn.com");
+        user1.setId(2);
+        user1.setName("Cat");
+        user1.setEmail("cat@cat.com");
         bookingOne.setBooker(user1);
         bookingOne.setItem(item);
         String date = "2024-11-20T18:08:54";
@@ -455,15 +451,15 @@ class BookingRepositoryTest {
         date = "2024-11-25T18:08:54";
         localdatetime = LocalDateTime.parse(date);
         bookingOne.setEnd(localdatetime);
-        bookingOne.setStatus(Status.WAITING);
+        bookingOne.setStatus(State.WAITING);
     }
 
     private void addBookingTwo() {
         User booker = new User();
-        booker.setId(3L);
-        booker.setName("Dorin");
-        booker.setEmail("dorian@havilliard.com");
-        bookingTwo.setStatus(Status.WAITING);
+        booker.setId(5);
+        booker.setName("Katya");
+        booker.setEmail("katya@katya.com");
+        bookingTwo.setStatus(State.WAITING);
         String date = "2023-11-21T18:08:54";
         LocalDateTime localdatetime = LocalDateTime.parse(date);
         bookingTwo.setStart(localdatetime);
@@ -472,12 +468,6 @@ class BookingRepositoryTest {
         bookingTwo.setEnd(localdatetime);
         bookingTwo.setBooker(booker);
         bookingTwo.setItem(item);
-    }
-
-    @AfterEach
-    private void delete() {
-        bookingRepository.deleteAll();
-        bookingsList.clear();
     }
 
 }

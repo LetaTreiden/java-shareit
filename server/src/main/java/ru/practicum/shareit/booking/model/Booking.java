@@ -1,9 +1,7 @@
 package ru.practicum.shareit.booking.model;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
+import ru.practicum.shareit.booking.State;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
@@ -12,15 +10,12 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "bookings", schema = "public")
-@Getter
-@Setter
-@ToString
-@RequiredArgsConstructor
+@Data
 public class Booking {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
     @Column(name = "start_date")
     private LocalDateTime start;
@@ -30,15 +25,13 @@ public class Booking {
 
     @ManyToOne
     @JoinColumn(name = "item_id")
-    @ToString.Exclude
     private Item item;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "booker_id")
-    @ToString.Exclude
     private User booker;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Status status;
+    private State status;
 }
