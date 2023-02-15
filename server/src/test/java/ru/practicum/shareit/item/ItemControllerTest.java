@@ -11,7 +11,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import ru.practicum.shareit.booking.dto.BookingDTOForItem;
-import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.item.dto.CommentDTO;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.dto.ItemDTOWithBookings;
