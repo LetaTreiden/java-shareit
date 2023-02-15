@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.hibernate.PropertyValueException;
 
 import java.util.Map;
 
@@ -37,15 +36,6 @@ public class ErrorHandlerGateway {
         return new ResponseEntity<>(
                 Map.of("Проверьте корректность запроса", e.getMessage()),
                 HttpStatus.INTERNAL_SERVER_ERROR
-        );
-    }
-
-    @ExceptionHandler
-    public ResponseEntity<Map<String, String>> handleHibernateNotNull(final PropertyValueException e) {
-        log.warn("Исключение", e);
-        return new ResponseEntity<>(
-                Map.of("Проверьте корректность запроса", e.getMessage()),
-                HttpStatus.BAD_REQUEST
         );
     }
 }
