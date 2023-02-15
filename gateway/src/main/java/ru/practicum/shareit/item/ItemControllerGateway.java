@@ -12,7 +12,7 @@ import ru.practicum.shareit.item.dto.ItemDtoGateway;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
-import java.util.List;
+import java.util.Collections;
 
 @Controller
 @RequestMapping(path = "/items")
@@ -61,7 +61,7 @@ public class ItemControllerGateway {
                                                           defaultValue = "10") Integer size) {
         log.info("Get items with text={}, userId={}, from={}, size={}", text, userId, from, size);
         if (text.isBlank()) {
-            return (ResponseEntity<Object>) List.of(null);
+            return (ResponseEntity<Object>) Collections.unmodifiableList(null);
         }
         return itemClient.getItemsForRent(userId, text, from, size);
     }
