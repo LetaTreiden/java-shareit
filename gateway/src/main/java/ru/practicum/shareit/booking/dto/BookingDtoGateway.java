@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.Future;
 import javax.validation.constraints.FutureOrPresent;
@@ -8,19 +10,19 @@ import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @Data
+@NoArgsConstructor
 public class BookingDtoGateway {
 
     private long id;
 
-    @FutureOrPresent
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime start;
 
-    @Future
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime end;
 
     private Long itemId;
 
-    @Size(min = 1, max = 100)
     private String itemName;
 
     private Long bookerId;

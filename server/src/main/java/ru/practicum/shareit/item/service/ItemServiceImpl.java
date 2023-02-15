@@ -162,7 +162,7 @@ public class ItemServiceImpl implements ItemService {
         if (bookings.isEmpty()) {
             throw new BadRequestException("Booking is empty");
         }
-        if (comment == null) {
+        if (comment.getText().isEmpty()) {
             throw new BadRequestException("Comment is empty");
         }
         Comment comment1 = CommentMapper.toComment(comment, item, author);

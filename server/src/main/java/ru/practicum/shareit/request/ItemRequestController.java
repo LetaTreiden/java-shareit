@@ -15,7 +15,6 @@ import java.util.List;
 @RequestMapping(path = "/requests")
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Slf4j
-@Validated
 public class ItemRequestController {
     private final RequestService requestService;
 
