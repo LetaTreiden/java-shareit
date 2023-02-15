@@ -2,19 +2,19 @@ version: '3.8'
 services:
   gateway:
     build: gateway
-    image: dock_image
-    container_name: gateway
+    image: gateway2
+    container_name: happy_allen
     ports:
       - "9090:9090"
     depends_on:
       - server
     environment:
-      - SHAREIT_SERVER_URL=http://server:9090
+      - SHAREIT_SERVER_URL=http://server:8080
 
   server:
     build: server
-    image: dock_image_server
-    container_name: server
+    image: server3
+    container_name: affectionate_hertz
     ports:
       - "8080:8080"
     depends_on:
