@@ -536,10 +536,8 @@ class ItemServiceTest {
                 () -> itemService.addComment(4L, 1L, dtoWithComment));
 
         Assertions.assertEquals("Booking is empty", exception.getMessage());
-
-
     }
-    
+
     private void addItem() {
         addUser();
         item.setId(1L);
