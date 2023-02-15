@@ -16,7 +16,7 @@ services:
     image: server3
     container_name: affectionate_hertz
     ports:
-      - "8080:9090"
+      - "9090:9090"
     depends_on:
       - db
     environment:
