@@ -62,7 +62,6 @@ public class ItemControllerGateway {
        /* if (text.isBlank()) {
             return ResponseEntity.ok(List.of());
         }
-
         */
         return itemClient.getItemsForRent(userId, text, from, size);
     }
