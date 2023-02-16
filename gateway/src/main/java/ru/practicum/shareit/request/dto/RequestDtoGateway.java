@@ -13,12 +13,15 @@ public class RequestDtoGateway {
 
     private Long id;
 
-    @NotBlank
-    @Size(min = 1, max = 1000)
     private String description;
 
-    private User requestor;
+    private User requester;
 
-    @FutureOrPresent
     private LocalDateTime created;
+
+    @Data
+    public static class User {
+        private final long id;
+        private final String name;
+    }
 }
