@@ -1,12 +1,10 @@
 package ru.practicum.shareit.user.dto;
 
 import lombok.Data;
-import ru.practicum.shareit.Create;
-import ru.practicum.shareit.Update;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 
 @Data
 public class UserDtoGateway {
@@ -14,9 +12,11 @@ public class UserDtoGateway {
     private long id;
 
     @NotBlank
+    @Size(min = 1, max = 100)
     private String name;
 
-    @Email(groups = {Create.class, Update.class})
-    @NotEmpty(groups = {Create.class})
+    @Email
+    @NotBlank
     private String email;
+
 }
