@@ -2,7 +2,6 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
@@ -13,7 +12,6 @@ import ru.practicum.shareit.item.dto.ItemDtoGateway;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
-import java.util.Map;
 
 @Controller
 @RequestMapping(path = "/items")
@@ -62,11 +60,10 @@ public class ItemControllerGateway {
                                                           defaultValue = "10") Integer size) {
         log.info("Get items with text={}, userId={}, from={}, size={}", text, userId, from, size);
        /* if (text.isBlank()) {
-            final Map<String, Object> map = Map.of();
-            return new ResponseEntity<>(map, HttpStatus.OK);
+            return ResponseEntity.ok(List.of());
         }
-        */
 
+        */
         return itemClient.getItemsForRent(userId, text, from, size);
     }
 
