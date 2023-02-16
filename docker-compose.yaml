@@ -2,7 +2,7 @@ version: '3.8'
 services:
   gateway:
     build: gateway
-    image: letaat/gateway
+    image: letaat/gateway1
     container_name: gateway
     ports:
       - "8080:8080"
@@ -12,7 +12,7 @@ services:
   server:
     build: server
   #  tty: true
-    image: letaat/server
+    image: letaat/server1
     container_name: server
     ports:
       - "9090:9090"
