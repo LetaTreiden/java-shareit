@@ -129,7 +129,7 @@ public class ItemServiceImpl implements ItemService {
                                 items.stream()
                                         .map(Item::getId)
                                         .collect(Collectors.toUnmodifiableList()),
-                                Sort.by(Sort.Direction.ASC, "created")).stream()
+                                Sort.by(DESC, "created")).stream()
                         .collect(groupingBy(c -> c.getItem().getId(), Collectors.toUnmodifiableList()));
         log.info(comments.toString());
         for (Item item : items) {
