@@ -35,7 +35,6 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
-import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Service
@@ -88,7 +87,7 @@ public class ItemServiceImpl implements ItemService {
         itemDto.setComments(CommentMapper.mapToCommentDto(comments));
         if (Objects.equals(item.getOwner().getId(), userId)) {
             Booking nextBooking = bookingRepository.findFirstByStatusAndItemAndStartIsAfter(Status.APPROVED, item,
-                    LocalDateTime.now(), Sort.by(ASC, "start"));
+                    LocalDateTime.now(), Sort.by(DESC, "start"));
             Booking lastBooking = bookingRepository.findFirstByStatusAndItemAndStartLessThanEqual(Status.APPROVED, item,
                     LocalDateTime.now(), Sort.by(DESC, "end"));
             if (nextBooking != null) {
