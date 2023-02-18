@@ -12,8 +12,6 @@ import ru.practicum.shareit.item.dto.CommentDtoGateway;
 import ru.practicum.shareit.item.dto.ItemDtoGateway;
 
 import java.util.Map;
-import java.util.SortedMap;
-
 
 @Service
 public class ItemClient extends BaseClient {
