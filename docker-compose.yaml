@@ -2,8 +2,8 @@ version: '3.8'
 services:
   gateway:
     build: gateway
-    image: letaat/gateway:v3
-    container_name: gateway
+    image: letaat/gateway:v5
+    container_name: gateway1
     ports:
       - "8080:8080"
     environment:
@@ -11,8 +11,8 @@ services:
 
   server:
     build: server
-    image: letaat/server:v5
-    container_name: server
+    image: letaat/server:v6
+    container_name: server1
     ports:
       - "9090:9090"
     depends_on:
