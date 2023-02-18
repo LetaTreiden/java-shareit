@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.data.domain.Sort.Direction.ASC;
+import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Service
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -131,8 +132,7 @@ public class ItemServiceImpl implements ItemService {
                                 Sort.by(ASC, "created")).stream()
                         .collect(groupingBy(c -> c.getItem().getId(), Collectors.toUnmodifiableList()));
         log.info(comments.toString());
-        for (int i = items.size() - 1; i >= 0; i--) {
-            Item item = items.get(i);
+        for (Item item : items) {
             ItemDTOWithBookings itemInfo = ItemMapper.toDtoWithBookings(
                     item,
                     approvedBookings.getOrDefault(item, Collections.emptyList()),
