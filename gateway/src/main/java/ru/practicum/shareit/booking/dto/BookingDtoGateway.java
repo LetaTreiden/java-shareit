@@ -16,12 +16,10 @@ public class BookingDtoGateway {
     private long id;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    @FutureOrPresent
     @NotNull
     private LocalDateTime start;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    @Future
     @NotNull
     private LocalDateTime end;
 

@@ -49,7 +49,7 @@ public class ItemControllerGateway {
                                                  @Positive @RequestParam(name = "size",
                                                          defaultValue = "10") Integer size) {
         log.info("Get items userId={}, from={}, size={}", userId, from, size);
-        return itemClient.getAllOwnItems(userId, from, size);
+        return itemClient.getAllByOwner(userId, from, size);
     }
 
     @GetMapping("/search")
