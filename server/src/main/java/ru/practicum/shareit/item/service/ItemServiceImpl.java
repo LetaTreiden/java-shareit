@@ -119,7 +119,7 @@ public class ItemServiceImpl implements ItemService {
 
         log.info(String.valueOf(items.size()));
         Map<Item, List<Booking>> approvedBookings =
-                bookingRepository.findApprovedForItems(items, Sort.by(DESC, "start"))
+                bookingRepository.findApprovedForItems(items, Sort.by(ASC, "start"))
                         .stream()
                         .collect(groupingBy(Booking::getItem, toList()));
         log.info(approvedBookings.toString());
@@ -129,10 +129,11 @@ public class ItemServiceImpl implements ItemService {
                                 items.stream()
                                         .map(Item::getId)
                                         .collect(Collectors.toUnmodifiableList()),
-                                Sort.by(DESC, "created")).stream()
+                                Sort.by(ASC, "created")).stream()
                         .collect(groupingBy(c -> c.getItem().getId(), Collectors.toUnmodifiableList()));
         log.info(comments.toString());
-        for (Item item : items) {
+        for (int i = items.size() - 1; i >= 0; i--) {
+            Item item = items.get(i);
             ItemDTOWithBookings itemInfo = ItemMapper.toDtoWithBookings(
                     item,
                     approvedBookings.getOrDefault(item, Collections.emptyList()),

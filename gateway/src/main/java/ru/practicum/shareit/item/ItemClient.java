@@ -12,6 +12,7 @@ import ru.practicum.shareit.item.dto.CommentDtoGateway;
 import ru.practicum.shareit.item.dto.ItemDtoGateway;
 
 import java.util.Map;
+import java.util.SortedMap;
 
 
 @Service
@@ -32,7 +33,7 @@ public class ItemClient extends BaseClient {
         return post("", userId, itemDto);
     }
 
-    public ResponseEntity<Object> changeItem(long userId, Long itemId, ItemDtoGateway itemDto) {
+    public ResponseEntity<Object> update(long userId, Long itemId, ItemDtoGateway itemDto) {
         return patch("/" + itemId, userId, itemDto);
     }
 

@@ -23,30 +23,30 @@ public class ItemControllerGateway {
     private final ItemClient itemClient;
 
     @PostMapping
-    public ResponseEntity<Object> addItem(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                          @Valid @RequestBody ItemDtoGateway itemDto) {
+    public ResponseEntity<Object> add(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                      @Valid @RequestBody ItemDtoGateway itemDto) {
         log.info("Creating item {},userId={}", itemDto, userId);
         return itemClient.addItem(userId, itemDto);
     }
 
     @PatchMapping("/{itemId}")
-    public ResponseEntity<Object> changeItem(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId,
-                                             @RequestBody ItemDtoGateway itemDto) {
+    public ResponseEntity<Object> update(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId,
+                                         @RequestBody ItemDtoGateway itemDto) {
         log.info("Updating item {}, userId={}", itemDto, userId);
-        return itemClient.changeItem(userId, itemId, itemDto);
+        return itemClient.update(userId, itemId, itemDto);
     }
 
     @GetMapping("/{itemId}")
-    public ResponseEntity<Object> getItem(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId) {
+    public ResponseEntity<Object> get(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId) {
         log.info("Get item {}, userId={}", itemId, userId);
         return itemClient.getItem(userId, itemId);
     }
 
     @GetMapping
-    public ResponseEntity<Object> getAllOwnItems(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                 @PositiveOrZero @RequestParam(name = "from",
+    public ResponseEntity<Object> getAllByOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                                @PositiveOrZero @RequestParam(name = "from",
                                                          defaultValue = "0") Integer from,
-                                                 @Positive @RequestParam(name = "size",
+                                                @Positive @RequestParam(name = "size",
                                                          defaultValue = "10") Integer size) {
         log.info("Get items userId={}, from={}, size={}", userId, from, size);
         return itemClient.getAllByOwner(userId, from, size);
