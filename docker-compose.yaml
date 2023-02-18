@@ -11,7 +11,7 @@ services:
 
   server:
     build: server
-    image: letaat/server:v3
+    image: letaat/server:v5
     container_name: server
     ports:
       - "9090:9090"
