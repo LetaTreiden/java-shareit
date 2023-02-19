@@ -32,4 +32,6 @@ public class BookingDtoGateway {
     private Long bookerId;
 
     private StateGateway status;
+
+
 }

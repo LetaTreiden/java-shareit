@@ -27,7 +27,7 @@ public class ItemClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> addItem(long userId, ItemDtoGateway itemDto) {
+    public ResponseEntity<Object> add(long userId, ItemDtoGateway itemDto) {
         return post("", userId, itemDto);
     }
 
@@ -35,7 +35,7 @@ public class ItemClient extends BaseClient {
         return patch("/" + itemId, userId, itemDto);
     }
 
-    public ResponseEntity<Object> getItem(long userId, Long itemId) {
+    public ResponseEntity<Object> get(long userId, Long itemId) {
         return get("/" + itemId, userId);
     }
 

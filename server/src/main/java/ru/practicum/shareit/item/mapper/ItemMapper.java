@@ -82,7 +82,7 @@ public class ItemMapper {
                         .toBookingDtoForItem(lastBooking.getId(), lastBooking.getBooker().getId())));
 
         bookings.stream()
-                .filter(b -> b.getStart().isAfter(LocalDateTime.now()))
+                .filter(b -> !b.getStart().isBefore(LocalDateTime.now()))
                 .reduce((first, second) -> second)
                 .ifPresent(nextBooking -> iDTO.setNextBooking(BookingMapper
                         .toBookingDtoForItem(nextBooking.getId(), nextBooking.getBooker().getId())));

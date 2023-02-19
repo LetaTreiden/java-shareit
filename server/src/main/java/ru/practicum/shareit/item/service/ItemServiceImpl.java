@@ -114,13 +114,16 @@ public class ItemServiceImpl implements ItemService {
             items = itemRepository.findByOwner(user);
         }
 
+        log.info("id");
         log.info(userId.toString());
 
+        log.info("size");
         log.info(String.valueOf(items.size()));
         Map<Item, List<Booking>> approvedBookings =
                 bookingRepository.findApprovedForItems(items, Sort.by(ASC, "start"))
                         .stream()
                         .collect(groupingBy(Booking::getItem, toList()));
+        log.info("одобренные бронирования");
         log.info(approvedBookings.toString());
         List<ItemDTOWithBookings> results = new ArrayList<>();
         Map<Long, List<Comment>> comments =
@@ -130,6 +133,7 @@ public class ItemServiceImpl implements ItemService {
                                         .collect(Collectors.toUnmodifiableList()),
                                 Sort.by(ASC, "created")).stream()
                         .collect(groupingBy(c -> c.getItem().getId(), Collectors.toUnmodifiableList()));
+        log.info("комментарии");
         log.info(comments.toString());
         for (Item item : items) {
             ItemDTOWithBookings itemInfo = ItemMapper.toDtoWithBookings(
@@ -137,9 +141,11 @@ public class ItemServiceImpl implements ItemService {
                     approvedBookings.getOrDefault(item, Collections.emptyList()),
                     comments.getOrDefault(item, Collections.emptyList())
             );
+            log.info("тов");
             log.info(itemInfo.toString());
             results.add(itemInfo);
         }
+        results.sort(ItemDTOWithBookings.COMPARE_BY_ID);
         return results;
     }
 

@@ -26,7 +26,7 @@ public class ItemControllerGateway {
     public ResponseEntity<Object> add(@RequestHeader("X-Sharer-User-Id") Long userId,
                                       @Valid @RequestBody ItemDtoGateway itemDto) {
         log.info("Creating item {},userId={}", itemDto, userId);
-        return itemClient.addItem(userId, itemDto);
+        return itemClient.add(userId, itemDto);
     }
 
     @PatchMapping("/{itemId}")
@@ -39,7 +39,7 @@ public class ItemControllerGateway {
     @GetMapping("/{itemId}")
     public ResponseEntity<Object> get(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId) {
         log.info("Get item {}, userId={}", itemId, userId);
-        return itemClient.getItem(userId, itemId);
+        return itemClient.get(userId, itemId);
     }
 
     @GetMapping
