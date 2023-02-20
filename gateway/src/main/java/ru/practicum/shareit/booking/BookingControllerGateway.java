@@ -8,13 +8,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDtoGateway;
+import ru.practicum.shareit.booking.dto.BookingDtoGatewayToCreate;
 import ru.practicum.shareit.booking.dto.StateGateway;
 import ru.practicum.shareit.exception.BadRequestExceptionGateway;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
-import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping(path = "/bookings")
@@ -34,7 +34,7 @@ public class BookingControllerGateway {
                                                Integer size) {
         StateGateway stateGateway = StateGateway.from(stateParam);
         log.info("Get booking with state {}, userId={}, from={}, size={}", stateParam, userId, from, size);
-        return bookingClient.getBookings(userId, stateGateway, from, size);
+        return bookingClient.getAll(userId, stateGateway, from, size);
     }
 
     @GetMapping("/owner")
@@ -47,16 +47,14 @@ public class BookingControllerGateway {
                                               Integer size) {
         StateGateway stateGateway = StateGateway.from(stateParam);
         log.info("Get booking for owner with state {}, userId={}, from={}, size={}", stateParam, userId, from, size);
-        return bookingClient.getBookingsByOwner(userId, stateGateway, from, size);
+        return bookingClient.getByOwner(userId, stateGateway, from, size);
     }
 
     @PostMapping
     public ResponseEntity<Object> add(@RequestHeader("X-Sharer-User-Id") long userId,
-                                      @RequestBody @Valid BookingDtoGateway bookingDto) {
-        if (bookingDto.getEnd().isBefore(LocalDateTime.now()) ||
-                bookingDto.getStart().isBefore(LocalDateTime.now()) ||
-                (bookingDto.getEnd().isBefore(bookingDto.getStart()) &&
-                        !bookingDto.getEnd().equals(bookingDto.getStart()))) {
+                                      @RequestBody @Valid BookingDtoGatewayToCreate bookingDto) {
+        if (bookingDto.getEnd().isBefore(bookingDto.getStart()) &&
+                        !bookingDto.getEnd().equals(bookingDto.getStart())) {
             throw new BadRequestExceptionGateway("Wrong date");
         }
         log.info("Creating booking {}, userId={}", bookingDto, userId);
@@ -75,7 +73,7 @@ public class BookingControllerGateway {
     public ResponseEntity<Object> getById(@RequestHeader("X-Sharer-User-Id") long userId,
                                           @PathVariable Long bookingId) {
         log.info("Get booking {}, userId={}", bookingId, userId);
-        return bookingClient.getBooking(userId, bookingId);
+        return bookingClient.getById(userId, bookingId);
     }
 
     @Data

@@ -8,6 +8,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.shareit.booking.dto.BookingDtoGateway;
+import ru.practicum.shareit.booking.dto.BookingDtoGatewayToCreate;
 import ru.practicum.shareit.booking.dto.StateGateway;
 import ru.practicum.shareit.client.BaseClient;
 
@@ -27,7 +28,7 @@ public class BookingClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> getBookings(long userId, StateGateway stateGateway, Integer from, Integer size) {
+    public ResponseEntity<Object> getAll(long userId, StateGateway stateGateway, Integer from, Integer size) {
         Map<String, Object> parameters = Map.of(
                 "state", stateGateway.name(),
                 "from", from,
@@ -36,8 +37,8 @@ public class BookingClient extends BaseClient {
         return get("?state={state}&from={from}&size={size}", userId, parameters);
     }
 
-    public ResponseEntity<Object> getBookingsByOwner(long userId, StateGateway stateGateway, Integer from,
-                                                     Integer size) {
+    public ResponseEntity<Object> getByOwner(long userId, StateGateway stateGateway, Integer from,
+                                             Integer size) {
         Map<String, Object> parameters = Map.of(
                 "state", stateGateway.name(),
                 "from", from,
@@ -47,7 +48,7 @@ public class BookingClient extends BaseClient {
     }
 
 
-    public ResponseEntity<Object> bookItem(long userId, BookingDtoGateway bookingDto) {
+    public ResponseEntity<Object> bookItem(long userId, BookingDtoGatewayToCreate bookingDto) {
         return post("", userId, bookingDto);
     }
 
@@ -55,7 +56,7 @@ public class BookingClient extends BaseClient {
         return patch("/" + bookingId + "?approved=" + approved + "", userId);
     }
 
-    public ResponseEntity<Object> getBooking(long userId, Long bookingId) {
+    public ResponseEntity<Object> getById(long userId, Long bookingId) {
         return get("/" + bookingId, userId);
     }
 }

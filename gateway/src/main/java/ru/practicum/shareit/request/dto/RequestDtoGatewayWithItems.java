@@ -7,5 +7,5 @@ import java.util.List;
 
 @Data
 public class RequestDtoGatewayWithItems extends RequestDtoGateway {
-    List<ItemDtoGateway> items;
+    private List<ItemDtoGateway> items;
 }

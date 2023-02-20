@@ -8,7 +8,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.shareit.client.BaseClient;
-import ru.practicum.shareit.request.dto.RequestDtoGateway;
+import ru.practicum.shareit.request.dto.RequestDtoGatewayToCreate;
 
 import java.util.Map;
 
@@ -26,15 +26,15 @@ public class RequestClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> addRequest(long userId, RequestDtoGateway requestDtoGateway) {
+    public ResponseEntity<Object> add(long userId, RequestDtoGatewayToCreate requestDtoGateway) {
         return post("", userId, requestDtoGateway);
     }
 
-    public ResponseEntity<Object> getAllOwnRequest(long userId) {
+    public ResponseEntity<Object> getAllByOwner(long userId) {
         return get("", userId);
     }
 
-    public ResponseEntity<Object> getAllRequest(long userId, Integer from, Integer size) {
+    public ResponseEntity<Object> getAll(long userId, Integer from, Integer size) {
         Map<String, Object> parameters = Map.of(
                 "from", from,
                 "size", size
@@ -42,7 +42,7 @@ public class RequestClient extends BaseClient {
         return get("/all?from={from}&size={size}", userId, parameters);
     }
 
-    public ResponseEntity<Object> getRequest(long userId, Long requestId) {
+    public ResponseEntity<Object> getById(long userId, Long requestId) {
         return get("/" + requestId, userId);
     }
 

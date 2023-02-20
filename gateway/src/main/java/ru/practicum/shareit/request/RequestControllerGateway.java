@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.request.dto.RequestDtoGateway;
+import ru.practicum.shareit.request.dto.RequestDtoGatewayToCreate;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
@@ -22,15 +22,15 @@ public class RequestControllerGateway {
 
     @PostMapping
     public ResponseEntity<Object> addRequest(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                             @RequestBody @Valid RequestDtoGateway request) {
+                                             @RequestBody @Valid RequestDtoGatewayToCreate request) {
         log.info("Creating request {}, userId={}", request, userId);
-        return requestClient.addRequest(userId, request);
+        return requestClient.add(userId, request);
     }
 
     @GetMapping
     public ResponseEntity<Object> getAllOwnRequests(@RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("Get all requests userId={}", userId);
-        return requestClient.getAllOwnRequest(userId);
+        return requestClient.getAllByOwner(userId);
     }
 
     @GetMapping("/all")
@@ -40,14 +40,14 @@ public class RequestControllerGateway {
                                                 @Positive @RequestParam(name = "size", required = false,
                                                         defaultValue = "10") Integer size) {
         log.info("Get request userId={}, from={}, size={}", userId, from, size);
-        return requestClient.getAllRequest(userId, from, size);
+        return requestClient.getAll(userId, from, size);
     }
 
     @GetMapping("/{requestId}")
     public ResponseEntity<Object> getRequest(@RequestHeader("X-Sharer-User-Id") Long userId,
                                              @PathVariable Long requestId) {
         log.info("Get request {}, userId={}", requestId, userId);
-        return requestClient.getRequest(userId, requestId);
+        return requestClient.getById(userId, requestId);
     }
 
 }

@@ -11,7 +11,7 @@ import java.util.List;
 public class ItemDtoGatewayWithBookings {
     private long id;
 
-    private String name;
+   /* private String name;
 
     private String description;
 
@@ -20,6 +20,8 @@ public class ItemDtoGatewayWithBookings {
     private User owner;
 
     private Long request;
+    
+    */
 
     private BookingDtoGatewayForItem nextBooking;
 
