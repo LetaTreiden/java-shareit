@@ -6,6 +6,6 @@ import ru.practicum.shareit.item.dto.ItemDtoGateway;
 import java.util.List;
 
 @Data
-public class RequestDtoGatewayWithItems extends RequestDtoGateway{
+public class RequestDtoGatewayWithItems extends RequestDtoGateway {
     List<ItemDtoGateway> items;
 }

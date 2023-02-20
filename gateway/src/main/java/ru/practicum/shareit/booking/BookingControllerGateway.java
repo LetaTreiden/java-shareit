@@ -27,30 +27,24 @@ public class BookingControllerGateway {
     @GetMapping
     public ResponseEntity<Object> findByBooker(@RequestHeader("X-Sharer-User-Id") long userId,
                                                @RequestParam(name = "state", defaultValue = "ALL")
-                                                      String stateParam,
+                                               String stateParam,
                                                @PositiveOrZero @RequestParam(name = "from", defaultValue = "0")
-                                                      Integer from,
+                                               Integer from,
                                                @Positive @RequestParam(name = "size", defaultValue = "10")
-                                                      Integer size) {
+                                               Integer size) {
         StateGateway stateGateway = StateGateway.from(stateParam);
         log.info("Get booking with state {}, userId={}, from={}, size={}", stateParam, userId, from, size);
         return bookingClient.getBookings(userId, stateGateway, from, size);
     }
 
-    @Data
-    @AllArgsConstructor
-    static class HttpError {
-        String error;
-    }
-
     @GetMapping("/owner")
     public ResponseEntity<Object> findByOwner(@RequestHeader("X-Sharer-User-Id") long userId,
                                               @RequestParam(name = "state", defaultValue = "ALL")
-                                                     String stateParam,
+                                              String stateParam,
                                               @PositiveOrZero @RequestParam(name = "from", defaultValue = "0")
-                                                     Integer from,
+                                              Integer from,
                                               @Positive @RequestParam(name = "size", defaultValue = "10")
-                                                     Integer size) {
+                                              Integer size) {
         StateGateway stateGateway = StateGateway.from(stateParam);
         log.info("Get booking for owner with state {}, userId={}, from={}, size={}", stateParam, userId, from, size);
         return bookingClient.getBookingsByOwner(userId, stateGateway, from, size);
@@ -63,7 +57,8 @@ public class BookingControllerGateway {
                 bookingDto.getStart().isBefore(LocalDateTime.now()) ||
                 (bookingDto.getEnd().isBefore(bookingDto.getStart()) &&
                         !bookingDto.getEnd().equals(bookingDto.getStart()))) {
-            throw new BadRequestExceptionGateway("Wrong date");}
+            throw new BadRequestExceptionGateway("Wrong date");
+        }
         log.info("Creating booking {}, userId={}", bookingDto, userId);
         return bookingClient.bookItem(userId, bookingDto);
     }
@@ -81,5 +76,11 @@ public class BookingControllerGateway {
                                           @PathVariable Long bookingId) {
         log.info("Get booking {}, userId={}", bookingId, userId);
         return bookingClient.getBooking(userId, bookingId);
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class HttpError {
+        String error;
     }
 }
