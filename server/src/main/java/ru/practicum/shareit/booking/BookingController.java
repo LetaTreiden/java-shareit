@@ -15,7 +15,6 @@ import java.util.List;
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Slf4j
-@Validated
 public class BookingController {
     private final BookingService bookingService;
 

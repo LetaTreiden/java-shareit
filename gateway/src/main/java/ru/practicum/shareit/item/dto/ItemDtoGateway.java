@@ -1,11 +1,9 @@
 package ru.practicum.shareit.item.dto;
 
 import lombok.Data;
-import ru.practicum.shareit.booking.dto.BookingDtoGateway;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 @Data
 public class ItemDtoGateway {
@@ -24,12 +22,6 @@ public class ItemDtoGateway {
     private User owner;
 
     private Long requestId;
-
-    private BookingDtoGateway nextBooking;
-
-    private BookingDtoGateway lastBooking;
-
-    private List<CommentDtoGateway> comments;
 
     @Data
     public static class User {
