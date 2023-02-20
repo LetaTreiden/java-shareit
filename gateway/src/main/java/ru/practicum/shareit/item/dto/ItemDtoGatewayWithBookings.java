@@ -20,7 +20,6 @@ public class ItemDtoGatewayWithBookings {
     private User owner;
 
     private Long request;
-    
     */
 
     private BookingDtoGatewayForItem nextBooking;

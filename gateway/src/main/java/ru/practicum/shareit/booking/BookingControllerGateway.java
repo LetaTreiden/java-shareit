@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.booking.dto.BookingDtoGateway;
 import ru.practicum.shareit.booking.dto.BookingDtoGatewayToCreate;
 import ru.practicum.shareit.booking.dto.StateGateway;
 import ru.practicum.shareit.exception.BadRequestExceptionGateway;

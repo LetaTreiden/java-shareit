@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
-import ru.practicum.shareit.booking.dto.BookingDtoGateway;
 import ru.practicum.shareit.booking.dto.BookingDtoGatewayToCreate;
 import ru.practicum.shareit.booking.dto.StateGateway;
 import ru.practicum.shareit.client.BaseClient;
