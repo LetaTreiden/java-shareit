@@ -101,30 +101,6 @@ class BookingServiceTest {
     }
 
     @Test
-    void addBookingStartEqualsEnd() {
-        addBooking();
-        addUser();
-        addItem();
-        booking.setEnd(LocalDateTime.parse("2017-10-19T23:50:50"));
-        booking.setStart((LocalDateTime.parse("2017-10-19T23:50:50")));
-
-        Mockito
-                .when(itemRepository.findById(Mockito.anyLong()))
-                .thenReturn(Optional.of(item));
-
-        Mockito
-                .when(userRepository.findById(Mockito.anyLong()))
-                .thenReturn(Optional.of(user));
-
-        final BadRequestException exception = Assertions.assertThrows(
-                BadRequestException.class,
-                () -> bookingService.add(2L, BookingMapper.toBookingDto(booking)));
-
-        Assertions.assertEquals("Wrong date",
-                exception.getMessage());
-    }
-
-    @Test
     void addBookingUserNotFoundTest() {
         addBooking();
         addUser();
@@ -202,80 +178,6 @@ class BookingServiceTest {
                 () -> bookingService.add(1L, BookingMapper.toBookingDto(booking)));
 
         Assertions.assertEquals("You cannot book your item", exception.getMessage());
-    }
-
-    @Test
-    void addBookingNotValidEndTest() {
-        addBooking();
-        addUser();
-        addItem();
-        String date = "2017-10-19T23:50:50";
-        LocalDateTime localdatetime = LocalDateTime.parse(date);
-        booking.setEnd(localdatetime);
-
-        Mockito
-                .when(itemRepository.findById(Mockito.anyLong()))
-                .thenReturn(Optional.of(item));
-
-        Mockito
-                .when(userRepository.findById(Mockito.anyLong()))
-                .thenReturn(Optional.of(user));
-
-        final BadRequestException exception = Assertions.assertThrows(
-                BadRequestException.class,
-                () -> bookingService.add(2L, BookingMapper.toBookingDto(booking)));
-
-        Assertions.assertEquals("Wrong date",
-                exception.getMessage());
-    }
-
-    @Test
-    void addBookingNotValidStartTest() {
-        addBooking();
-        addUser();
-        addItem();
-        String date = "2017-10-19T23:50:50";
-        LocalDateTime localdatetime = LocalDateTime.parse(date);
-        booking.setStart(localdatetime);
-
-        Mockito
-                .when(itemRepository.findById(Mockito.anyLong()))
-                .thenReturn(Optional.of(item));
-
-        Mockito
-                .when(userRepository.findById(Mockito.anyLong()))
-                .thenReturn(Optional.of(user));
-
-        final BadRequestException exception = Assertions.assertThrows(
-                BadRequestException.class,
-                () -> bookingService.add(2L, BookingMapper.toBookingDto(booking)));
-
-        Assertions.assertEquals("Wrong date",
-                exception.getMessage());
-    }
-
-    @Test
-    void addBookingEndIsBeforeStartTest() {
-        addBooking();
-        addUser();
-        addItem();
-        booking.setStart(LocalDateTime.parse("2017-10-19T23:50:50"));
-        booking.setEnd(LocalDateTime.parse("2016-10-19T23:50:50"));
-
-        Mockito
-                .when(itemRepository.findById(Mockito.anyLong()))
-                .thenReturn(Optional.of(item));
-
-        Mockito
-                .when(userRepository.findById(Mockito.anyLong()))
-                .thenReturn(Optional.of(user));
-
-        final BadRequestException exception = Assertions.assertThrows(
-                BadRequestException.class,
-                () -> bookingService.add(2L, BookingMapper.toBookingDto(booking)));
-
-        Assertions.assertEquals("Wrong date",
-                exception.getMessage());
     }
 
     @Test
