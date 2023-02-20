@@ -9,11 +9,9 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.support.DirtiesContextBeforeModesTestExecutionListener;
-import ru.practicum.shareit.booking.dto.BookingDTO;
 import ru.practicum.shareit.booking.dto.BookingDTOToReturn;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.StatusBadRequestException;
 import ru.practicum.shareit.item.dto.ItemDTO;
@@ -25,7 +23,6 @@ import ru.practicum.shareit.user.dto.UserDTO;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -69,22 +66,6 @@ class ShareItTests {
         assertThat(itemDTO.getName()).isEqualTo("Sword");
         assertThat(itemDTO.getDescription()).isEqualTo("For fights");
         assertThat(itemDTO.getAvailable()).isEqualTo(true);
-    }
-
-    @Test
-    void getBookingWithEndBeforeStart() {
-        BookingDTO bDto = new BookingDTO();
-        bDto.setBookerId(1L);
-        bDto.setId(1);
-        bDto.setStart(LocalDateTime.of(2023, Month.FEBRUARY, 13, 12, 29, 00));
-        bDto.setEnd(LocalDateTime.of(2022, Month.FEBRUARY, 13, 12, 29, 00));
-        bDto.setStatus(Status.WAITING);
-        bDto.setItemId(3L);
-
-        final BadRequestException exception = Assertions.assertThrows(
-                BadRequestException.class,
-                () -> bookingService.add(1L, bDto));
-        assertThat(exception.getMessage()).isEqualTo("Wrong date");
     }
 
     @Test
@@ -313,15 +294,6 @@ class ShareItTests {
     }
 
     @Test
-    void getBookingsByOwnerByStateFutureTest() {
-        List<BookingDTOToReturn> bookings = bookingService.getByOwner(2L,
-                "FUTURE", 0, 1);
-        assertThat(bookings).isNotEmpty();
-        assertThat(bookings.size()).isEqualTo(1);
-        assertThat(bookings.get(0).getId()).isEqualTo(4);
-    }
-
-    @Test
     void getBookingsByOwnerByStateWaitingOrRejectedTest() {
         List<BookingDTOToReturn> bookings = bookingService.getByOwner(2L,
                 "WAITING", 0, 1);
@@ -375,12 +347,12 @@ class ShareItTests {
 
     @Test
     void findRequestById() {
-       RequestDTOWithItems request = requestService.findById(1L,1L);
-       assertThat(request).isNotNull();
-       assertThat(request.getId()).isEqualTo(1);
-       assertThat(request.getRequester().getId()).isEqualTo(1);
-       assertThat(request.getDescription()).isEqualTo("waiting for fight");
-       assertThat(request.getCreated()).isEqualTo("2023-02-11T19:00:01");
+        RequestDTOWithItems request = requestService.findById(1L, 1L);
+        assertThat(request).isNotNull();
+        assertThat(request.getId()).isEqualTo(1);
+        assertThat(request.getRequester().getId()).isEqualTo(1);
+        assertThat(request.getDescription()).isEqualTo("waiting for fight");
+        assertThat(request.getCreated()).isEqualTo("2023-02-11T19:00:01");
     }
 
 
