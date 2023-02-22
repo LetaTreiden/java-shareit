@@ -7,7 +7,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDtoGateway;
-import ru.practicum.shareit.item.dto.ItemDtoGateway;
 import ru.practicum.shareit.item.dto.ItemDtoGatewayToCreate;
 
 import javax.validation.Valid;

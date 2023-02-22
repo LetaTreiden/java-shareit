@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.shareit.client.BaseClient;
 import ru.practicum.shareit.item.dto.CommentDtoGateway;
-import ru.practicum.shareit.item.dto.ItemDtoGateway;
 import ru.practicum.shareit.item.dto.ItemDtoGatewayToCreate;
 
 import java.util.Map;
