@@ -10,6 +10,7 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.shareit.client.BaseClient;
 import ru.practicum.shareit.item.dto.CommentDtoGateway;
 import ru.practicum.shareit.item.dto.ItemDtoGateway;
+import ru.practicum.shareit.item.dto.ItemDtoGatewayToCreate;
 
 import java.util.Map;
 
@@ -27,11 +28,11 @@ public class ItemClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> add(long userId, ItemDtoGateway itemDto) {
+    public ResponseEntity<Object> add(long userId, ItemDtoGatewayToCreate itemDto) {
         return post("", userId, itemDto);
     }
 
-    public ResponseEntity<Object> update(long userId, Long itemId, ItemDtoGateway itemDto) {
+    public ResponseEntity<Object> update(long userId, Long itemId, ItemDtoGatewayToCreate itemDto) {
         return patch("/" + itemId, userId, itemDto);
     }
 

@@ -17,4 +17,6 @@ public class ItemDtoGatewayToCreate {
 
     @NotNull
     private Boolean available;
+
+    private Long requestId;
 }
