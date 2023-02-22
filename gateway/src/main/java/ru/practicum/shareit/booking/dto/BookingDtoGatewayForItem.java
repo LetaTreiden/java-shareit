@@ -8,15 +8,13 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+@Getter
+@Setter
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@NoArgsConstructor
 public class BookingDtoGatewayForItem {
-    @Getter
-    @Setter
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @NoArgsConstructor
-    public class BookingDTOForItem {
-        private long id;
-        private Long bookerId;
-        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-        private LocalDateTime dateTime;
-    }
+    private long id;
+    private Long bookerId;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime dateTime;
 }
